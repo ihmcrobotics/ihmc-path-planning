@@ -1,4 +1,4 @@
-package us.ihmc.visibilityGraphs;
+package us.ihmc.pathPlanning.visibilityGraphs;
 
 import static org.junit.Assert.*;
 
