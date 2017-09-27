@@ -18,7 +18,7 @@ ihmc {
    group = "us.ihmc"
    version = "0.1.0"
    vcsUrl = "https://stash.ihmc.us/projects/ROB/repos/ihmc-path-planning"
-   openSource = false
+   openSource = true
    
    configureDependencyResolution()
    configurePublications()
