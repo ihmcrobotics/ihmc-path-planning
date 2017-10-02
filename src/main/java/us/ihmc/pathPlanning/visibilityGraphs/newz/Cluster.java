@@ -1,4 +1,4 @@
-package newz;
+package us.ihmc.pathPlanning.visibilityGraphs.newz;
 
 
 import java.util.ArrayList;

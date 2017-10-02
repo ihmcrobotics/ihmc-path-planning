@@ -1,17 +1,18 @@
-package newz;
+package us.ihmc.pathPlanning.visibilityGraphs;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Random;
 
 import javafx.application.Application;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.MeshView;
 import javafx.stage.Stage;
-import newz.Cluster.Type;
+import us.ihmc.pathPlanning.visibilityGraphs.newz.Cluster;
 import us.ihmc.euclid.geometry.ConvexPolygon2D;
+import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
+import us.ihmc.euclid.referenceFrame.FramePoint3D;
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.euclid.tuple3D.Point3D;
@@ -26,21 +27,15 @@ import us.ihmc.robotics.geometry.PlanarRegion;
 /**
  * User: Matt Date: 1/14/13
  */
-public class TestVisibilityGraphs_JavaFXExample extends Application
+public class Example_ClassifyRegions extends Application
 {
    ArrayList<Cluster> clusters = new ArrayList<>();
    ArrayList<PlanarRegion> regions = new ArrayList<>();
+   ArrayList<PlanarRegion> accesibleRegions = new ArrayList<>();
+   ArrayList<PlanarRegion> obstacleRegions = new ArrayList<>();
 
-   double extrusionDistance = 0.60;
-
-   public TestVisibilityGraphs_JavaFXExample()
+   public Example_ClassifyRegions()
    {
-   }
-
-   private Color getRegionColor(int regionId)
-   {
-      java.awt.Color awtColor = new java.awt.Color(regionId);
-      return Color.rgb(awtColor.getRed(), awtColor.getGreen(), awtColor.getBlue());
    }
 
    @Override
@@ -53,105 +48,32 @@ public class TestVisibilityGraphs_JavaFXExample extends Application
       TextureColorPalette colorPalette = new TextureColorAdaptivePalette();
       JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder = new JavaFXMultiColorMeshBuilder(colorPalette);
 
-      loadPointCloudFromFile("PlanarRegions_201708211155.txt");
+      loadPointCloudFromFile("PlanarRegions_201709111116.txt");
+      classifyRegions(regions);
 
-      for (PlanarRegion region : regions)
+      for (PlanarRegion region : accesibleRegions)
       {
          RigidBodyTransform transform = new RigidBodyTransform();
          region.getTransformToWorld(transform);
 
-         Color color = getRegionColor(region.getRegionId());
+         Color color = Color.GREEN;
          for (int i = 0; i < region.getNumberOfConvexPolygons(); i++)
          {
             javaFXMultiColorMeshBuilder.addPolygon(transform, region.getConvexPolygon(i), color);
          }
       }
 
-      ClusterMgr clusterMgr = new ClusterMgr();
-
-      //      Cluster cluster = new Cluster();
-      //      clusterMgr.addCluster(cluster);
-      //      cluster.setType(Type.LINE);
-      //      cluster.addRawPoint(new Point3D(5, -1, 0));
-      //      cluster.addRawPoint(new Point3D(5,1,0));
-      //
-      //      Cluster cluster1 = new Cluster();
-      //      clusterMgr.addCluster(cluster1);
-      //      cluster1.setType(Type.LINE);
-      //      cluster1.addRawPoint(new Point3D(5, -1, 0));
-      //      cluster1.addRawPoint(new Point3D(6, 1, 0));
-      //      
-      //      Cluster cluster2 = new Cluster();
-      //      clusterMgr.addCluster(cluster2);
-      //      cluster2.setType(Type.LINE);
-      //      cluster2.addRawPoint(new Point3D(9, -1, 0));
-      //      cluster2.addRawPoint(new Point3D(8, 1, 0));
-      //      
-      //      Cluster cluster3 = new Cluster();
-      //      clusterMgr.addCluster(cluster3);
-      //      cluster3.setType(Type.LINE);
-      //      cluster3.addRawPoint(new Point3D(9, 3, 0));
-      //      cluster3.addRawPoint(new Point3D(8, 3, 0));
-
-      Cluster cluster4 = new Cluster();
-      clusterMgr.addCluster(cluster4);
-      cluster4.setType(Type.POLYGON);
-      cluster4.setClusterClosure(true);
-
-      cluster4.addRawPoint(new Point3D(5, -1, 0));
-      cluster4.addRawPoint(new Point3D(5, 1, 0));
-      cluster4.addRawPoint(new Point3D(6, 1, 0));
-      cluster4.addRawPoint(new Point3D(6, -1, 0));
-
-      clusterMgr.performExtrusions(new Point2D(), extrusionDistance);
-
-      for (Point3D point : cluster4.getRawPointsInCluster())
+      for (PlanarRegion region : obstacleRegions)
       {
-         javaFXMultiColorMeshBuilder.addSphere(0.1f, point, Color.AQUAMARINE);
+         RigidBodyTransform transform = new RigidBodyTransform();
+         region.getTransformToWorld(transform);
+
+         Color color = Color.RED;
+         for (int i = 0; i < region.getNumberOfConvexPolygons(); i++)
+         {
+            javaFXMultiColorMeshBuilder.addPolygon(transform, region.getConvexPolygon(i), color);
+         }
       }
-
-      for (int i = 1; i < cluster4.getRawPointsInCluster().size(); i++)
-      {
-         javaFXMultiColorMeshBuilder.addLine(cluster4.getRawPointsInCluster().get(i - 1), cluster4.getRawPointsInCluster().get(i), 0.005, Color.BLACK);
-      }
-      //
-      //      for (int i = 1; i < cluster4.getListOfNonNavigableExtrusions().size(); i++)
-      //      {
-      //         drawLine(getZUpNode(),
-      //                  new Point3D(cluster4.getListOfNavigableExtrusions().get(i - 1).getX(), cluster4.getListOfNavigableExtrusions().get(i - 1).getY(), 0),
-      //                  new Point3D(cluster4.getListOfNavigableExtrusions().get(i).getX(), cluster4.getListOfNavigableExtrusions().get(i).getY(), 0), ColorRGBA.Red,
-      //                  6);
-      //      }
-      //
-      //      VisibilityGraph visibilityGraph = new VisibilityGraph(clusterMgr);
-      //      visibilityGraph.createStaticVisibilityMap(new Point2D(), new Point2D(10, 0));
-      //
-      //      for (DefaultWeightedEdge edge : visibilityGraph.getVisibilityMap().edgeSet())
-      //      {
-      //         Point2D edgeSource = visibilityGraph.getVisibilityMap().getEdgeSource(edge);
-      //         Point2D edgeTarget = visibilityGraph.getVisibilityMap().getEdgeTarget(edge);
-      //
-      //         drawLine(getZUpNode(), new Point3D(edgeSource.getX(), edgeSource.getY(), 0), new Point3D(edgeTarget.getX(), edgeTarget.getY(), 0), ColorRGBA.Cyan, 3);
-      //      }
-
-      //      ArrayList<DefaultWeightedEdge> edges = (ArrayList<DefaultWeightedEdge>) DijkstraShortestPath.findPathBetween(visibilityGraph.getVisibilityMap(),
-      //                                                                                                                   new Point2D(), new Point2D(10, 0));
-
-      //      ArrayList<Point2D> path = visibilityGraph.solve(new Point2D(), new Point2D(10, 0));
-      //      for (int i = 1; i < path.size(); i++)
-      //      {
-      //         drawLine(getZUpNode(), new Point3D(path.get(i - 1).getX(), path.get(i - 1).getY(), 0), new Point3D(path.get(i).getX(), path.get(i - 1).getY(), 0),
-      //                  ColorRGBA.Blue, 5);
-      //      }
-
-      //      for (DefaultWeightedEdge edge : edges)
-      //      {
-      //         Point2D from = visibilityGraph.getVisibilityMap().getEdgeSource(edge);
-      //         Point2D to = visibilityGraph.getVisibilityMap().getEdgeTarget(edge);
-      //         drawLine(getZUpNode(), new Point3D(from.getX(), from.getY(), 0), new Point3D(to.getX(), to.getY(), 0), ColorRGBA.Red, 6);
-      //      }
-      //
-      //      System.out.println(edges.size());
 
       MeshView meshView = new MeshView(javaFXMultiColorMeshBuilder.generateMesh());
       meshView.setMaterial(javaFXMultiColorMeshBuilder.generateMaterial());
@@ -159,6 +81,67 @@ public class TestVisibilityGraphs_JavaFXExample extends Application
 
       primaryStage.setScene(view3dFactory.getScene());
       primaryStage.show();
+   }
+
+   private void classifyRegions(ArrayList<PlanarRegion> regions)
+   {
+      for (PlanarRegion region : regions)
+      {
+         Vector3D normal = calculateNormal(region);
+
+         if (normal != null)
+         {
+            if (Math.abs(normal.getZ()) < 0.5)
+            {
+               obstacleRegions.add(region);
+               Cluster cluster = new Cluster();
+               clusters.add(cluster);
+               cluster.setObserver(new Point2D(clusters.get(0).getCentroid().getX(), clusters.get(0).getCentroid().getY()));
+
+               for (int i = 0; i < region.getConvexHull().getNumberOfVertices(); i++)
+               {
+                  Point2D point2D = (Point2D) region.getConvexHull().getVertex(i);
+                  Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
+                  FramePoint3D fpt = new FramePoint3D();
+                  fpt.set(point3D);
+                  RigidBodyTransform transToWorld = new RigidBodyTransform();
+                  region.getTransformToWorld(transToWorld);
+                  fpt.applyTransform(transToWorld);
+                  Point3D pointToProject = fpt.getPoint();
+
+                  cluster.addRawPoint(pointToProject);
+               }
+            }
+            else
+            {
+               accesibleRegions.add(region);
+            }
+         }
+      }
+   }
+
+   private Vector3D calculateNormal(PlanarRegion region)
+   {
+      if (!region.getConvexHull().isEmpty())
+      {
+         FramePoint3D fpt1 = new FramePoint3D();
+         fpt1.set(new Point3D(region.getConvexHull().getVertex(0).getX(), region.getConvexHull().getVertex(0).getY(), 0));
+         RigidBodyTransform trans = new RigidBodyTransform();
+         region.getTransformToWorld(trans);
+         fpt1.applyTransform(trans);
+
+         FramePoint3D fpt2 = new FramePoint3D();
+         fpt2.set(new Point3D(region.getConvexHull().getVertex(1).getX(), region.getConvexHull().getVertex(1).getY(), 0));
+         fpt2.applyTransform(trans);
+
+         FramePoint3D fpt3 = new FramePoint3D();
+         fpt3.set(new Point3D(region.getConvexHull().getVertex(2).getX(), region.getConvexHull().getVertex(2).getY(), 0));
+         fpt3.applyTransform(trans);
+
+         Vector3D normal = EuclidGeometryTools.normal3DFromThreePoint3Ds(fpt1.getPoint(), fpt2.getPoint(), fpt3.getPoint());
+         return normal;
+      }
+      return null;
    }
 
    public ArrayList<Point3D> loadPointCloudFromFile(String fileName)
@@ -249,7 +232,6 @@ public class TestVisibilityGraphs_JavaFXExample extends Application
             }
          }
 
-         Random random = new Random();
          for (Cluster cluster1 : clusters)
          {
             ArrayList<Point2D> vertices = new ArrayList<>();
@@ -262,7 +244,6 @@ public class TestVisibilityGraphs_JavaFXExample extends Application
             ConvexPolygon2D convexPolygon = new ConvexPolygon2D(vertices);
 
             PlanarRegion planarRegion = new PlanarRegion(cluster1.getTransform(), convexPolygon);
-            planarRegion.setRegionId(random.nextInt());
 
             regions.add(planarRegion);
          }
@@ -291,7 +272,6 @@ public class TestVisibilityGraphs_JavaFXExample extends Application
          {
 
             ex.printStackTrace();
-
          }
 
       }
@@ -303,5 +283,4 @@ public class TestVisibilityGraphs_JavaFXExample extends Application
    {
       launch();
    }
-
 }

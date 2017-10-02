@@ -1,14 +1,21 @@
-package newz;
+package us.ihmc.pathPlanning.visibilityGraphs;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.jgrapht.alg.DijkstraShortestPath;
+import org.jgrapht.graph.DefaultWeightedEdge;
+import org.jgrapht.graph.SimpleWeightedGraph;
+
 import javafx.application.Application;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.MeshView;
 import javafx.stage.Stage;
+import us.ihmc.pathPlanning.visibilityGraphs.newz.Cluster;
+import us.ihmc.pathPlanning.visibilityGraphs.newz.NavigableRegionLocalPlanner;
+import us.ihmc.pathPlanning.visibilityGraphs.newz.VisibilityGraph;
 import us.ihmc.euclid.geometry.ConvexPolygon2D;
 import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
 import us.ihmc.euclid.referenceFrame.FramePoint3D;
@@ -26,22 +33,20 @@ import us.ihmc.robotics.geometry.PlanarRegion;
 /**
  * User: Matt Date: 1/14/13
  */
-public class Example_CheckRegionsInside extends Application
+public class Example_TestVisibilityGraphSolver extends Application
 {
-   ArrayList<Cluster> clusters = new ArrayList<>();
    ArrayList<PlanarRegion> regions = new ArrayList<>();
-   // ArrayList<PlanarRegion> accesibleRegions = new ArrayList<>();
-   // ArrayList<PlanarRegion> obstacleRegions = new ArrayList<>();
-   ArrayList<PlanarRegion> regionsInsideHomeRegion = new ArrayList<>();
-   ArrayList<PlanarRegion> lineObstacleRegions = new ArrayList<>();
-   ArrayList<PlanarRegion> polygonObstacleRegions = new ArrayList<>();
+   ArrayList<PlanarRegion> accesibleRegions = new ArrayList<>();
+   ArrayList<PlanarRegion> obstacleRegions = new ArrayList<>();
+   ArrayList<SimpleWeightedGraph<Point2D, DefaultWeightedEdge>> visMaps = new ArrayList<>();
 
-   double extrusionDistance = 0.60;
-   Point2D startingPosition = new Point2D(1.5, 0);
-   
+   SimpleWeightedGraph<Point2D, DefaultWeightedEdge> interMapConnections = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
+   SimpleWeightedGraph<Point2D, DefaultWeightedEdge> globalVisMap = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
+
+   VisibilityGraph globalVisGraph;
    JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder;
 
-   public Example_CheckRegionsInside()
+   public Example_TestVisibilityGraphSolver()
    {
    }
    
@@ -56,31 +61,49 @@ public class Example_CheckRegionsInside extends Application
       javaFXMultiColorMeshBuilder = new JavaFXMultiColorMeshBuilder(colorPalette);
 
       loadPointCloudFromFile("PlanarRegions_201708211155.txt");
+      classifyRegions(regions);
       
-      PlanarRegion homeRegion = regions.get(0);
-      regionsInsideHomeRegion = determineWhichRegionsAreInside(homeRegion, regions);
-      
-      for(PlanarRegion region : regionsInsideHomeRegion)
+//    NavigableRegionLocalPlanner navigableRegionLocalPlanner = new NavigableRegionLocalPlanner(this, regions, regions.get(0), new Point3D(1.5, 0, 0),
+    //                                                                                                new Point3D(2, 0, 0));
+    //      navigableRegionLocalPlanner.processRegion();
+
+    Point2D startPos = new Point2D(1.5, 0.0);
+    Point2D goalPos = new Point2D(3.0, 0.0);
+    
+    javaFXMultiColorMeshBuilder.addSphere(0.1f, new Point3D(startPos.getX(), startPos.getY(), 0), Color.GREEN);
+    javaFXMultiColorMeshBuilder.addSphere(0.1f, new Point3D(goalPos.getX(), goalPos.getY(), 0), Color.RED);
+    
+    for (PlanarRegion region : accesibleRegions)
+    {
+       System.out.println("-----------Processing new region");
+       NavigableRegionLocalPlanner navigableRegionLocalPlanner = new NavigableRegionLocalPlanner(javaFXMultiColorMeshBuilder, regions, region,
+                                                                                                 new Point3D(startPos.getX(), startPos.getY(), 0),
+                                                                                                 new Point3D(goalPos.getX(), goalPos.getY(), 0));
+       navigableRegionLocalPlanner.processRegion();
+       visMaps.add(navigableRegionLocalPlanner.getLocalVisibilityGraph());
+
+       for (DefaultWeightedEdge edge : navigableRegionLocalPlanner.getLocalVisibilityGraph().edgeSet())
+       {
+          Point2D edgeSource = navigableRegionLocalPlanner.getLocalVisibilityGraph().getEdgeSource(edge);
+          Point2D edgeTarget = navigableRegionLocalPlanner.getLocalVisibilityGraph().getEdgeTarget(edge);
+          
+          javaFXMultiColorMeshBuilder.addLine(new Point3D(edgeSource.getX(), edgeSource.getY(), 0), new Point3D(edgeTarget.getX(), edgeTarget.getY(), 0), 0.005, Color.CYAN);
+       }
+    }
+
+    connectLocalMaps();
+    createGlobalMap();
+
+    ArrayList<DefaultWeightedEdge> solution = (ArrayList<DefaultWeightedEdge>) DijkstraShortestPath.findPathBetween(globalVisMap, startPos, goalPos);
+
+      for (DefaultWeightedEdge edge : solution)
       {
-         RigidBodyTransform transform = new RigidBodyTransform();
-         region.getTransformToWorld(transform);
-         
-         Color color = Color.ORANGE;
-         for(int i = 0; i < region.getNumberOfConvexPolygons(); i++)
-         {
-            javaFXMultiColorMeshBuilder.addPolygon(transform, region.getConvexPolygon(i), color);
-         }
+         Point2D from = globalVisMap.getEdgeSource(edge);
+         Point2D to = globalVisMap.getEdgeTarget(edge);
+         javaFXMultiColorMeshBuilder.addLine(new Point3D(from.getX(), from.getY(), 0), new Point3D(to.getX(), to.getY(), 0), 0.005, Color.RED);
       }
-      
-      RigidBodyTransform transform = new RigidBodyTransform();
-      homeRegion.getTransformToWorld(transform);
-      
-      Color color = Color.GREEN;
-      for(int i = 0; i < homeRegion.getNumberOfConvexPolygons(); i++)
-      {
-         javaFXMultiColorMeshBuilder.addPolygon(transform, homeRegion.getConvexPolygon(i), color);
-      }
-      
+
+
       MeshView meshView = new MeshView(javaFXMultiColorMeshBuilder.generateMesh());
       meshView.setMaterial(javaFXMultiColorMeshBuilder.generateMaterial());
       view3dFactory.addNodeToView(meshView);
@@ -89,79 +112,74 @@ public class Example_CheckRegionsInside extends Application
       primaryStage.show();
    }
 
-   private ArrayList<PlanarRegion> determineWhichRegionsAreInside(PlanarRegion containingRegion, ArrayList<PlanarRegion> otherRegionsEx)
-   {
-      ArrayList<PlanarRegion> regionsInsideHomeRegion = new ArrayList<>();
-      for (PlanarRegion otherRegion : otherRegionsEx)
-      {
-         if (isPartOfTheRegionInside(otherRegion, containingRegion))
-         {
-            regionsInsideHomeRegion.add(otherRegion);
-         }
-      }
 
-      return regionsInsideHomeRegion;
+   private void connectLocalMaps()
+   {
+      if (visMaps.size() > 1)
+      {
+         for (int i = 1; i < visMaps.size(); i++)
+         {
+            for (DefaultWeightedEdge sourceEdge : visMaps.get(i).edgeSet())
+            {
+               Point2D edgeSource = visMaps.get(i).getEdgeSource(sourceEdge);
+
+               for (DefaultWeightedEdge targetEdge : visMaps.get(i - 1).edgeSet())
+               {
+                  Point2D edgeTarget = visMaps.get(i - 1).getEdgeSource(targetEdge);
+
+                  if (edgeSource.distance(edgeTarget) < 0.1)
+                  {
+                     interMapConnections.addVertex(edgeSource);
+                     interMapConnections.addVertex(edgeTarget);
+                     interMapConnections.addEdge(edgeSource, edgeTarget);
+                     //                     drawLine(getZUpNode(), new Point3D(edgeSource.getX(), edgeSource.getY(), 0), new Point3D(edgeTarget.getX(), edgeTarget.getY(), 0), ColorRGBA.Red, 3);
+                  }
+               }
+            }
+         }
+
+         visMaps.add(interMapConnections);
+      }
    }
 
-   private boolean isPartOfTheRegionInside(PlanarRegion regionToCheck, PlanarRegion containingRegion)
+   private void createGlobalMap()
    {
-      Point2D[] homePointsArr = new Point2D[containingRegion.getConvexHull().getNumberOfVertices()];
-      for (int i = 0; i < containingRegion.getConvexHull().getNumberOfVertices(); i++)
+      //      globalVisGraph = new VisibilityGraph(clusterMgr);
+      for (SimpleWeightedGraph<Point2D, DefaultWeightedEdge> map : visMaps)
       {
-         Point2D point2D = (Point2D) containingRegion.getConvexHull().getVertex(i);
-         Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
-         FramePoint3D fpt = new FramePoint3D();
-         fpt.set(point3D);
-         RigidBodyTransform transToWorld = new RigidBodyTransform();
-         containingRegion.getTransformToWorld(transToWorld);
-         fpt.applyTransform(transToWorld);
-         Point3D transformedPt = fpt.getPoint();
-
-         homePointsArr[i] = new Point2D(transformedPt.getX(), transformedPt.getY());
-
-//         DebugSphere sph = new DebugSphere(this, 0.05f, 30, 30, ColorRGBA.Blue);
-//         getZUpNode().attachChild(sph);
-//         sph.setLocalTranslation((float) transformedPt.getX32(), (float) transformedPt.getY32(), transformedPt.getZ32());
+         for (DefaultWeightedEdge edge : map.edgeSet())
+         {
+            Point2D edgeSource = map.getEdgeSource(edge);
+            Point2D edgeTarget = map.getEdgeTarget(edge);
+            globalVisMap.addVertex(edgeSource);
+            globalVisMap.addVertex(edgeTarget);
+            globalVisMap.addEdge(edgeSource, edgeTarget);
+            // 
+            javaFXMultiColorMeshBuilder.addLine(new Point3D(edgeSource.getX(), edgeSource.getY(), 0), new Point3D(edgeTarget.getX(), edgeTarget.getY(), 0), 0.005, Color.CYAN);
+         }
 
       }
-      ConvexPolygon2D homeConvexPol = new ConvexPolygon2D(homePointsArr);
-      homeConvexPol.update();
+   }
 
-      Vector3D normal = calculateNormal(containingRegion);
-      for (int i = 0; i < regionToCheck.getConvexHull().getNumberOfVertices(); i++)
+
+   private void classifyRegions(ArrayList<PlanarRegion> regions)
+   {
+      for (PlanarRegion region : regions)
       {
-         Point2D point2D = (Point2D) regionToCheck.getConvexHull().getVertex(i);
-         Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
-         FramePoint3D fpt = new FramePoint3D();
-         fpt.set(point3D);
-         RigidBodyTransform transToWorld = new RigidBodyTransform();
-         regionToCheck.getTransformToWorld(transToWorld);
-         fpt.applyTransform(transToWorld);
+         Vector3D normal = calculateNormal(region);
 
-         Point3D pointToProject = fpt.getPoint();
-         Point3D projectedPointFromOtherRegion = new Point3D();
-         EuclidGeometryTools.orthogonalProjectionOnPlane3D(pointToProject, point3D, normal, projectedPointFromOtherRegion);
-
-//         DebugSphere sph = new DebugSphere(this, 0.05f, 30, 30, ColorRGBA.Orange);
-//         getZUpNode().attachChild(sph);
-//         sph.setLocalTranslation((float) projectedPointFromOtherRegion.getX32(), (float) projectedPointFromOtherRegion.getY32(), 0);
-
-         if (homeConvexPol.isPointInside(new Point2D(projectedPointFromOtherRegion.getX(), projectedPointFromOtherRegion.getY())))
+         if (normal != null)
          {
-//            DebugSphere sph1 = new DebugSphere(this, 0.05f, 30, 30, ColorRGBA.Red);
-//            getZUpNode().attachChild(sph1);
-//            sph1.setLocalTranslation((float) projectedPointFromOtherRegion.getX32(), (float) projectedPointFromOtherRegion.getY32(), 0);
-            return true;
-            // regionsInside.add(otherRegion);
-            // break;
+            if (Math.abs(normal.getZ()) < 0.5)
+            {
+               obstacleRegions.add(region);
+            }
+            else
+            {
+               accesibleRegions.add(region);
+            }
          }
       }
-
-      // Visuals
-//      DebugSphere sph = new DebugSphere(this, 0.25f, 30, 30, ColorRGBA.Red);
-//      getZUpNode().attachChild(sph);
-//      sph.setLocalTranslation((float) startingPosition.getX32(), (float) startingPosition.getY32(), 0);
-      return false;
    }
 
    private Vector3D calculateNormal(PlanarRegion region)
@@ -197,7 +215,7 @@ public class Example_CheckRegionsInside extends Application
       try
       {
 
-         // br = new BufferedReader(new FileReader(FILENAME));
+         //br = new BufferedReader(new FileReader(FILENAME));
          fr = new FileReader(fileName);
          br = new BufferedReader(fr);
 
@@ -216,7 +234,7 @@ public class Example_CheckRegionsInside extends Application
 
          while ((sCurrentLine = br.readLine()) != null)
          {
-            // System.out.println(sCurrentLine);
+            //            System.out.println(sCurrentLine);
 
             if (sCurrentLine.contains("PR_"))
             {
@@ -229,12 +247,12 @@ public class Example_CheckRegionsInside extends Application
                cluster = new Cluster();
                clusters.add(cluster);
                nPacketsRead++;
-               // System.out.println("New cluster created");
+               //               System.out.println("New cluster created");
             }
 
             else if (sCurrentLine.contains("RBT,"))
             {
-               // System.out.println("Transformation read");
+               //               System.out.println("Transformation read");
                sCurrentLine = sCurrentLine.substring(sCurrentLine.indexOf(",") + 1, sCurrentLine.length());
 
                sCurrentLine = sCurrentLine.replace("(", "");
@@ -258,7 +276,7 @@ public class Example_CheckRegionsInside extends Application
             }
             else
             {
-               // System.out.println("adding point");
+               //               System.out.println("adding point");
 
                String[] points = sCurrentLine.split(",");
 

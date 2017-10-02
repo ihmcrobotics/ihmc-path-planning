@@ -1,4 +1,4 @@
-package newz;
+package us.ihmc.pathPlanning.visibilityGraphs.newz;
 
 import java.util.ArrayList;
 
@@ -6,7 +6,7 @@ import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
-import tools.VisibilityTools;
+import us.ihmc.pathPlanning.visibilityGraphs.tools.VisibilityTools;
 import us.ihmc.euclid.tuple2D.Point2D;
 
 public class VisibilityGraph

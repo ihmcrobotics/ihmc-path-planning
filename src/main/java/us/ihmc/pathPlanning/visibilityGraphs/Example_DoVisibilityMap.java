@@ -1,14 +1,19 @@
+package us.ihmc.pathPlanning.visibilityGraphs;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.jgrapht.graph.DefaultWeightedEdge;
+import org.jgrapht.graph.SimpleWeightedGraph;
+
 import javafx.application.Application;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.MeshView;
 import javafx.stage.Stage;
-import newz.Cluster;
+import us.ihmc.pathPlanning.visibilityGraphs.newz.Cluster;
+import us.ihmc.pathPlanning.visibilityGraphs.newz.NavigableRegionLocalPlanner;
 import us.ihmc.euclid.geometry.ConvexPolygon2D;
 import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
 import us.ihmc.euclid.referenceFrame.FramePoint3D;
@@ -26,14 +31,19 @@ import us.ihmc.robotics.geometry.PlanarRegion;
 /**
  * User: Matt Date: 1/14/13
  */
-public class Example_ClassifyRegions extends Application
+public class Example_DoVisibilityMap extends Application
 {
-   ArrayList<Cluster> clusters = new ArrayList<>();
    ArrayList<PlanarRegion> regions = new ArrayList<>();
    ArrayList<PlanarRegion> accesibleRegions = new ArrayList<>();
    ArrayList<PlanarRegion> obstacleRegions = new ArrayList<>();
+   ArrayList<SimpleWeightedGraph<Point2D, DefaultWeightedEdge>> visMaps = new ArrayList<>();
 
-   public Example_ClassifyRegions()
+   SimpleWeightedGraph<Point2D, DefaultWeightedEdge> interMapConnections = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
+   SimpleWeightedGraph<Point2D, DefaultWeightedEdge> globalVisMap = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
+
+   JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder;
+   
+   public Example_DoVisibilityMap()
    {
    }
 
@@ -45,34 +55,29 @@ public class Example_ClassifyRegions extends Application
       view3dFactory.addWorldCoordinateSystem(0.3);
 
       TextureColorPalette colorPalette = new TextureColorAdaptivePalette();
-      JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder = new JavaFXMultiColorMeshBuilder(colorPalette);
+      javaFXMultiColorMeshBuilder = new JavaFXMultiColorMeshBuilder(colorPalette);
 
-      loadPointCloudFromFile("PlanarRegions_201709111116.txt");
+      loadPointCloudFromFile("PlanarRegions_201708211155.txt");
       classifyRegions(regions);
-
       for (PlanarRegion region : accesibleRegions)
       {
-         RigidBodyTransform transform = new RigidBodyTransform();
-         region.getTransformToWorld(transform);
-
-         Color color = Color.GREEN;
-         for (int i = 0; i < region.getNumberOfConvexPolygons(); i++)
-         {
-            javaFXMultiColorMeshBuilder.addPolygon(transform, region.getConvexPolygon(i), color);
-         }
+         System.out.println("-----------Processing new region");
+         NavigableRegionLocalPlanner navigableRegionLocalPlanner = new NavigableRegionLocalPlanner(javaFXMultiColorMeshBuilder, regions, region, new Point3D(1.5, 0, 0),
+                                                                                                   new Point3D(2, 0, 0));
+         navigableRegionLocalPlanner.processRegion();
+         visMaps.add(navigableRegionLocalPlanner.getLocalVisibilityGraph());
       }
-
-      for (PlanarRegion region : obstacleRegions)
-      {
-         RigidBodyTransform transform = new RigidBodyTransform();
-         region.getTransformToWorld(transform);
-
-         Color color = Color.RED;
-         for (int i = 0; i < region.getNumberOfConvexPolygons(); i++)
-         {
-            javaFXMultiColorMeshBuilder.addPolygon(transform, region.getConvexPolygon(i), color);
-         }
-      }
+      //      for(PlanarRegion region : regions)
+      //      {
+      //         RigidBodyTransform transform = new RigidBodyTransform();
+      //         region.getTransformToWorld(transform);
+      //         
+      //         Color color = getRegionColor(region.getRegionId());
+      //         for(int i = 0; i < region.getNumberOfConvexPolygons(); i++)
+      //         {
+      //            javaFXMultiColorMeshBuilder.addPolygon(transform, region.getConvexPolygon(i), color);
+      //         }
+      //      }
 
       MeshView meshView = new MeshView(javaFXMultiColorMeshBuilder.generateMesh());
       meshView.setMaterial(javaFXMultiColorMeshBuilder.generateMaterial());
@@ -80,6 +85,106 @@ public class Example_ClassifyRegions extends Application
 
       primaryStage.setScene(view3dFactory.getScene());
       primaryStage.show();
+   }
+
+   public void simpleInitApp()
+   {
+
+      connectLocalMaps();
+      createGlobalMap();
+      //
+      //      ArrayList<DefaultWeightedEdge> edges = new ArrayList<>();
+      //      Iterator it = globalVisMap.edgeSet().iterator();
+      //      while (it.hasNext())
+      //      {
+      //         DefaultWeightedEdge edge = (DefaultWeightedEdge) it.next();
+      //         edges.add(edge);
+      //      }
+      //
+      //      Point2D edgeSource = globalVisMap.getEdgeSource(edges.get(0));
+      //      Point2D edgeTarget = globalVisMap.getEdgeTarget(edges.get(150));
+      //
+      //      ArrayList<DefaultWeightedEdge> solution = (ArrayList<DefaultWeightedEdge>) DijkstraShortestPath.findPathBetween(globalVisMap, edgeSource,
+      //                                                                                                                      edgeTarget);
+      //      
+      //      ArrayList<Point2D> path = VisibilityGraph.convertEdgesToPath(globalVisMap, edges, edgeSource, edgeTarget);
+      //      
+      //      for(int i = 1; i < path.size(); i++)
+      //      {
+      //         drawLine(getZUpNode(), new Point3D(path.get(i-1).getX(), path.get(i-1).getY(), 0), new Point3D(path.get(i).getX(), path.get(i).getY(), 0), ColorRGBA.Red, 6);
+      //      }
+      //
+      //      ArrayList<DefaultWeightedEdge> edges = new ArrayList<>();
+      //      Iterator it = visMaps.get(1).edgeSet().iterator();
+      //      while (it.hasNext())
+      //      {
+      //         DefaultWeightedEdge edge = (DefaultWeightedEdge) it.next();
+      //         edges.add(edge);
+      //      }
+      //
+      //      Point2D edgeSource = visMaps.get(1).getEdgeSource(edges.get(0));
+      //      Point2D edgeTarget = visMaps.get(1).getEdgeTarget(edges.get(10));
+      //
+      //      ArrayList<DefaultWeightedEdge> solution = (ArrayList<DefaultWeightedEdge>) DijkstraShortestPath.findPathBetween(visMaps.get(1), edgeSource, edgeTarget);
+      //
+      //      ArrayList<Point2D> path = VisibilityGraph.convertEdgesToPath(visMaps.get(1), edges, edgeSource, edgeTarget);
+      //
+      //      for (int i = 1; i < path.size(); i++)
+      //      {
+      //         drawLine(getZUpNode(), new Point3D(path.get(i - 1).getX(), path.get(i - 1).getY(), 0), new Point3D(path.get(i).getX(), path.get(i).getY(), 0),
+      //                  ColorRGBA.Red, 6);
+      //      }
+
+   }
+
+   private void connectLocalMaps()
+   {
+      if (visMaps.size() > 1)
+      {
+         for (int i = 1; i < visMaps.size(); i++)
+         {
+            for (DefaultWeightedEdge sourceEdge : visMaps.get(i).edgeSet())
+            {
+               Point2D edgeSource = visMaps.get(i).getEdgeSource(sourceEdge);
+
+               for (DefaultWeightedEdge targetEdge : visMaps.get(i - 1).edgeSet())
+               {
+                  Point2D edgeTarget = visMaps.get(i - 1).getEdgeSource(targetEdge);
+
+                  if (edgeSource.distance(edgeTarget) < 0.1)
+                  {
+                     interMapConnections.addVertex(edgeSource);
+                     interMapConnections.addVertex(edgeTarget);
+                     interMapConnections.addEdge(edgeSource, edgeTarget);
+                     //                     drawLine(getZUpNode(), new Point3D(edgeSource.getX(), edgeSource.getY(), 0), new Point3D(edgeTarget.getX(), edgeTarget.getY(), 0), ColorRGBA.Red, 3);
+                  }
+               }
+            }
+         }
+
+         visMaps.add(interMapConnections);
+      }
+   }
+
+   private void createGlobalMap()
+   {
+      for (SimpleWeightedGraph<Point2D, DefaultWeightedEdge> map : visMaps)
+      {
+         for (DefaultWeightedEdge edge : map.edgeSet())
+         {
+            Point2D edgeSource = map.getEdgeSource(edge);
+            Point2D edgeTarget = map.getEdgeTarget(edge);
+            globalVisMap.addVertex(edgeSource);
+            globalVisMap.addVertex(edgeTarget);
+            globalVisMap.addEdge(edgeSource, edgeTarget);
+            // 
+            
+            javaFXMultiColorMeshBuilder.addLine(new Point3D(edgeSource.getX(), edgeSource.getY(), 0),
+                                                new Point3D(edgeTarget.getX(), edgeTarget.getY(), 0),
+                                                0.005, Color.CYAN);
+         }
+
+      }
    }
 
    private void classifyRegions(ArrayList<PlanarRegion> regions)
@@ -93,23 +198,6 @@ public class Example_ClassifyRegions extends Application
             if (Math.abs(normal.getZ()) < 0.5)
             {
                obstacleRegions.add(region);
-               Cluster cluster = new Cluster();
-               clusters.add(cluster);
-               cluster.setObserver(new Point2D(clusters.get(0).getCentroid().getX(), clusters.get(0).getCentroid().getY()));
-
-               for (int i = 0; i < region.getConvexHull().getNumberOfVertices(); i++)
-               {
-                  Point2D point2D = (Point2D) region.getConvexHull().getVertex(i);
-                  Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
-                  FramePoint3D fpt = new FramePoint3D();
-                  fpt.set(point3D);
-                  RigidBodyTransform transToWorld = new RigidBodyTransform();
-                  region.getTransformToWorld(transToWorld);
-                  fpt.applyTransform(transToWorld);
-                  Point3D pointToProject = fpt.getPoint();
-
-                  cluster.addRawPoint(pointToProject);
-               }
             }
             else
             {
@@ -271,6 +359,7 @@ public class Example_ClassifyRegions extends Application
          {
 
             ex.printStackTrace();
+
          }
 
       }
@@ -280,6 +369,6 @@ public class Example_ClassifyRegions extends Application
 
    public static void main(String[] args)
    {
-      launch();
+       launch();
    }
 }

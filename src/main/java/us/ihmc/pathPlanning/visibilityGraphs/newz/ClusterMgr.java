@@ -1,11 +1,11 @@
-package newz;
+package us.ihmc.pathPlanning.visibilityGraphs.newz;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javafx.scene.paint.Color;
-import newz.Cluster.ExtrusionSide;
-import newz.Cluster.Type;
+import us.ihmc.pathPlanning.visibilityGraphs.newz.Cluster.ExtrusionSide;
+import us.ihmc.pathPlanning.visibilityGraphs.newz.Cluster.Type;
 import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
 import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.euclid.tuple2D.Vector2D;

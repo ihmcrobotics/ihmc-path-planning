@@ -1,11 +1,9 @@
-
-
+package us.ihmc.pathPlanning.visibilityGraphs;
 
 import java.util.ArrayList;
 
 import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.euclid.tuple3D.Point3D;
-import us.ihmc.euclid.tuple3D.Point3D32;
 
 public class PointCloudTools
 {

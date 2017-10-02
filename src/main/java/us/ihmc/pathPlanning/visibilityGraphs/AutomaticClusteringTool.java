@@ -1,9 +1,8 @@
-
-
+package us.ihmc.pathPlanning.visibilityGraphs;
 
 import java.util.ArrayList;
 
-import newz.Cluster;
+import us.ihmc.pathPlanning.visibilityGraphs.newz.Cluster;
 import us.ihmc.euclid.tuple3D.Point3D;
 
 public class AutomaticClusteringTool

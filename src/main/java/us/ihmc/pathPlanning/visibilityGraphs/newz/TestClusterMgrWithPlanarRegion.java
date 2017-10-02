@@ -1,4 +1,4 @@
-package newz;
+package us.ihmc.pathPlanning.visibilityGraphs.newz;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -9,8 +9,8 @@ import javafx.application.Application;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.MeshView;
 import javafx.stage.Stage;
-import newz.Cluster.Type;
-import tools.LinearRegression;
+import us.ihmc.pathPlanning.visibilityGraphs.newz.Cluster.Type;
+import us.ihmc.pathPlanning.visibilityGraphs.tools.LinearRegression;
 import us.ihmc.euclid.geometry.ConvexPolygon2D;
 import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
 import us.ihmc.euclid.referenceFrame.FramePoint3D;

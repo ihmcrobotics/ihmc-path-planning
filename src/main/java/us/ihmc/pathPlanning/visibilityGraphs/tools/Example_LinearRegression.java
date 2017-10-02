@@ -1,4 +1,4 @@
-package tools;
+package us.ihmc.pathPlanning.visibilityGraphs.tools;
 
 import java.util.ArrayList;
 
