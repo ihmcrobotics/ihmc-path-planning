@@ -1,4 +1,4 @@
-package us.ihmc.pathPlanning;
+package us.ihmc.pathPlanning.bodyPathPlanner;
 
 import us.ihmc.euclid.referenceFrame.FramePoint3D;
 import us.ihmc.robotics.geometry.PlanarRegionsList;
