@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 import javafx.application.Application;
@@ -11,6 +12,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.MeshView;
 import javafx.stage.Stage;
 import us.ihmc.euclid.geometry.ConvexPolygon2D;
+import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.euclid.tuple3D.Point3D;
@@ -24,6 +26,8 @@ import us.ihmc.pathPlanning.clusterManagement.Cluster;
 import us.ihmc.pathPlanning.clusterManagement.Cluster.ExtrusionSide;
 import us.ihmc.pathPlanning.clusterManagement.Cluster.Type;
 import us.ihmc.pathPlanning.clusterManagement.ClusterMgr;
+import us.ihmc.pathPlanning.tools.PointCloudTools;
+import us.ihmc.pathPlanning.tools.PointCloudTools.WindingOrder;
 import us.ihmc.pathPlanning.tools.VisibilityTools;
 import us.ihmc.robotics.geometry.PlanarRegion;
 
@@ -36,8 +40,13 @@ public class Example_ClusterMerging extends Application
    ArrayList<PlanarRegion> regions = new ArrayList<>();
 
    double extrusionDistance = 0.20;
-   
+
    ClusterMgr clusterMgr;
+
+   ArrayList<Integer> indicesToRemOther = new ArrayList<>();
+   ArrayList<Integer> indicesToAddFromHome = new ArrayList<>();
+
+   JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder;
 
    public Example_ClusterMerging()
    {
@@ -57,30 +66,50 @@ public class Example_ClusterMerging extends Application
       view3dFactory.addWorldCoordinateSystem(0.3);
 
       TextureColorPalette colorPalette = new TextureColorAdaptivePalette();
-      JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder = new JavaFXMultiColorMeshBuilder(colorPalette);
+      javaFXMultiColorMeshBuilder = new JavaFXMultiColorMeshBuilder(colorPalette);
 
       clusterMgr = new ClusterMgr();
       clusterMgr.setVis(javaFXMultiColorMeshBuilder);
-      
+
       createClosedSquare_OutsideExtrusion();
       createLine_Extrusion();
 
       clusterMgr.performExtrusions(new Point2D(), extrusionDistance);
-      
-      for(int i = 1; i < clusters.get(0).getListOfNavigableExtrusions().size(); i++)
+
+      //START
+
+      Cluster homeCluster = clusters.get(0);
+      Cluster clusterToCheck = clusters.get(1);
+
+      ArrayList<Point2D> navigablePoints = generateListOfPointsInsideHomeCluster(homeCluster.getListOfNavigableExtrusions(),
+                                                                                 clusterToCheck.getListOfNavigableExtrusions());
+      ArrayList<Point2D> nonNavigablePoints = generateListOfPointsInsideHomeCluster(homeCluster.getListOfNonNavigableExtrusions(),
+                                                                                    clusterToCheck.getListOfNonNavigableExtrusions());
+
+      //      for (int i = 1; i < navigablePoints.size(); i++)
+      //      {
+      //         Point3D pt1 = new Point3D(navigablePoints.get(i - 1).getX(), navigablePoints.get(i - 1).getY(), 0);
+      //         Point3D pt2 = new Point3D(navigablePoints.get(i).getX(), navigablePoints.get(i).getY(), 0);
+      //
+      //         javaFXMultiColorMeshBuilder.addLine(pt1, pt2, 0.006, Color.ORANGE);
+      //      }
+
+      for (int i = 1; i < nonNavigablePoints.size(); i++)
       {
-         Point2D from = clusters.get(0).getListOfNavigableExtrusions().get(i - 1);
-         Point2D to = clusters.get(0).getListOfNavigableExtrusions().get(i);
-         
-         if(VisibilityTools.isPointVisible(from, to, clusters.get(1).getListOfNavigableExtrusions()))
-         {
-            javaFXMultiColorMeshBuilder.addLine(new Point3D(from.getX(), from.getY(), 0), new Point3D(to.getX(), to.getY(), 0), 0.035,
-                                                Color.RED);
-         }
+         Point3D pt1 = new Point3D(nonNavigablePoints.get(i - 1).getX(), nonNavigablePoints.get(i - 1).getY(), 0);
+         Point3D pt2 = new Point3D(nonNavigablePoints.get(i).getX(), nonNavigablePoints.get(i).getY(), 0);
+
+         javaFXMultiColorMeshBuilder.addLine(pt1, pt2, 0.006, Color.ORANGE);
       }
-      
-      
-      for(Cluster cluster : clusters)
+
+      for (int i = 0; i < nonNavigablePoints.size(); i++)
+      {
+         Point3D pt1 = new Point3D(nonNavigablePoints.get(i).getX(), nonNavigablePoints.get(i).getY(), 0);
+
+         javaFXMultiColorMeshBuilder.addSphere(0.03f, new Point3D(pt1.getX(), pt1.getY(), 0), Color.RED);
+      }
+
+      for (Cluster cluster : clusters)
       {
          for (Point3D point : cluster.getRawPointsInCluster())
          {
@@ -92,10 +121,10 @@ public class Example_ClusterMerging extends Application
             javaFXMultiColorMeshBuilder.addLine(cluster.getRawPointsInCluster().get(i - 1), cluster.getRawPointsInCluster().get(i), 0.005, Color.AQUAMARINE);
          }
          //      
-//         for (Point3D point : cluster.getListOfSafeNormals())
-//         {
-//            javaFXMultiColorMeshBuilder.addSphere(0.03f, point, Color.WHITE);
-//         }
+         //         for (Point3D point : cluster.getListOfSafeNormals())
+         //         {
+         //            javaFXMultiColorMeshBuilder.addSphere(0.03f, point, Color.WHITE);
+         //         }
          //
          //      for (Point2D point : cluster4.getListOfNonNavigableExtrusions())
          //      {
@@ -104,13 +133,13 @@ public class Example_ClusterMerging extends Application
          //      
          for (int i = 1; i < cluster.getListOfNonNavigableExtrusions().size(); i++)
          {
-            Point3D pt1 = new Point3D(cluster.getListOfNonNavigableExtrusions().get(i - 1).getX(),
-                                      cluster.getListOfNonNavigableExtrusions().get(i - 1).getY(), 0);
+            Point3D pt1 = new Point3D(cluster.getListOfNonNavigableExtrusions().get(i - 1).getX(), cluster.getListOfNonNavigableExtrusions().get(i - 1).getY(),
+                                      0);
             Point3D pt2 = new Point3D(cluster.getListOfNonNavigableExtrusions().get(i).getX(), cluster.getListOfNonNavigableExtrusions().get(i).getY(), 0);
 
             javaFXMultiColorMeshBuilder.addLine(pt1, pt2, 0.005, Color.YELLOW);
          }
-         
+
       }
 
       MeshView meshView = new MeshView(javaFXMultiColorMeshBuilder.generateMesh());
@@ -120,65 +149,120 @@ public class Example_ClusterMerging extends Application
       primaryStage.setScene(view3dFactory.getScene());
       primaryStage.show();
    }
-   
-   private void createClosedSquare_InsideExtrusion()
+
+   public ArrayList<Point2D> generateListOfPointsInsideHomeCluster(ArrayList<Point2D> homePoints, ArrayList<Point2D> pointsToCheck)
    {
-      Cluster cluster4 = new Cluster();
-      clusterMgr.addCluster(cluster4);
-      cluster4.setType(Type.POLYGON);
-      
-      cluster4.addRawPoint(new Point3D(-0.975,  0.475 + 5,  0.000));
-      cluster4.addRawPoint(new Point3D(0.975,  0.475 + 5,  0.000));
-      cluster4.addRawPoint(new Point3D(0.975, -0.475 + 5,  0.000));
-      cluster4.addRawPoint(new Point3D(-0.975, -0.475 + 5,  0.000));
-      
-      cluster4.setClusterClosure(true);
-      cluster4.setExtrusionSide(ExtrusionSide.INSIDE);
-      clusters.add(cluster4);
+      int startj = -1;
+      int endj = -1;
+      int starti = -1;
+      int endi = -1;
+
+      ArrayList<Point2D> pointsInsideNewCluster = new ArrayList<>();
+
+      for (int i = 1; i < homePoints.size(); i++)
+      {
+         Point2D from1 = homePoints.get(i - 1);
+         Point2D to1 = homePoints.get(i);
+
+         for (int j = 1; j < pointsToCheck.size(); j++)
+         {
+            Point2D from2 = pointsToCheck.get(j - 1);
+            Point2D to2 = pointsToCheck.get(j);
+
+            Point2D intersection = EuclidGeometryTools.intersectionBetweenTwoLineSegment2Ds(from1, to1, from2, to2);
+
+            if (intersection != null)
+            {
+               pointsInsideNewCluster.add(intersection);
+               //               javaFXMultiColorMeshBuilder.addSphere(0.03f, new Point3D(intersection.getX(), intersection.getY(), 0), Color.RED);
+               if (startj == -1)
+               {
+                  startj = j;
+                  starti = i;
+                  continue;
+               }
+               if (startj != -1 && endj == -1)
+               {
+                  endi = i;
+                  endj = j;
+                  continue;
+               }
+            }
+         }
+      }
+
+      System.out.println("Final: " + startj + "   " + endj);
+
+      ConvexPolygon2D homePol = new ConvexPolygon2D(homePoints);
+      homePol.update();
+
+      for (Point2D point : pointsToCheck)
+      {
+         if (homePol.isPointInside(point))
+         {
+            pointsInsideNewCluster.add(point);
+         }
+      }
+
+      ConvexPolygon2D regionPol = new ConvexPolygon2D(pointsToCheck);
+      regionPol.update();
+
+      for (Point2D point : homePoints)
+      {
+         if (regionPol.isPointInside(point))
+         {
+            pointsInsideNewCluster.add(point);
+         }
+      }
+
+      ArrayList<Point3D> points3d = new ArrayList<>();
+
+      for (Point2D point : pointsInsideNewCluster)
+      {
+         points3d.add(new Point3D(point.getX(), point.getY(), 0));
+      }
+
+      Point3D centroid = PointCloudTools.getCentroid(points3d);
+
+      ArrayList<Point3D> orderedPoints = PointCloudTools.orderPoints(points3d, WindingOrder.CW, centroid);
+
+      pointsInsideNewCluster.clear();
+      for (Point3D point : orderedPoints)
+      {
+         pointsInsideNewCluster.add(new Point2D(point.getX(), point.getY()));
+      }
+
+      return pointsInsideNewCluster;
    }
-   
+
    private void createClosedSquare_OutsideExtrusion()
    {
       Cluster cluster4 = new Cluster();
       clusterMgr.addCluster(cluster4);
       cluster4.setType(Type.POLYGON);
-      
-      cluster4.addRawPoint(new Point3D(-0.975,  0.475 + 2,  0.000));
-      cluster4.addRawPoint(new Point3D(0.975,  0.475 + 2,  0.000));
-      cluster4.addRawPoint(new Point3D(0.975, -0.475 + 2,  0.000));
-      cluster4.addRawPoint(new Point3D(-0.975, -0.475 + 2,  0.000));
-      
+
+      cluster4.addRawPoint(new Point3D(-0.975, 0.475 + 2, 0.000));
+      cluster4.addRawPoint(new Point3D(0.975, 0.475 + 2, 0.000));
+      cluster4.addRawPoint(new Point3D(0.975, -0.475 + 2, 0.000));
+      cluster4.addRawPoint(new Point3D(-0.975, -0.475 + 2, 0.000));
+
       cluster4.setClusterClosure(true);
       cluster4.setExtrusionSide(ExtrusionSide.OUTSIDE);
       clusters.add(cluster4);
    }
-   
-   private void createOpenSquare_Extrusion()
-   {
-      Cluster cluster4 = new Cluster();
-      clusterMgr.addCluster(cluster4);
-      cluster4.setType(Type.POLYGON);
-      
-      cluster4.addRawPoint(new Point3D(-0.975 + 3,  0.475 + 2,  0.000));
-      cluster4.addRawPoint(new Point3D(0.975 + 3,  0.475 + 2,  0.000));
-      cluster4.addRawPoint(new Point3D(0.975 + 3, -0.475 + 2,  0.000));
-      cluster4.addRawPoint(new Point3D(-0.975 + 3, -0.475 + 2,  0.000));
-      
-      clusters.add(cluster4);
-   }
-   
+
    private void createLine_Extrusion()
    {
       Cluster cluster4 = new Cluster();
       clusterMgr.addCluster(cluster4);
       cluster4.setType(Type.LINE);
-      
-      cluster4.addRawPoint(new Point3D(-0.975 + 1,  0.475 + 1.5,  0.000));
-      cluster4.addRawPoint(new Point3D(0.975 + 1,  0.475 + 1.5,  0.000));
-      
+
+      cluster4.addRawPoint(new Point3D(-0.975 + 2, 0.475 + 1.5, 0.000));
+      cluster4.addRawPoint(new Point3D(0.975 + 2, 0.475 + 1.5, 0.000));
+
       clusters.add(cluster4);
    }
-   
+
    public static void main(String[] args)
    {
       launch();
