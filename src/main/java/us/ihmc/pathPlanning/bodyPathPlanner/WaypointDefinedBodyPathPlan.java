@@ -1,18 +1,15 @@
 package us.ihmc.pathPlanning.bodyPathPlanner;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import us.ihmc.euclid.referenceFrame.FramePoint3D;
-import us.ihmc.euclid.referenceFrame.FrameVector3D;
 import us.ihmc.euclid.referenceFrame.ReferenceFrame;
 import us.ihmc.euclid.referenceFrame.tools.EuclidFrameTools;
 import us.ihmc.robotics.geometry.PlanarRegionsList;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class WaypointDefinedBodyPathPlan implements BodyPathPlanner
 {
-   private static final double epsilon = 1e-8;
-
    private final List<FramePoint3D> waypoints = new ArrayList<>();
 
    private double[] maxAlphas;
@@ -38,14 +35,14 @@ public class WaypointDefinedBodyPathPlan implements BodyPathPlanner
       for (int i = 0; i < segmentLengths.length; i++)
       {
          FramePoint3D segmentStart = waypoints.get(i);
-         FramePoint3D segmentEnd = waypoints.get(i);
+         FramePoint3D segmentEnd = waypoints.get(i + 1);
          segmentLengths[i] = segmentEnd.distance(segmentStart);
          totalPathLength = totalPathLength + segmentLengths[i];
       }
 
       for (int i = 0; i < segmentLengths.length; i++)
       {
-         double previousMaxAlpha = (i == 0) ? 0 : maxAlphas[i - 1];
+         double previousMaxAlpha = (i == 0) ? 0.0 : maxAlphas[i - 1];
          maxAlphas[i] = previousMaxAlpha + segmentLengths[i] / totalPathLength;
       }
    }
@@ -57,13 +54,9 @@ public class WaypointDefinedBodyPathPlan implements BodyPathPlanner
       FramePoint3D firstPoint = waypoints.get(segmentIndex);
       FramePoint3D secondPoint = waypoints.get(segmentIndex + 1);
 
-      double percentageAlongSegment = segmentIndex == 0 ? alpha : alpha - maxAlphas[segmentIndex - 1];
-      FrameVector3D offsetVector = new FrameVector3D(secondPoint);
-      offsetVector.sub(firstPoint);
-      offsetVector.scale(percentageAlongSegment);
+      double alphaInSegment = getPercentInSegment(segmentIndex, alpha);
 
-      pointToPack.setIncludingFrame(firstPoint);
-      pointToPack.add(offsetVector);
+      pointToPack.interpolate(firstPoint, secondPoint, alphaInSegment);
    }
 
    @Override
@@ -81,7 +74,7 @@ public class WaypointDefinedBodyPathPlan implements BodyPathPlanner
 
          EuclidFrameTools.orthogonalProjectionOnLineSegment3D(point, segmentStart, segmentEnd, tempClosestPoint);
          double distance = tempClosestPoint.distance(point);
-         if(distance < closestPointDistance)
+         if (distance < closestPointDistance)
          {
             closestPointDistance = distance;
             pointToPack.setIncludingFrame(tempClosestPoint);
@@ -95,8 +88,9 @@ public class WaypointDefinedBodyPathPlan implements BodyPathPlanner
    public double computePathLength(double alpha)
    {
       int segmentIndex = getRegionIndexFromAlpha(alpha);
-      double segmentLength = (maxAlphas[segmentIndex] - alpha) * segmentLengths[segmentIndex];
+      double alphaInSegment = getPercentInSegment(segmentIndex, alpha);
 
+      double segmentLength = (1.0 - alphaInSegment) * segmentLengths[segmentIndex];
       for (int i = segmentIndex + 1; i < segmentLengths.length; i++)
       {
          segmentLength = segmentLength + segmentLengths[i];
@@ -105,14 +99,22 @@ public class WaypointDefinedBodyPathPlan implements BodyPathPlanner
       return segmentLength;
    }
 
+   private double getPercentInSegment(int segment, double alpha)
+   {
+      boolean firstSegment = segment == 0;
+      double alphaSegmentStart = firstSegment ? 0.0 : maxAlphas[segment - 1];
+      double alphaSegmentEnd = maxAlphas[segment];
+      return (alpha - alphaSegmentStart) / (alphaSegmentEnd - alphaSegmentStart);
+   }
+
    private int getRegionIndexFromAlpha(double alpha)
    {
       for (int i = 0; i < maxAlphas.length; i++)
       {
-         if(maxAlphas[i] >= alpha + epsilon)
+         if (maxAlphas[i] >= alpha)
             return i;
       }
 
-      throw new RuntimeException("Alpha must be between [0,1] and maxAlphas highest value must be 1.0");
+      throw new RuntimeException("Alpha = " + alpha + "\nalpha must be between [0,1] and maxAlphas highest value must be 1.0.");
    }
 }
