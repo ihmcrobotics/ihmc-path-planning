@@ -3,23 +3,31 @@ package us.ihmc.pathPlanning.bodyPathPlanner;
 import java.util.ArrayList;
 import java.util.List;
 
+import us.ihmc.euclid.geometry.Pose2D;
+import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
 import us.ihmc.euclid.referenceFrame.FramePoint3D;
 import us.ihmc.euclid.referenceFrame.ReferenceFrame;
 import us.ihmc.euclid.referenceFrame.tools.EuclidFrameTools;
+import us.ihmc.euclid.tuple2D.Point2D;
+import us.ihmc.euclid.tuple2D.Vector2D;
+import us.ihmc.robotics.geometry.AngleTools;
 import us.ihmc.robotics.geometry.PlanarRegionsList;
+import us.ihmc.robotics.geometry.RotationTools;
 
 public class WaypointDefinedBodyPathPlan implements BodyPathPlanner
 {
-   private final List<FramePoint3D> waypoints = new ArrayList<>();
+   private final List<Point2D> waypoints = new ArrayList<>();
 
    private double[] maxAlphas;
    private double[] segmentLengths;
+   private double[] segmentHeadings;
 
-   public void setWaypoints(List<FramePoint3D> waypoints)
+   public void setWaypoints(List<Point2D> waypoints)
    {
       this.waypoints.addAll(waypoints);
       this.maxAlphas = new double[waypoints.size() - 1];
       this.segmentLengths = new double[waypoints.size() - 1];
+      this.segmentHeadings = new double[waypoints.size() - 1];
    }
 
    @Override
@@ -28,16 +36,17 @@ public class WaypointDefinedBodyPathPlan implements BodyPathPlanner
    }
 
    @Override
-   public void compute(FramePoint3D startPoint, FramePoint3D goalPoint)
+   public void compute(Point2D startPoint, Point2D goalPoint)
    {
       double totalPathLength = 0.0;
 
       for (int i = 0; i < segmentLengths.length; i++)
       {
-         FramePoint3D segmentStart = waypoints.get(i);
-         FramePoint3D segmentEnd = waypoints.get(i + 1);
+         Point2D segmentStart = waypoints.get(i);
+         Point2D segmentEnd = waypoints.get(i + 1);
          segmentLengths[i] = segmentEnd.distance(segmentStart);
          totalPathLength = totalPathLength + segmentLengths[i];
+         segmentHeadings[i] = AngleTools.calculateHeading(segmentStart, segmentEnd);
       }
 
       for (int i = 0; i < segmentLengths.length; i++)
@@ -48,32 +57,33 @@ public class WaypointDefinedBodyPathPlan implements BodyPathPlanner
    }
 
    @Override
-   public void getPointAlongPath(double alpha, FramePoint3D pointToPack)
+   public void getPointAlongPath(double alpha, Pose2D poseToPack)
    {
       int segmentIndex = getRegionIndexFromAlpha(alpha);
-      FramePoint3D firstPoint = waypoints.get(segmentIndex);
-      FramePoint3D secondPoint = waypoints.get(segmentIndex + 1);
+      Point2D firstPoint = waypoints.get(segmentIndex);
+      Point2D secondPoint = waypoints.get(segmentIndex + 1);
 
       double alphaInSegment = getPercentInSegment(segmentIndex, alpha);
 
+      Point2D pointToPack = new Point2D();
       pointToPack.interpolate(firstPoint, secondPoint, alphaInSegment);
+      poseToPack.setPosition(pointToPack);
+      poseToPack.setYaw(segmentHeadings[segmentIndex]);
    }
 
    @Override
-   public double getClosestPoint(FramePoint3D point, FramePoint3D pointToPack)
+   public double getClosestPoint(Point2D point, Pose2D poseToPack)
    {
-      point.changeFrame(ReferenceFrame.getWorldFrame());
-
       double closestPointDistance = Double.POSITIVE_INFINITY;
       double alpha = Double.NaN;
-      FramePoint3D tempClosestPoint = new FramePoint3D();
+      Point2D tempClosestPoint = new Point2D();
 
       for (int i = 0; i < segmentLengths.length; i++)
       {
-         FramePoint3D segmentStart = waypoints.get(i);
-         FramePoint3D segmentEnd = waypoints.get(i + 1);
+         Point2D segmentStart = waypoints.get(i);
+         Point2D segmentEnd = waypoints.get(i + 1);
+         EuclidGeometryTools.orthogonalProjectionOnLineSegment2D(point, segmentStart, segmentEnd, tempClosestPoint);
 
-         EuclidFrameTools.orthogonalProjectionOnLineSegment3D(point, segmentStart, segmentEnd, tempClosestPoint);
          double distance = tempClosestPoint.distance(point);
          if (distance < closestPointDistance)
          {
@@ -86,10 +96,10 @@ public class WaypointDefinedBodyPathPlan implements BodyPathPlanner
             alpha = alphaSegmentStart + alphaInSegment * (alphaSegmentEnd - alphaSegmentStart);
 
             closestPointDistance = distance;
-            pointToPack.setIncludingFrame(tempClosestPoint);
          }
       }
 
+      getPointAlongPath(alpha, poseToPack);
       return alpha;
    }
 
