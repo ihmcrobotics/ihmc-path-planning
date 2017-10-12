@@ -68,19 +68,19 @@ public class WaypointDefinedBodyPathPlanTest
       // test get closest point method
       double d1 = plan.getClosestPoint(new FramePoint3D(worldFrame, -1.0, 0.0, 0.0), testPoint);
       EuclidCoreTestTools.assertTuple3DEquals(waypoints.get(0), testPoint, epsilon);
-      Assert.assertEquals(1.0, d1, epsilon);
+      Assert.assertEquals(0.0, d1, epsilon);
       double d2 = plan.getClosestPoint(new FramePoint3D(worldFrame, 10.0, 0.0, 0.0), testPoint);
       EuclidCoreTestTools.assertTuple3DEquals(waypoints.get(2), testPoint, epsilon);
-      Assert.assertEquals(Math.sqrt(9.0 * 9.0 + 1.0 * 1.0), d2, epsilon);
+      Assert.assertEquals(1.0, d2, epsilon);
       double d3 = plan.getClosestPoint(new FramePoint3D(worldFrame, 10.0, -10.0, 0.0), testPoint);
       EuclidCoreTestTools.assertTuple3DEquals(waypoints.get(1), testPoint, epsilon);
-      Assert.assertEquals(Math.sqrt(10.0 * 10.0 + 9.5 * 9.5), d3, epsilon);
+      Assert.assertEquals(segmentLength1 / toalLength, d3, epsilon);
       double d4 = plan.getClosestPoint(new FramePoint3D(worldFrame, 0.25, 0.1, 0.0), testPoint);
       EuclidCoreTestTools.assertTuple3DEquals(new FramePoint3D(worldFrame, 0.25, 0.0, 0.0), testPoint, epsilon);
-      Assert.assertEquals(0.1, d4, epsilon);
+      Assert.assertEquals(0.5 * segmentLength1 / toalLength, d4, epsilon);
       double d5 = plan.getClosestPoint(new FramePoint3D(worldFrame, 0.75 + 1.0, 0.5 - 0.5, 0.0), testPoint);
       EuclidCoreTestTools.assertTuple3DEquals(new FramePoint3D(worldFrame, 0.75, 0.5, 0.0), testPoint, epsilon);
-      Assert.assertEquals(Math.sqrt(1.0 * 1.0 + 0.5 * 0.5), d5, epsilon);
+      Assert.assertEquals(1.0 - 0.5 * segmentLength2 / toalLength, d5, epsilon);
 
       if (showPlotter)
       {

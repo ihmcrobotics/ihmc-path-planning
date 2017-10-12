@@ -65,6 +65,7 @@ public class WaypointDefinedBodyPathPlan implements BodyPathPlanner
       point.changeFrame(ReferenceFrame.getWorldFrame());
 
       double closestPointDistance = Double.POSITIVE_INFINITY;
+      double alpha = Double.NaN;
       FramePoint3D tempClosestPoint = new FramePoint3D();
 
       for (int i = 0; i < segmentLengths.length; i++)
@@ -76,12 +77,20 @@ public class WaypointDefinedBodyPathPlan implements BodyPathPlanner
          double distance = tempClosestPoint.distance(point);
          if (distance < closestPointDistance)
          {
+            double distanceToSegmentStart = tempClosestPoint.distance(segmentStart);
+            double alphaInSegment = distanceToSegmentStart / segmentLengths[i];
+
+            boolean firstSegment = i == 0;
+            double alphaSegmentStart = firstSegment ? 0.0 : maxAlphas[i - 1];
+            double alphaSegmentEnd = maxAlphas[i];
+            alpha = alphaSegmentStart + alphaInSegment * (alphaSegmentEnd - alphaSegmentStart);
+
             closestPointDistance = distance;
             pointToPack.setIncludingFrame(tempClosestPoint);
          }
       }
 
-      return closestPointDistance;
+      return alpha;
    }
 
    @Override
@@ -109,10 +118,17 @@ public class WaypointDefinedBodyPathPlan implements BodyPathPlanner
 
    private int getRegionIndexFromAlpha(double alpha)
    {
+      if (alpha > maxAlphas[maxAlphas.length - 1])
+      {
+         return maxAlphas.length - 1;
+      }
+
       for (int i = 0; i < maxAlphas.length; i++)
       {
          if (maxAlphas[i] >= alpha)
+         {
             return i;
+         }
       }
 
       throw new RuntimeException("Alpha = " + alpha + "\nalpha must be between [0,1] and maxAlphas highest value must be 1.0.");
