@@ -239,7 +239,7 @@ public class Example_DebugExtrusionBug extends Application
    {
       System.out.println("-----------Processing new region");
       NavigableRegionLocalPlanner navigableRegionLocalPlanner = new NavigableRegionLocalPlanner(javaFXMultiColorMeshBuilder, regions, region, startPos,
-                                                                                                goalPos);
+                                                                                                goalPos, 0.4);
       navigableRegionLocalPlanner.processRegion();
       listOfNavigableRegions.add(navigableRegionLocalPlanner);
 

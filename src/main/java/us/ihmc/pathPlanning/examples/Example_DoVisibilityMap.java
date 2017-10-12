@@ -63,7 +63,7 @@ public class Example_DoVisibilityMap extends Application
       {
          System.out.println("-----------Processing new region");
          NavigableRegionLocalPlanner navigableRegionLocalPlanner = new NavigableRegionLocalPlanner(javaFXMultiColorMeshBuilder, regions, region, new Point3D(1.5, 0, 0),
-                                                                                                   new Point3D(2, 0, 0));
+                                                                                                   new Point3D(2, 0, 0), 0.4);
          navigableRegionLocalPlanner.processRegion();
          visMaps.add(navigableRegionLocalPlanner.getLocalVisibilityGraph());
       }

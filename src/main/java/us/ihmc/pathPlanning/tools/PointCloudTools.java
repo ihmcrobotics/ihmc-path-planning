@@ -165,21 +165,21 @@ public class PointCloudTools
       {
          Point2D point1 = pointsToBrakeDown.get(i - 1);
          Point2D point2 = pointsToBrakeDown.get(i);
-         
+
          doBrakeDown2D(pointsToBrakeDown, i, point1, point2, brakeDownThreshold);
       }
    }
 
    private static void doBrakeDown2D(ArrayList<Point2D> points, int index, Point2D point1, Point2D point2, double brakeDownThreshold)
    {
-      double nOfPointsToAddToSegment = Math.floor(point2.distance(point1)/brakeDownThreshold);
+      double nOfPointsToAddToSegment = Math.floor(point2.distance(point1) / brakeDownThreshold);
       Vector2D direction = new Vector2D(point2.getX() - point1.getX(), point2.getY() - point1.getY());
       direction.normalize();
-      
-      for(int i = 0; i < nOfPointsToAddToSegment; i++)
+
+      for (int i = 0; i < nOfPointsToAddToSegment; i++)
       {
-         double xPos = point1.getX() + direction.getX() * brakeDownThreshold * (i+1);
-         double yPos = point1.getY() + direction.getY() * brakeDownThreshold * (i+1);
+         double xPos = point1.getX() + direction.getX() * brakeDownThreshold * (i + 1);
+         double yPos = point1.getY() + direction.getY() * brakeDownThreshold * (i + 1);
          Point3D point = new Point3D(xPos, yPos, 0);
          points.add(index, new Point2D(xPos, yPos));
          index++;
@@ -262,7 +262,7 @@ public class PointCloudTools
 
       thread.start();
    }
-   
+
    public static ArrayList<PlanarRegion> loadPlanarRegionsFromFile(String fileName)
    {
       ArrayList<PlanarRegion> regions = new ArrayList<>();
@@ -276,7 +276,7 @@ public class PointCloudTools
          //br = new BufferedReader(new FileReader(FILENAME));
          fr = new FileReader(fileName);
          br = new BufferedReader(fr);
-         
+
          String sCurrentLine;
 
          double averageX = 0.0;
@@ -292,12 +292,14 @@ public class PointCloudTools
 
          while ((sCurrentLine = br.readLine()) != null)
          {
-            //            System.out.println(sCurrentLine);
+            //                        System.out.println(sCurrentLine);
 
             if (sCurrentLine.contains("PR_"))
             {
+               //               System.out.println("Contains PR_");
                if (!pointsTemp.isEmpty())
                {
+                  //                  System.out.println("adding points");
                   cluster.addRawPoints(pointsTemp, true);
                   pointsTemp.clear();
                }
@@ -310,7 +312,7 @@ public class PointCloudTools
 
             else if (sCurrentLine.contains("RBT,"))
             {
-               //               System.out.println("Transformation read");
+               //                              System.out.println("Transformation read");
                sCurrentLine = sCurrentLine.substring(sCurrentLine.indexOf(",") + 1, sCurrentLine.length());
 
                sCurrentLine = sCurrentLine.replace("(", "");
@@ -334,7 +336,7 @@ public class PointCloudTools
             }
             else
             {
-               //               System.out.println("adding point");
+               //                              System.out.println("adding point");
 
                String[] points = sCurrentLine.split(",");
 
@@ -352,12 +354,21 @@ public class PointCloudTools
             }
          }
 
+         if (!pointsTemp.isEmpty())
+         {
+            //            System.out.println("adding points");
+            cluster.addRawPoints(pointsTemp, true);
+            pointsTemp.clear();
+         }
+
          for (Cluster cluster1 : clusters)
          {
             ArrayList<Point2D> vertices = new ArrayList<>();
 
+            //            System.out.println("\n\n");
             for (Point3D pt : cluster1.getRawPointsInCluster())
             {
+               //               System.out.println(pt);
                vertices.add(new Point2D(pt.getX(), pt.getY()));
             }
 

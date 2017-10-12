@@ -209,7 +209,7 @@ public class Example_RampOneSided extends Application
    {
       System.out.println("-----------Processing new region");
       NavigableRegionLocalPlanner navigableRegionLocalPlanner = new NavigableRegionLocalPlanner(javaFXMultiColorMeshBuilder, regions, region, startPos,
-                                                                                                goalPos);
+                                                                                                goalPos, 0.4);
       navigableRegionLocalPlanner.processRegion();
       listOfNavigableRegions.add(navigableRegionLocalPlanner);
 

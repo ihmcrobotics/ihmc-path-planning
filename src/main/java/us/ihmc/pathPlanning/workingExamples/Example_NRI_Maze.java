@@ -36,7 +36,7 @@ import us.ihmc.robotics.geometry.PlanarRegion;
 /**
  * User: Matt Date: 1/14/13
  */
-public class Example_LargeMixedCourse extends Application
+public class Example_NRI_Maze extends Application
 {
    ArrayList<PlanarRegion> regions = new ArrayList<>();
    ArrayList<PlanarRegion> accesibleRegions = new ArrayList<>();
@@ -48,10 +48,10 @@ public class Example_LargeMixedCourse extends Application
 
    JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder;
    
-   Point3D startPos = new Point3D(0, 3.5, 0); //-0.7, 3.9, 0 with region 31
-   Point3D goalPos = new Point3D(0.4, 4.7, 0); // on region 34
+   Point3D startPos = new Point3D(9.5, 9, 0); //-0.7, 3.9, 0 with region 31
+   Point3D goalPos = new Point3D(0.5, 0.5, 0); // on region 34
 
-   public Example_LargeMixedCourse()
+   public Example_NRI_Maze()
    {
    }
 
@@ -65,7 +65,7 @@ public class Example_LargeMixedCourse extends Application
       TextureColorPalette colorPalette = new TextureColorAdaptivePalette();
       javaFXMultiColorMeshBuilder = new JavaFXMultiColorMeshBuilder(colorPalette);
 
-      regions = PointCloudTools.loadPlanarRegionsFromFile("Data/PlanarRegions_LargeMixedCourse.txt");
+      regions = PointCloudTools.loadPlanarRegionsFromFile("Data/PlanarRegions_NRI_Maze.txt");
       classifyRegions(regions);
 
       //      "PlanarRegions_DoubleRamp.txt"
@@ -77,7 +77,7 @@ public class Example_LargeMixedCourse extends Application
       //    Point3D goalPos = new Point3D(0.4, 4.7, 0); // on region 34
 
       startPos = projectPointToPlane(startPos, regions.get(0));
-      goalPos = projectPointToPlane(goalPos, regions.get(34));
+      goalPos = projectPointToPlane(goalPos, regions.get(0));
 
       javaFXMultiColorMeshBuilder.addSphere(0.03f, startPos, Color.GREEN);
       javaFXMultiColorMeshBuilder.addSphere(0.03f, goalPos, Color.RED);
@@ -205,7 +205,7 @@ public class Example_LargeMixedCourse extends Application
    {
       System.out.println("-----------Processing new region");
       NavigableRegionLocalPlanner navigableRegionLocalPlanner = new NavigableRegionLocalPlanner(javaFXMultiColorMeshBuilder, regions, region, startPos,
-                                                                                                goalPos, 0.4);
+                                                                                                goalPos, 0.8);
       navigableRegionLocalPlanner.processRegion();
       listOfNavigableRegions.add(navigableRegionLocalPlanner);
 

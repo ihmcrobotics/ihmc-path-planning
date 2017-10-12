@@ -41,7 +41,7 @@ public class NavigableRegionLocalPlanner
    ArrayList<PlanarRegion> polygonObstacleRegions = new ArrayList<>();
    private ReferenceFrame localReferenceFrame;
 
-   double extrusionDistance = 0.40;
+   double extrusionDistance = 0.80;
    PlanarRegion homeRegion;
 
    SimpleWeightedGraph<Point2D, DefaultWeightedEdge> localVisibilityMap;
@@ -54,13 +54,15 @@ public class NavigableRegionLocalPlanner
    ClusterMgr clusterMgr;
 
    public NavigableRegionLocalPlanner(JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder, ArrayList<PlanarRegion> regions, PlanarRegion homeRegion,
-                                      Point3D start, Point3D goal)
+                                      Point3D start, Point3D goal, double extrusionDistance)
    {
       this.javaFXMultiColorMeshBuilder = javaFXMultiColorMeshBuilder;
       this.regions = (ArrayList<PlanarRegion>) regions.clone();
 
       this.homeRegion = homeRegion;
 
+      this.extrusionDistance = extrusionDistance;
+      
       createLocalReferenceFrame();
 
       FramePoint3D startFpt = new FramePoint3D(ReferenceFrame.getWorldFrame(), start);

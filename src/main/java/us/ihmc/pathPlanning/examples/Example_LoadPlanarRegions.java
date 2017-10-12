@@ -11,6 +11,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.MeshView;
 import javafx.stage.Stage;
 import us.ihmc.euclid.geometry.ConvexPolygon2D;
+import us.ihmc.euclid.referenceFrame.FramePoint3D;
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.euclid.tuple3D.Point3D;
@@ -47,7 +48,7 @@ public class Example_LoadPlanarRegions extends Application
       TextureColorPalette colorPalette = new TextureColorAdaptivePalette();
       javaFXMultiColorMeshBuilder = new JavaFXMultiColorMeshBuilder(colorPalette);
 
-      regions = PointCloudTools.loadPlanarRegionsFromFile("PlanarRegions_201709290450.txt");
+      regions = PointCloudTools.loadPlanarRegionsFromFile("Data/PlanarRegions_NRI_Maze.txt");
 
       Random rand = new Random();
       for (PlanarRegion region : regions)
@@ -65,14 +66,14 @@ public class Example_LoadPlanarRegions extends Application
          }
       }
 
-//            visualizeRegion(regions.get(0), Color.BEIGE);
-//            visualizeRegion(regions.get(1), Color.BLACK);
-//            visualizeRegion(regions.get(2), Color.BEIGE);
-//            visualizeRegion(regions.get(3), Color.BEIGE);
-//            visualizeRegion(regions.get(4), Color.BEIGE);
-//            visualizeRegion(regions.get(5), Color.BEIGE);
-//            visualizeRegion(regions.get(6), Color.BEIGE);
-//          visualizeRegion(regions.get(7), Color.BEIGE);
+      //            visualizeRegion(regions.get(0), Color.BEIGE);
+      //            visualizeRegion(regions.get(1), Color.BLACK);
+      //            visualizeRegion(regions.get(2), Color.BEIGE);
+      //            visualizeRegion(regions.get(3), Color.BEIGE);
+      //            visualizeRegion(regions.get(4), Color.BEIGE);
+      //            visualizeRegion(regions.get(5), Color.BEIGE);
+      //            visualizeRegion(regions.get(6), Color.BEIGE);
+      //          visualizeRegion(regions.get(7), Color.BEIGE);
       //    visualizeRegion(regions.get(11), Color.BEIGE);
       //    visualizeRegion(regions.get(12), Color.BEIGE);
       //    visualizeRegion(regions.get(13), Color.BEIGE);
@@ -82,14 +83,14 @@ public class Example_LoadPlanarRegions extends Application
       //    visualizeRegion(regions.get(17), Color.BEIGE);
       //    visualizeRegion(regions.get(18), Color.BEIGE);
       //    visualizeRegion(regions.get(19), Color.BEIGE);
-//      visualizeRegion(regions.get(31), Color.BEIGE);
-//      visualizeRegion(regions.get(32), Color.BEIGE);
-//      visualizeRegion(regions.get(33), Color.BEIGE);
-//      visualizeRegion(regions.get(34), Color.BEIGE);
-//      visualizeRegion(regions.get(35), Color.BEIGE);
-//      visualizeRegion(regions.get(36), Color.BEIGE);
-//      visualizeRegion(regions.get(37), Color.BEIGE);
-//      visualizeRegion(regions.get(38), Color.BEIGE);
+      //      visualizeRegion(regions.get(31), Color.BEIGE);
+      //      visualizeRegion(regions.get(32), Color.BEIGE);
+      //      visualizeRegion(regions.get(33), Color.BEIGE);
+      //      visualizeRegion(regions.get(34), Color.BEIGE);
+      //      visualizeRegion(regions.get(35), Color.BEIGE);
+      //      visualizeRegion(regions.get(36), Color.BEIGE);
+      //      visualizeRegion(regions.get(37), Color.BEIGE);
+      //      visualizeRegion(regions.get(38), Color.BEIGE);
 
       MeshView meshView = new MeshView(javaFXMultiColorMeshBuilder.generateMesh());
       meshView.setMaterial(javaFXMultiColorMeshBuilder.generateMaterial());
@@ -115,7 +116,6 @@ public class Example_LoadPlanarRegions extends Application
       java.awt.Color awtColor = new java.awt.Color(regionId);
       return Color.rgb(awtColor.getRed(), awtColor.getGreen(), awtColor.getBlue());
    }
-
 
    public static void main(String[] args)
    {
