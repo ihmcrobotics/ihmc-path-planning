@@ -10,6 +10,7 @@ import us.ihmc.euclid.referenceFrame.ReferenceFrame;
 import us.ihmc.euclid.referenceFrame.tools.EuclidFrameTools;
 import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.euclid.tuple2D.Vector2D;
+import us.ihmc.euclid.tuple2D.interfaces.Point2DBasics;
 import us.ihmc.robotics.geometry.AngleTools;
 import us.ihmc.robotics.geometry.PlanarRegionsList;
 import us.ihmc.robotics.geometry.RotationTools;
@@ -46,7 +47,9 @@ public class WaypointDefinedBodyPathPlan implements BodyPathPlanner
          Point2D segmentEnd = waypoints.get(i + 1);
          segmentLengths[i] = segmentEnd.distance(segmentStart);
          totalPathLength = totalPathLength + segmentLengths[i];
-         segmentHeadings[i] = AngleTools.calculateHeading(segmentStart, segmentEnd);
+
+
+         segmentHeadings[i] = calculateHeading(segmentStart, segmentEnd);
       }
 
       for (int i = 0; i < segmentLengths.length; i++)
@@ -54,6 +57,19 @@ public class WaypointDefinedBodyPathPlan implements BodyPathPlanner
          double previousMaxAlpha = (i == 0) ? 0.0 : maxAlphas[i - 1];
          maxAlphas[i] = previousMaxAlpha + segmentLengths[i] / totalPathLength;
       }
+   }
+
+   private static double calculateHeading(Point2DBasics startPose, Point2DBasics endPoint)
+   {
+      double deltaX = endPoint.getX() - startPose.getX();
+      double deltaY = endPoint.getY() - startPose.getY();
+      double heading;
+
+      double pathHeading = Math.atan2(deltaY, deltaX);
+      heading = AngleTools.trimAngleMinusPiToPi(pathHeading);
+
+      return heading;
+
    }
 
    @Override
