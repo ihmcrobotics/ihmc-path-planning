@@ -6,21 +6,20 @@ import java.util.List;
 import us.ihmc.euclid.geometry.Pose2D;
 import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
 import us.ihmc.euclid.tuple2D.Point2D;
-import us.ihmc.euclid.tuple2D.Vector2D;
 import us.ihmc.euclid.tuple2D.interfaces.Point2DBasics;
 import us.ihmc.robotics.geometry.AngleTools;
 import us.ihmc.robotics.geometry.PlanarRegionsList;
 
 public class WaypointDefinedBodyPathPlan implements BodyPathPlanner
 {
-   private final List<Point2D> waypoints = new ArrayList<>();
-
+   private List<Point2D> waypoints;
    private double[] maxAlphas;
    private double[] segmentLengths;
    private double[] segmentHeadings;
 
    public void setWaypoints(List<Point2D> waypoints)
    {
+      this.waypoints = new ArrayList<>();
       this.waypoints.addAll(waypoints);
       this.maxAlphas = new double[waypoints.size() - 1];
       this.segmentLengths = new double[waypoints.size() - 1];
