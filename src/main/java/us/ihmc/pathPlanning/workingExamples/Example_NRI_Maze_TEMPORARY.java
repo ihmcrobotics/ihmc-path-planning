@@ -68,9 +68,13 @@ public class Example_NRI_Maze_TEMPORARY extends Application
 
       startPos = projectPointToPlane(startPos, regions.get(0));
       goalPos = projectPointToPlane(goalPos, regions.get(0));
+      
+      long startTime = System.currentTimeMillis();
 
       NavigableRegionsManager navigableRegionsManager = new NavigableRegionsManager(regions, javaFXMultiColorMeshBuilder);
       ArrayList<Point3D> path = navigableRegionsManager.calculateBodyPath(startPos, goalPos);
+      
+      System.out.println("Total Vis. Graphs Time: " + (System.currentTimeMillis() - startTime));
 
       javaFXMultiColorMeshBuilder.addSphere(0.03f, startPos, Color.GREEN);
       javaFXMultiColorMeshBuilder.addSphere(0.03f, goalPos, Color.RED);
