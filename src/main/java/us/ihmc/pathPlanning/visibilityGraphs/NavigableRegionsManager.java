@@ -36,6 +36,11 @@ public class NavigableRegionsManager
    private Point3D startPos = new Point3D();
    private Point3D goalPos = new Point3D();
 
+   public NavigableRegionsManager(List<PlanarRegion> regions)
+   {
+      this(regions, null);
+   }
+
    public NavigableRegionsManager(JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder)
    {
       this.javaFXMultiColorMeshBuilder = javaFXMultiColorMeshBuilder;
@@ -178,7 +183,10 @@ public class NavigableRegionsManager
             globalVisMap.addEdge(pt1, pt2, edge);
             globalVisMap.setEdgeWeight(edge, pt1.distance(pt2));
 
-            javaFXMultiColorMeshBuilder.addLine(pt1, pt2, 0.0052, Color.CYAN);
+            if (javaFXMultiColorMeshBuilder != null)
+            {
+               javaFXMultiColorMeshBuilder.addLine(pt1, pt2, 0.0052, Color.CYAN);
+            }
 
          }
       }
@@ -227,7 +235,11 @@ public class NavigableRegionsManager
                            DefaultWeightedEdge edge = new DefaultWeightedEdge();
                            globalVisMap.addEdge(pt1.getPoint(), pt2.getPoint(), edge);
                            globalVisMap.setEdgeWeight(edge, pt1.distance(pt2));
-                           javaFXMultiColorMeshBuilder.addLine(pt1, pt2, 0.0082, Color.YELLOW);
+
+                           if (javaFXMultiColorMeshBuilder != null)
+                           {
+                              javaFXMultiColorMeshBuilder.addLine(pt1, pt2, 0.0082, Color.YELLOW);
+                           }
                         }
                      }
                   }
@@ -355,8 +367,13 @@ public class NavigableRegionsManager
          {
             upperLimit = i;
             lowerLimit = i - 1;
-            javaFXMultiColorMeshBuilder.addSphere(0.045f, path.get(i - 1), Color.MAGENTA);
-            javaFXMultiColorMeshBuilder.addSphere(0.045f, path.get(i), Color.MAGENTA);
+
+            if (javaFXMultiColorMeshBuilder != null)
+            {
+               javaFXMultiColorMeshBuilder.addSphere(0.045f, path.get(i - 1), Color.MAGENTA);
+               javaFXMultiColorMeshBuilder.addSphere(0.045f, path.get(i), Color.MAGENTA);
+            }
+
             break;
          }
 
