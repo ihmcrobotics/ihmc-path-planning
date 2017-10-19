@@ -20,6 +20,8 @@ import us.ihmc.robotics.geometry.PlanarRegion;
 
 public class NavigableRegionsManager
 {
+   private final static boolean debug = false;
+
    private List<PlanarRegion> regions;
    private ArrayList<PlanarRegion> accesibleRegions = new ArrayList<>();
    private ArrayList<PlanarRegion> obstacleRegions = new ArrayList<>();
@@ -207,7 +209,10 @@ public class NavigableRegionsManager
          }
       }
 
-      System.out.println("Starting connectivity check");
+      if (debug)
+      {
+         System.out.println("Starting connectivity check");
+      }
 
       if (listOfNavigableRegions.size() > 1)
       {
@@ -251,7 +256,11 @@ public class NavigableRegionsManager
 
    private void createVisibilityGraphForRegion(PlanarRegion region, Point3D startPos, Point3D goalPos)
    {
-      System.out.println("-----------Processing new region");
+      if (debug)
+      {
+         System.out.println("-----------Processing new region");
+      }
+
       NavigableRegionLocalPlanner navigableRegionLocalPlanner = new NavigableRegionLocalPlanner(javaFXMultiColorMeshBuilder, regions, region, startPos, goalPos,
                                                                                                 0.8);
       navigableRegionLocalPlanner.processRegion();

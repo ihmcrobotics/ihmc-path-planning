@@ -32,6 +32,8 @@ import us.ihmc.robotics.geometry.PlanarRegion;
  */
 public class NavigableRegionLocalPlanner
 {
+   private static final boolean debug = false;
+
    ArrayList<Cluster> clusters = new ArrayList<>();
    List<PlanarRegion> regions = new ArrayList<>();
    ArrayList<PlanarRegion> accesibleRegions = new ArrayList<>();
@@ -103,7 +105,10 @@ public class NavigableRegionLocalPlanner
    {
       regionsInsideHomeRegion = determineWhichRegionsAreInside(homeRegion, regions);
 
-      System.out.println(regionsInsideHomeRegion.size());
+      if (debug)
+      {
+         System.out.println(regionsInsideHomeRegion.size());
+      }
 
       classifyExtrusions(homeRegion);
       regionsInsideHomeRegion = filterRegionsThatAreBelow(regionsInsideHomeRegion, homeRegion);
@@ -117,7 +122,10 @@ public class NavigableRegionLocalPlanner
          clusterMgr.addCluster(cluster);
       }
 
-      System.out.println("Extruding obstacles...");
+      if (debug)
+      {
+         System.out.println("Extruding obstacles...");
+      }
 
       clusterMgr.performExtrusions(new Point2D(Double.MAX_VALUE, Double.MAX_VALUE), extrusionDistance);
 
@@ -232,7 +240,10 @@ public class NavigableRegionLocalPlanner
             if (homeRegionPoint.getZ() + 0.1
                   < otherRegionPoint.getZ())
             {
-               System.out.println(homeRegionPoint.getZ() + "   " + otherRegionPoint.getZ());
+               if (debug)
+               {
+                  System.out.println(homeRegionPoint.getZ() + "   " + otherRegionPoint.getZ());
+               }
 
                return false;
             }
@@ -244,9 +255,15 @@ public class NavigableRegionLocalPlanner
 
    public void addExtraPointsInsideCluster(Cluster cluster)
    {
-      System.out.println("Adding extra points");
+      if (debug)
+      {
+         System.out.println("Adding extra points");
+      }
       PointCloudTools.doBrakeDownOn2DPoints(cluster.getListOfNavigableExtrusions(), 0.25);
-      System.out.println("Finished Adding extra points");
+      if (debug)
+      {
+         System.out.println("Finished Adding extra points");
+      }
    }
 
    public SimpleWeightedGraph<Point2D, DefaultWeightedEdge> getLocalVisibilityGraph()
@@ -384,9 +401,12 @@ public class NavigableRegionLocalPlanner
          }
       }
 
-      for (Cluster cluster : clusters)
+      if (debug)
       {
-         System.out.println("Created a cluster of type: " + cluster.getType() + " with " + cluster.getRawPointsInCluster().size() + " points");
+         for (Cluster cluster : clusters)
+         {
+            System.out.println("Created a cluster of type: " + cluster.getType() + " with " + cluster.getRawPointsInCluster().size() + " points");
+         }
       }
    }
 

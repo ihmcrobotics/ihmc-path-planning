@@ -27,7 +27,7 @@ public class VisibilityGraph
    protected SimpleWeightedGraph<Point2D, DefaultWeightedEdge> staticVisibilityMap;
 
    ClusterMgr clusterMgr;
-   
+
    long startTimeConnectionsCreation = System.currentTimeMillis();
    long endTimeConnectionsCreation = System.currentTimeMillis();
 
@@ -36,7 +36,7 @@ public class VisibilityGraph
       this.clusterMgr = clusterMgr;
       staticVisibilityMap = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
    }
-   
+
    RigidBodyTransform transform = new RigidBodyTransform();
    public void setTransform(RigidBodyTransform transform)
    {
@@ -87,7 +87,7 @@ public class VisibilityGraph
       {
          Point2D edgeSource = visibilityMap.getEdgeSource(edge);
          Point2D edgeTarget = visibilityMap.getEdgeTarget(edge);
-         
+
          if (edgeSource.epsilonEquals(lastNode, epsilon))
          {
             path.add(edgeTarget);
@@ -117,12 +117,12 @@ public class VisibilityGraph
    {
       startTimeConnectionsCreation = System.currentTimeMillis();
       listOfObserverPoints.clear();
-      
+
       if(start != null)
       {
          listOfObserverPoints.add(start);
       }
-      
+
       if(goal != null)
       {
          listOfObserverPoints.add(goal);
@@ -149,7 +149,7 @@ public class VisibilityGraph
             if (observer.distance(target) > 0.01)
             {
                boolean targetIsVisible = isPointVisibleForStaticMaps(observer, target);
-               
+
                if (targetIsVisible)
                {
                   staticVisibilityMap.addVertex(observer);
@@ -168,10 +168,13 @@ public class VisibilityGraph
             }
          }
       }
-      
+
       endTimeConnectionsCreation = System.currentTimeMillis();
-      
-      System.out.println("Creating the map took " + (endTimeConnectionsCreation - startTimeConnectionsCreation) + " ms" + " with " + edges + " edges");
+
+      if (DEBUG)
+      {
+         System.out.println("Creating the map took " + (endTimeConnectionsCreation - startTimeConnectionsCreation) + " ms" + " with " + edges + " edges");
+      }
    }
 
    public boolean isPointVisibleForStaticMaps(Point2D observer, Point2D targetPoint)
@@ -188,7 +191,7 @@ public class VisibilityGraph
    }
 
    public SimpleWeightedGraph<Point2D, DefaultWeightedEdge> getVisibilityMap()
-   { 
+   {
       return staticVisibilityMap;
    }
 }
