@@ -1,7 +1,7 @@
 package us.ihmc.pathPlanning.visibilityGraphs;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultWeightedEdge;
@@ -20,7 +20,7 @@ import us.ihmc.robotics.geometry.PlanarRegion;
 
 public class NavigableRegionsManager
 {
-   private ArrayList<PlanarRegion> regions;
+   private List<PlanarRegion> regions;
    private ArrayList<PlanarRegion> accesibleRegions = new ArrayList<>();
    private ArrayList<PlanarRegion> obstacleRegions = new ArrayList<>();
    private ArrayList<NavigableRegionLocalPlanner> listOfNavigableRegions = new ArrayList<>();
@@ -41,7 +41,7 @@ public class NavigableRegionsManager
       this.javaFXMultiColorMeshBuilder = javaFXMultiColorMeshBuilder;
    }
 
-   public NavigableRegionsManager(ArrayList<PlanarRegion> regions, JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder)
+   public NavigableRegionsManager(List<PlanarRegion> regions, JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder)
    {
       this.regions = regions;
       this.javaFXMultiColorMeshBuilder = javaFXMultiColorMeshBuilder;
@@ -267,7 +267,7 @@ public class NavigableRegionsManager
       }
    }
 
-   private void classifyRegions(ArrayList<PlanarRegion> regions)
+   private void classifyRegions(List<PlanarRegion> regions)
    {
       for (PlanarRegion region : regions)
       {
@@ -329,7 +329,7 @@ public class NavigableRegionsManager
       {
          pathLength = pathLength + path.get(i - 1).distance(path.get(i));
       }
-      
+
       return pathLength;
    }
 
@@ -371,10 +371,10 @@ public class NavigableRegionsManager
 
       double pathFromStart = computePathLengthFromStart(alpha);
 //      System.out.println("Path from start: " + pathFromStart);
-//      
+//
       double pathFromStartToLowerLimit = computePathLength(0, lowerLimit);
 //      System.out.println("pathFromStartToLowerLimit: " + pathFromStartToLowerLimit);
-      
+
       double amountOfRelativePath = pathFromStart - pathFromStartToLowerLimit;
 //      System.out.println(amountOfRelativePath + "   " + distanceBetweenLimits);
 
