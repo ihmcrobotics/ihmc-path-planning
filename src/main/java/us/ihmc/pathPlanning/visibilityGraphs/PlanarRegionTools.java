@@ -139,4 +139,69 @@ public class PlanarRegionTools
 
       return null;
    }
+
+   public static Point3D intersectRegionsWithRay(PlanarRegionsList regions, Point3D rayStart, Vector3D rayDirection)
+   {
+      double smallestDistance = Double.POSITIVE_INFINITY;
+      Point3D closestIntersection = null;
+
+      for (PlanarRegion region : regions.getPlanarRegionsAsList())
+      {
+         Point3D intersection = intersectRegionWithRay(region, rayStart, rayDirection);
+         if (intersection == null)
+         {
+            continue;
+         }
+         double distance = intersection.distance(rayStart);
+         if (distance < smallestDistance)
+         {
+            smallestDistance = distance;
+            closestIntersection = intersection;
+         }
+      }
+
+      return closestIntersection;
+   }
+
+   public static Point3D intersectRegionWithRay(PlanarRegion region, Point3D rayStart, Vector3D rayDirection)
+   {
+      RigidBodyTransform regionToWorld = new RigidBodyTransform();
+      region.getTransformToWorld(regionToWorld);
+
+      Vector3D planeNormal = new Vector3D(0.0, 0.0, 1.0);
+      planeNormal.applyTransform(regionToWorld);
+
+      Point3D pointOnPlane = new Point3D();
+      pointOnPlane.set(region.getConvexPolygon(0).getVertex(0));
+      pointOnPlane.applyTransform(regionToWorld);
+
+      Point3D intersectionWithPlane = EuclidGeometryTools.intersectionBetweenLine3DAndPlane3D(pointOnPlane, planeNormal, rayStart, rayDirection);
+      if (intersectionWithPlane == null)
+      {
+         return null;
+      }
+
+      Point3D intersectionInPlaneFrame = new Point3D(intersectionWithPlane);
+      intersectionInPlaneFrame.applyInverseTransform(regionToWorld);
+      // checking convex hull here - might be better to check all polygons to avoid false positive
+      if (!region.getConvexHull().isPointInside(intersectionInPlaneFrame.getX(), intersectionInPlaneFrame.getY()))
+      {
+         return null;
+      }
+
+      Vector3D rayToIntersection = new Vector3D();
+      rayToIntersection.sub(intersectionWithPlane, rayStart);
+      if (rayToIntersection.dot(rayDirection) < 0.0)
+      {
+         return null;
+      }
+
+      return intersectionWithPlane;
+   }
+
+   public static boolean isPointOnRegion(PlanarRegion region, Point3D point, double epsilon)
+   {
+      Point3D closestPoint = closestPointOnPlane(point, region);
+      return closestPoint.epsilonEquals(point, epsilon);
+   }
 }
