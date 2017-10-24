@@ -79,8 +79,8 @@ public class NavigableRegionLocalPlanner
 
       FramePoint3D test = new FramePoint3D(localReferenceFrame, goalLocationInLocalFrame);
       test.changeFrame(ReferenceFrame.getWorldFrame());
-
-      this.regions.remove(0);
+//
+//      this.regions.remove(0);
    }
 
    private void createLocalReferenceFrame()
@@ -101,7 +101,7 @@ public class NavigableRegionLocalPlanner
    {
       FramePoint3D fpt = new FramePoint3D(ReferenceFrame.getWorldFrame(), point.getX(), point.getY(), point.getZ());
       fpt.changeFrame(localReferenceFrame);
-      
+
       return homeRegion.isPointInside(new Point2D(fpt.getX(), fpt.getY()));
    }
 
@@ -139,40 +139,40 @@ public class NavigableRegionLocalPlanner
       clusterMgr.performExtrusions(new Point2D(Double.MAX_VALUE, Double.MAX_VALUE), extrusionDistance);
 
       //Visuals local frame
-
-//      for (Cluster cluster : clusters)
-//      {
-//         for (int i = 0; i < cluster.getRawPointsInCluster().size(); i++)
-//         {
-//            javaFXMultiColorMeshBuilder.addSphere(0.03f,
-//                                                  new Point3D(cluster.getRawPointsInCluster().get(i).getX(), cluster.getRawPointsInCluster().get(i).getY(), 0),
-//                                                  Color.RED);
-//         }
-//
-//         for (int i = 0; i < cluster.getListOfNonNavigableExtrusions().size(); i++)
-//         {
-//            javaFXMultiColorMeshBuilder.addSphere(0.03f, new Point3D(cluster.getListOfNonNavigableExtrusions().get(i).getX(),
-//                                                                     cluster.getListOfNonNavigableExtrusions().get(i).getY(), 0),
-//                                                  Color.RED);
-//         }
-//
-//         for (int i = 1; i < cluster.getListOfNonNavigableExtrusions().size(); i++)
-//         {
-//            javaFXMultiColorMeshBuilder.addLine(new Point3D(cluster.getListOfNonNavigableExtrusions().get(i - 1).getX(),
-//                                                            cluster.getListOfNonNavigableExtrusions().get(i - 1).getY(), 0),
-//                                                new Point3D(cluster.getListOfNonNavigableExtrusions().get(i).getX(),
-//                                                            cluster.getListOfNonNavigableExtrusions().get(i).getY(), 0),
-//                                                0.005, Color.ORANGE);
-//         }
-//         for (int i = 1; i < cluster.getListOfNavigableExtrusions().size(); i++)
-//         {
-//            javaFXMultiColorMeshBuilder.addLine(new Point3D(cluster.getListOfNavigableExtrusions().get(i - 1).getX(),
-//                                                            cluster.getListOfNavigableExtrusions().get(i - 1).getY(), 0),
-//                                                new Point3D(cluster.getListOfNavigableExtrusions().get(i).getX(),
-//                                                            cluster.getListOfNavigableExtrusions().get(i).getY(), 0),
-//                                                0.005, Color.GREEN);
-//         }
-//      }
+      //
+      //      for (Cluster cluster : clusters)
+      //      {
+      //         for (int i = 0; i < cluster.getRawPointsInCluster().size(); i++)
+      //         {
+      //            javaFXMultiColorMeshBuilder.addSphere(0.03f,
+      //                                                  new Point3D(cluster.getRawPointsInCluster().get(i).getX(), cluster.getRawPointsInCluster().get(i).getY(), 0),
+      //                                                  Color.RED);
+      //         }
+      //
+      //         for (int i = 0; i < cluster.getListOfNonNavigableExtrusions().size(); i++)
+      //         {
+      //            javaFXMultiColorMeshBuilder.addSphere(0.03f, new Point3D(cluster.getListOfNonNavigableExtrusions().get(i).getX(),
+      //                                                                     cluster.getListOfNonNavigableExtrusions().get(i).getY(), 0),
+      //                                                  Color.RED);
+      //         }
+      //
+      //         for (int i = 1; i < cluster.getListOfNonNavigableExtrusions().size(); i++)
+      //         {
+      //            javaFXMultiColorMeshBuilder.addLine(new Point3D(cluster.getListOfNonNavigableExtrusions().get(i - 1).getX(),
+      //                                                            cluster.getListOfNonNavigableExtrusions().get(i - 1).getY(), 0),
+      //                                                new Point3D(cluster.getListOfNonNavigableExtrusions().get(i).getX(),
+      //                                                            cluster.getListOfNonNavigableExtrusions().get(i).getY(), 0),
+      //                                                0.005, Color.ORANGE);
+      //         }
+      //         for (int i = 1; i < cluster.getListOfNavigableExtrusions().size(); i++)
+      //         {
+      //            javaFXMultiColorMeshBuilder.addLine(new Point3D(cluster.getListOfNavigableExtrusions().get(i - 1).getX(),
+      //                                                            cluster.getListOfNavigableExtrusions().get(i - 1).getY(), 0),
+      //                                                new Point3D(cluster.getListOfNavigableExtrusions().get(i).getX(),
+      //                                                            cluster.getListOfNavigableExtrusions().get(i).getY(), 0),
+      //                                                0.005, Color.GREEN);
+      //         }
+      //      }
 
       for (Cluster cluster : clusters)
       {
@@ -322,7 +322,7 @@ public class NavigableRegionLocalPlanner
       {
          if (regions.contains(region))
          {
-//            System.out.println("Creating a line cluster");
+            //            System.out.println("Creating a line cluster");
             Cluster cluster = new Cluster();
             clusters.add(cluster);
             cluster.setType(Type.LINE);
@@ -333,8 +333,8 @@ public class NavigableRegionLocalPlanner
             }
             else
             {
-//               cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance - 0.01));
-               cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance*0.75));
+               //               cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance - 0.01));
+               cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance * 0.6));
 
             }
 
@@ -424,7 +424,7 @@ public class NavigableRegionLocalPlanner
    private ArrayList<PlanarRegion> determineWhichRegionsAreInside(PlanarRegion containingRegion, List<PlanarRegion> otherRegionsEx)
    {
       ArrayList<PlanarRegion> regionsInsideHomeRegion = new ArrayList<>();
-
+      
       for (PlanarRegion otherRegion : otherRegionsEx)
       {
          if (isPartOfTheRegionInside(otherRegion, containingRegion))
@@ -471,6 +471,8 @@ public class NavigableRegionLocalPlanner
          RigidBodyTransform transToWorld = new RigidBodyTransform();
          regionToCheck.getTransformToWorld(transToWorld);
          fpt.applyTransform(transToWorld);
+         
+//         javaFXMultiColorMeshBuilder.addSphere(0.05f, new Point3D(fpt.getX(), fpt.getY(), fpt.getZ()), Color.YELLOW);
 
          //         if (fpt.getPoint().getZ() < centroidOfHomeRegion.getZ())
          //         {
@@ -483,7 +485,7 @@ public class NavigableRegionLocalPlanner
          Point3D pointToProject = fpt.getPoint();
          Point3D projectedPointFromOtherRegion = new Point3D();
 
-         //            System.out.println(pointToProject + "  " + point3D + "  " + normal + "  " + projectedPointFromOtherRegion);
+         //                     System.out.println(pointToProject + "  " + point3D + "  " + normal + "  " + projectedPointFromOtherRegion);
          EuclidGeometryTools.orthogonalProjectionOnPlane3D(pointToProject, point3D, normal, projectedPointFromOtherRegion);
 
          if (homeConvexPol.isPointInside(new Point2D(projectedPointFromOtherRegion.getX(), projectedPointFromOtherRegion.getY())))

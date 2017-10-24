@@ -69,7 +69,7 @@ public class Example_FullObstacleCourse extends Application
       classifyRegions(regions);
 
       startPos = projectPointToPlane(startPos, regions.get(0));
-      goalPos = projectPointToPlane(goalPos, regions.get(34));
+      goalPos = projectPointToPlane(goalPos, regions.get(0));
 
       javaFXMultiColorMeshBuilder.addSphere(0.03f, startPos, Color.GREEN);
       javaFXMultiColorMeshBuilder.addSphere(0.03f, goalPos, Color.RED);

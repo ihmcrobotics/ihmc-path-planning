@@ -37,7 +37,7 @@ import us.ihmc.robotics.geometry.PlanarRegion;
 /**
  * User: Matt Date: 1/14/13
  */
-public class Example_NRI_Maze_TEMPORARY extends Application
+public class Example_REAL_Cinder_Maze2 extends Application
 {
    ArrayList<PlanarRegion> regions = new ArrayList<>();
    ArrayList<SimpleWeightedGraph<Point3D, DefaultWeightedEdge>> visMaps = new ArrayList<>();
@@ -47,10 +47,10 @@ public class Example_NRI_Maze_TEMPORARY extends Application
 
    JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder;
 
-   Point3D startPos = new Point3D(9.5, 9, 0); //-0.7, 3.9, 0 with region 31
+   Point3D startPos = new Point3D(2, 2, 0); //-0.7, 3.9, 0 with region 31
    Point3D goalPos = new Point3D(0.5, 0.5, 0); // on region 34
 
-   public Example_NRI_Maze_TEMPORARY()
+   public Example_REAL_Cinder_Maze2()
    {
    }
 
@@ -64,14 +64,20 @@ public class Example_NRI_Maze_TEMPORARY extends Application
       TextureColorPalette colorPalette = new TextureColorAdaptivePalette();
       javaFXMultiColorMeshBuilder = new JavaFXMultiColorMeshBuilder(colorPalette);
 
-      regions = PointCloudTools.loadPlanarRegionsFromFile("Data/PlanarRegions_NRI_Maze.txt");
+      regions = PointCloudTools.loadPlanarRegionsFromFile("Data/PlanarRegions_201710240237.txt");
 
       startPos = projectPointToPlane(startPos, regions.get(0));
       goalPos = projectPointToPlane(goalPos, regions.get(0));
       
       long startTime = System.currentTimeMillis();
+      
+      ArrayList<PlanarRegion> regions1 = new ArrayList<>();
+      regions1.add(regions.get(0));
+      regions1.add(regions.get(1));
+//      regions1.add(regions.get(2));
 
-      NavigableRegionsManager navigableRegionsManager = new NavigableRegionsManager(regions, javaFXMultiColorMeshBuilder);
+
+      NavigableRegionsManager navigableRegionsManager = new NavigableRegionsManager(regions1, javaFXMultiColorMeshBuilder);
       ArrayList<Point3D> path = navigableRegionsManager.calculateBodyPath(startPos, goalPos);
       
       System.out.println("Total Vis. Graphs Time: " + (System.currentTimeMillis() - startTime));
@@ -105,9 +111,6 @@ public class Example_NRI_Maze_TEMPORARY extends Application
          javaFXMultiColorMeshBuilder.addSphere(0.03f, to, Color.YELLOW);
 
       }
-
-//      Point3D point = navigableRegionsManager.getPointAlongPath(0.9);
-//      javaFXMultiColorMeshBuilder.addSphere(0.045f, point, Color.BLACK);
 
       MeshView meshView = new MeshView(javaFXMultiColorMeshBuilder.generateMesh());
       meshView.setMaterial(javaFXMultiColorMeshBuilder.generateMaterial());

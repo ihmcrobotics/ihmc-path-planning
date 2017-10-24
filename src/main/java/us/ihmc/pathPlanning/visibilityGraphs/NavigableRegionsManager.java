@@ -157,21 +157,21 @@ public class NavigableRegionsManager
       path.clear();
 
       Point3D lastPoint = null;
-      ArrayList<DefaultWeightedEdge> solution = (ArrayList<DefaultWeightedEdge>) DijkstraShortestPath.findPathBetween(globalVisMap, startpt, goalpt);
-      for (DefaultWeightedEdge edge : solution)
-      {
-         Point3D from = globalVisMap.getEdgeSource(edge);
-         Point3D to = globalVisMap.getEdgeTarget(edge);
-         pathLength = pathLength + from.distance(to);
-
-         if (!path.contains(new Point3D(from)))
-            path.add(from);
-         if (!path.contains(new Point3D(to)))
-            path.add(to);
-
-         //         javaFXMultiColorMeshBuilder.addLine(new Point3D(from.getX(), from.getY(), from.getZ()), new Point3D(to.getX(), to.getY(), to.getZ()), 0.025,
-         //                                             Color.RED);
-      }
+//      ArrayList<DefaultWeightedEdge> solution = (ArrayList<DefaultWeightedEdge>) DijkstraShortestPath.findPathBetween(globalVisMap, startpt, goalpt);
+//      for (DefaultWeightedEdge edge : solution)
+//      {
+//         Point3D from = globalVisMap.getEdgeSource(edge);
+//         Point3D to = globalVisMap.getEdgeTarget(edge);
+//         pathLength = pathLength + from.distance(to);
+//
+//         if (!path.contains(new Point3D(from)))
+//            path.add(from);
+//         if (!path.contains(new Point3D(to)))
+//            path.add(to);
+//
+//         //         javaFXMultiColorMeshBuilder.addLine(new Point3D(from.getX(), from.getY(), from.getZ()), new Point3D(to.getX(), to.getY(), to.getZ()), 0.025,
+//         //                                             Color.RED);
+//      }
 
       return path;
    }
