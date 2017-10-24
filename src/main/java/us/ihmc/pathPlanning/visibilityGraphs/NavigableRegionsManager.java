@@ -9,10 +9,8 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
 import javafx.scene.paint.Color;
-import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
 import us.ihmc.euclid.referenceFrame.FramePoint3D;
 import us.ihmc.euclid.referenceFrame.ReferenceFrame;
-import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.euclid.tuple3D.Vector3D;
@@ -320,12 +318,13 @@ public class NavigableRegionsManager
 
    private void classifyRegions(List<PlanarRegion> regions)
    {
+      Vector3D normal = new Vector3D();
+
       for (PlanarRegion region : regions)
       {
-         Vector3D normal = calculateNormal(region);
-
-         if (normal != null)
+         if (!region.isEmpty())
          {
+            region.getNormal(normal);
             if (Math.abs(normal.getZ()) < 0.8)
             {
                obstacleRegions.add(region);
@@ -336,30 +335,6 @@ public class NavigableRegionsManager
             }
          }
       }
-   }
-
-   private Vector3D calculateNormal(PlanarRegion region)
-   {
-      if (!region.getConvexHull().isEmpty())
-      {
-         FramePoint3D fpt1 = new FramePoint3D();
-         fpt1.set(new Point3D(region.getConvexHull().getVertex(0).getX(), region.getConvexHull().getVertex(0).getY(), 0));
-         RigidBodyTransform trans = new RigidBodyTransform();
-         region.getTransformToWorld(trans);
-         fpt1.applyTransform(trans);
-
-         FramePoint3D fpt2 = new FramePoint3D();
-         fpt2.set(new Point3D(region.getConvexHull().getVertex(1).getX(), region.getConvexHull().getVertex(1).getY(), 0));
-         fpt2.applyTransform(trans);
-
-         FramePoint3D fpt3 = new FramePoint3D();
-         fpt3.set(new Point3D(region.getConvexHull().getVertex(2).getX(), region.getConvexHull().getVertex(2).getY(), 0));
-         fpt3.applyTransform(trans);
-
-         Vector3D normal = EuclidGeometryTools.normal3DFromThreePoint3Ds(fpt1.getPoint(), fpt2.getPoint(), fpt3.getPoint());
-         return normal;
-      }
-      return null;
    }
 
    public double computePathLength(double alpha)
