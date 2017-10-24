@@ -69,7 +69,26 @@ public class NavigableRegionsManager
       {
          createVisibilityGraphForRegion(region, startPos, goalPos);
       }
+      
+      
+      for (NavigableRegionLocalPlanner navigableRegion : getListOfLocalPlanners())
+      {
+         if (navigableRegion.isPointInsideTheRegion(startPos))
+         {
+            System.out.println("Start point is inside a region");
+            break;
+         }
+      }
 
+      for (NavigableRegionLocalPlanner navigableRegion : getListOfLocalPlanners())
+      {
+         if (navigableRegion.isPointInsideTheRegion(goalPos))
+         {
+            System.out.println("Goal point is inside a region");
+            break;
+         }
+      }
+      
       connectLocalMaps();
       createGlobalMap();
 
@@ -407,6 +426,11 @@ public class NavigableRegionsManager
       Point3D newPoint = new Point3D(path.get(lowerLimit).getX() + vec.getX()*amountOfRelativePath, path.get(lowerLimit).getY() + vec.getY()*amountOfRelativePath,
                                      path.get(lowerLimit).getZ() + vec.getZ()*amountOfRelativePath);
       return newPoint;
+   }
+   
+   public ArrayList<NavigableRegionLocalPlanner> getListOfLocalPlanners()
+   {
+      return listOfNavigableRegions;
    }
 
    public ArrayList<PlanarRegion> getListOfAccesibleRegions()

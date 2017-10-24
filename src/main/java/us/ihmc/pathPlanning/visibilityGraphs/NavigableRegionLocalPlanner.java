@@ -96,6 +96,14 @@ public class NavigableRegionLocalPlanner
       localReferenceFrame.update();
    }
 
+   public boolean isPointInsideTheRegion(Point3D point)
+   {
+      FramePoint3D fpt = new FramePoint3D(ReferenceFrame.getWorldFrame(), point.getX(), point.getY(), point.getZ());
+      fpt.changeFrame(localReferenceFrame);
+      
+      return homeRegion.isPointInside(new Point2D(fpt.getX(), fpt.getY()));
+   }
+
    public ReferenceFrame getLocalReferenceFrame()
    {
       return localReferenceFrame;
@@ -237,8 +245,7 @@ public class NavigableRegionLocalPlanner
             regionToCheck.getTransformToWorld(transToWorld1);
             otherRegionPoint.applyTransform(transToWorld1);
 
-            if (homeRegionPoint.getZ() + 0.1
-                  < otherRegionPoint.getZ())
+            if (homeRegionPoint.getZ() + 0.1 < otherRegionPoint.getZ())
             {
                if (debug)
                {
@@ -312,7 +319,7 @@ public class NavigableRegionLocalPlanner
    {
       for (PlanarRegion region : lineObstacleRegions)
       {
-         if(regions.contains(region))
+         if (regions.contains(region))
          {
             Cluster cluster = new Cluster();
             clusters.add(cluster);
@@ -364,7 +371,7 @@ public class NavigableRegionLocalPlanner
 
       for (PlanarRegion region : polygonObstacleRegions)
       {
-         if(regions.contains(region))
+         if (regions.contains(region))
          {
             Cluster cluster = new Cluster();
             clusters.add(cluster);

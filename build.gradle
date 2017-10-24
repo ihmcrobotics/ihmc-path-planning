@@ -33,8 +33,15 @@ mainDependencies {
     compile group: 'us.ihmc', name: 'euclid', version: '0.6.1'
     compile group: "us.ihmc", name: "ihmc-java-extensions", version: groupDependencyVersion
     compile group: "us.ihmc", name: "ihmc-javafx-toolkit", version: groupDependencyVersion
-    compile group: "us.ihmc", name: "ihmc-communication", version: groupDependencyVersion
+    }
+
+visualizersDependencies
+{
+	compile rootProject
+    compile group: "us.ihmc", name: "ihmc-javafx-toolkit", version: groupDependencyVersion
     compile group: 'us.ihmc', name: 'robot-environment-awareness-application', version: groupDependencyVersion
+    compile group: "us.ihmc", name: "ihmc-communication", version: groupDependencyVersion
+    
 }
 
 testDependencies {
