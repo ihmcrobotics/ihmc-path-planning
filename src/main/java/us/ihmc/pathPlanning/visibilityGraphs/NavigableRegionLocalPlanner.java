@@ -15,6 +15,7 @@ import us.ihmc.euclid.referenceFrame.FramePoint3D;
 import us.ihmc.euclid.referenceFrame.ReferenceFrame;
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Point2D;
+import us.ihmc.euclid.tuple2D.interfaces.Point2DReadOnly;
 import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.euclid.tuple4D.Quaternion;
@@ -292,9 +293,11 @@ public class NavigableRegionLocalPlanner
       clusters.add(cluster);
       cluster.setType(Type.POLYGON);
 
-      for (int i = 0; i < homeRegion.getConvexHull().getNumberOfVertices(); i++)
+      Point2D[] concaveHull = homeRegion.getConcaveHull();
+
+      for (int i = 0; i < concaveHull.length; i++)
       {
-         Point2D point2D = (Point2D) homeRegion.getConvexHull().getVertex(i);
+         Point2DReadOnly point2D = concaveHull[i];
          Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
          FramePoint3D fpt = new FramePoint3D();
          fpt.set(point3D);
