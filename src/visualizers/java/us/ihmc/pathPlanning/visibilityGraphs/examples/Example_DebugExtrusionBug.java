@@ -1,8 +1,5 @@
 package us.ihmc.pathPlanning.visibilityGraphs.examples;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 
 import org.jgrapht.alg.DijkstraShortestPath;
@@ -26,7 +23,6 @@ import us.ihmc.javaFXToolkit.scenes.View3DFactory;
 import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.javaFXToolkit.shapes.TextureColorAdaptivePalette;
 import us.ihmc.javaFXToolkit.shapes.TextureColorPalette;
-import us.ihmc.pathPlanning.clusterManagement.Cluster;
 import us.ihmc.pathPlanning.tools.PointCloudTools;
 import us.ihmc.pathPlanning.visibilityGraphs.NavigableRegionLocalPlanner;
 import us.ihmc.robotics.geometry.PlanarRegion;
@@ -65,7 +61,7 @@ public class Example_DebugExtrusionBug extends Application
 
       //PlanarRegions_201709271214.txt double ramp
       //PlanarRegions_201709260314.txt stairs
-      regions = PointCloudTools.loadPlanarRegionsFromFile("PlanarRegions_TwoSidedStairs.txt");
+      regions = PointCloudTools.loadPlanarRegionsFromFile("../../Data/PlanarRegions_TwoSidedStairs.txt");
       classifyRegions(regions);
 
       //      addCeilingRegion();
