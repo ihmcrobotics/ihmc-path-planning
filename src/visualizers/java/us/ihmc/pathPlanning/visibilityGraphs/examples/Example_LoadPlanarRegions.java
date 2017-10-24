@@ -48,27 +48,27 @@ public class Example_LoadPlanarRegions extends Application
       TextureColorPalette colorPalette = new TextureColorAdaptivePalette();
       javaFXMultiColorMeshBuilder = new JavaFXMultiColorMeshBuilder(colorPalette);
 
-      regions = PointCloudTools.loadPlanarRegionsFromFile("Data/PlanarRegions_NRI_Maze.txt");
+      regions = PointCloudTools.loadPlanarRegionsFromFile("Data/PlanarRegions_RD_Cinder_Maze.txt");
 
-      Random rand = new Random();
-      for (PlanarRegion region : regions)
-      {
-         int id = rand.nextInt();
-         region.setRegionId(id);
+//      Random rand = new Random();
+//      for (PlanarRegion region : regions)
+//      {
+//         int id = rand.nextInt();
+//         region.setRegionId(id);
+//
+//         RigidBodyTransform transform = new RigidBodyTransform();
+//         region.getTransformToWorld(transform);
+//
+//         Color color = getRegionColor(region.getRegionId());
+//         for (int i = 0; i < region.getNumberOfConvexPolygons(); i++)
+//         {
+//            javaFXMultiColorMeshBuilder.addPolygon(transform, region.getConvexPolygon(i), color);
+//         }
+//      }
 
-         RigidBodyTransform transform = new RigidBodyTransform();
-         region.getTransformToWorld(transform);
-
-         Color color = getRegionColor(region.getRegionId());
-         for (int i = 0; i < region.getNumberOfConvexPolygons(); i++)
-         {
-            javaFXMultiColorMeshBuilder.addPolygon(transform, region.getConvexPolygon(i), color);
-         }
-      }
-
-      //            visualizeRegion(regions.get(0), Color.BEIGE);
-      //            visualizeRegion(regions.get(1), Color.BLACK);
-      //            visualizeRegion(regions.get(2), Color.BEIGE);
+                  visualizeRegion(regions.get(0), Color.BEIGE);
+                  visualizeRegion(regions.get(1), Color.BLACK);
+                  visualizeRegion(regions.get(2), Color.BEIGE);
       //            visualizeRegion(regions.get(3), Color.BEIGE);
       //            visualizeRegion(regions.get(4), Color.BEIGE);
       //            visualizeRegion(regions.get(5), Color.BEIGE);

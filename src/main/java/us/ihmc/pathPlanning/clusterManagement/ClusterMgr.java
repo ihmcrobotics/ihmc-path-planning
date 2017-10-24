@@ -91,16 +91,16 @@ public class ClusterMgr
                Point2D second = new Point2D(list.get(i + 1).getX(), list.get(i + 1).getY());
                generateNormalsForSegment(first, second, cluster, extrusionDistance);
 
-//               if(cluster.isObstacleClosed())
-//               {
-////                  first = new Point2D(list.get(list.size() - 1).getX(), list.get(list.size() - 1).getY());
-////                  second = new Point2D(list.get(0).getX(), list.get(0).getY());
-////                  generateNormalsForSegment(first, second, cluster, extrusionDistance);
-//
-////                  first = new Point2D(list.get(0).getX(), list.get(0).getY());
-////                  second = new Point2D(list.get(1).getX(), list.get(1).getY());
-////                  generateNormalsForSegment(first, second, cluster, extrusionDistance);
-//               }
+               //               if(cluster.isObstacleClosed())
+               //               {
+               ////                  first = new Point2D(list.get(list.size() - 1).getX(), list.get(list.size() - 1).getY());
+               ////                  second = new Point2D(list.get(0).getX(), list.get(0).getY());
+               ////                  generateNormalsForSegment(first, second, cluster, extrusionDistance);
+               //
+               ////                  first = new Point2D(list.get(0).getX(), list.get(0).getY());
+               ////                  second = new Point2D(list.get(1).getX(), list.get(1).getY());
+               ////                  generateNormalsForSegment(first, second, cluster, extrusionDistance);
+               //               }
             }
          }
       }
@@ -136,9 +136,13 @@ public class ClusterMgr
 
       if (cluster.getType() == Type.LINE)
       {
-         //                  System.out.println("Extruding line");
+//         System.out.println("Extruding line");
+//         System.out.println("Distance: " + extrusionDistance);
+         
          double extrusionDist1 = extrusionDistance - 0.01 + cluster.getAdditionalExtrusionDistance();
          double extrusionDist2 = extrusionDistance + cluster.getAdditionalExtrusionDistance();
+         
+//         System.out.println(extrusionDist1 + "   " + extrusionDist2);
 
          ArrayList<Point2D> nonNavExtrusions = extrudeLine(new Point2D(cluster.getRawPointsInCluster().get(0).getX(),
                                                                        cluster.getRawPointsInCluster().get(0).getY()),
@@ -183,7 +187,7 @@ public class ClusterMgr
             extrusionIndex = determineExtrusionSide(cluster, observer);
          }
 
-//         javaFXMultiColorMeshBuilder.addSphere(0.04f, cluster.getListOfSafeNormals().get(extrusionIndex), Color.RED);
+         //         javaFXMultiColorMeshBuilder.addSphere(0.04f, cluster.getListOfSafeNormals().get(extrusionIndex), Color.RED);
 
          extrudePolygon(cluster, extrusionIndex, extrusionDistance);
       }
@@ -196,21 +200,21 @@ public class ClusterMgr
       double extrusionDist1 = extrusionDistance - 0.01;
       double extrusionDist2 = extrusionDistance;
 
-//      if (cluster.isObstacleClosed())
-//         extrudeFirstNonNavigable(extrusionIndex, cluster, extrusionDist1);
+      //      if (cluster.isObstacleClosed())
+      //         extrudeFirstNonNavigable(extrusionIndex, cluster, extrusionDist1);
 
       extrudedNonNavigableBoundary(extrusionIndex, cluster, extrusionDist1);
 
-//      if (cluster.isObstacleClosed())
-//         extrudeLastNonNavigable(cluster, extrusionIndex, extrusionDist1);
+      //      if (cluster.isObstacleClosed())
+      //         extrudeLastNonNavigable(cluster, extrusionIndex, extrusionDist1);
 
-//      if (cluster.isObstacleClosed())
-//         extrudeFirstNavigable(cluster, extrusionIndex, extrusionDist1);
+      //      if (cluster.isObstacleClosed())
+      //         extrudeFirstNavigable(cluster, extrusionIndex, extrusionDist1);
 
       extrudedNavigableBoundary(extrusionIndex, cluster, extrusionDist2);
 
-//      if (cluster.isObstacleClosed())
-//         extrudeLastNavigable(cluster, extrusionIndex, extrusionDist1);
+      //      if (cluster.isObstacleClosed())
+      //         extrudeLastNavigable(cluster, extrusionIndex, extrusionDist1);
    }
 
    private void extrudedFirstNonNavigableExtrusion(Cluster cluster, int index, double extrusionDistance)
@@ -392,7 +396,6 @@ public class ClusterMgr
 
    }
 
-
    private void extrudeFirstNonNavigable(int index, Cluster cluster, double extrusionDistance)
    {
       if (cluster.isObstacleClosed())
@@ -456,9 +459,9 @@ public class ClusterMgr
          Point3D point2 = cluster.getRawPointsInCluster().get(cluster.getRawPointsInCluster().size() - 1);
          Point3D point3 = cluster.getRawPointsInCluster().get(0);
 
-//         javaFXMultiColorMeshBuilder.addSphere(0.04f, point1, Color.RED);
-//         javaFXMultiColorMeshBuilder.addSphere(0.04f, point2, Color.RED);
-//         javaFXMultiColorMeshBuilder.addSphere(0.04f, point3, Color.RED);
+         //         javaFXMultiColorMeshBuilder.addSphere(0.04f, point1, Color.RED);
+         //         javaFXMultiColorMeshBuilder.addSphere(0.04f, point2, Color.RED);
+         //         javaFXMultiColorMeshBuilder.addSphere(0.04f, point3, Color.RED);
 
          Vector2D vec1 = new Vector2D(point2.getX() - point1.getX(), point2.getY() - point1.getY());
          Vector2D vec2 = new Vector2D(point2.getX() - point3.getX(), point2.getY() - point3.getY());
@@ -469,8 +472,8 @@ public class ClusterMgr
          dirVector.normalize();
 
          Point2D extrudedPoint = new Point2D(point2.getX() + dirVector.getX() * extrusionDistance, point2.getY() + dirVector.getY() * extrusionDistance);
-//         javaFXMultiColorMeshBuilder.addSphere(0.04f, new Point3D(extrudedPoint.getX(), extrudedPoint.getY(), 0), Color.YELLOW);
-//
+         //         javaFXMultiColorMeshBuilder.addSphere(0.04f, new Point3D(extrudedPoint.getX(), extrudedPoint.getY(), 0), Color.YELLOW);
+         //
          cluster.addNonNavigableExtrusionPoint(extrudedPoint);
       }
    }
@@ -484,9 +487,9 @@ public class ClusterMgr
          Point3D point2 = cluster.getRawPointsInCluster().get(0);
          Point3D point3 = cluster.getRawPointsInCluster().get(1);
 
-//         javaFXMultiColorMeshBuilder.addSphere(0.04f, point1, Color.YELLOW);
-//         javaFXMultiColorMeshBuilder.addSphere(0.04f, point2, Color.YELLOW);
-//         javaFXMultiColorMeshBuilder.addSphere(0.04f, point3, Color.YELLOW);
+         //         javaFXMultiColorMeshBuilder.addSphere(0.04f, point1, Color.YELLOW);
+         //         javaFXMultiColorMeshBuilder.addSphere(0.04f, point2, Color.YELLOW);
+         //         javaFXMultiColorMeshBuilder.addSphere(0.04f, point3, Color.YELLOW);
 
          Vector2D vec1 = new Vector2D(point2.getX() - point1.getX(), point2.getY() - point1.getY());
          Vector2D vec2 = new Vector2D(point2.getX() - point3.getX(), point2.getY() - point3.getY());
@@ -497,7 +500,7 @@ public class ClusterMgr
          dirVector.normalize();
 
          Point2D extrudedPoint = new Point2D(point2.getX() + dirVector.getX() * extrusionDistance, point2.getY() + dirVector.getY() * extrusionDistance);
-//         javaFXMultiColorMeshBuilder.addSphere(0.04f, new Point3D(extrudedPoint.getX(), extrudedPoint.getY(), 0), Color.YELLOW);
+         //         javaFXMultiColorMeshBuilder.addSphere(0.04f, new Point3D(extrudedPoint.getX(), extrudedPoint.getY(), 0), Color.YELLOW);
 
          cluster.addNavigableExtrusionPoint(new Point3D(extrudedPoint.getX(), extrudedPoint.getY(), 0));
       }
@@ -525,7 +528,7 @@ public class ClusterMgr
          dirVector.normalize();
 
          Point2D extrudedPoint = new Point2D(point2.getX() + dirVector.getX() * extrusionDistance, point2.getY() + dirVector.getY() * extrusionDistance);
-//         javaFXMultiColorMeshBuilder.addSphere(0.04f, new Point3D(extrudedPoint.getX(), extrudedPoint.getY(), 0), Color.YELLOW);
+         //         javaFXMultiColorMeshBuilder.addSphere(0.04f, new Point3D(extrudedPoint.getX(), extrudedPoint.getY(), 0), Color.YELLOW);
 
          cluster.addNavigableExtrusionPoint(new Point3D(extrudedPoint.getX(), extrudedPoint.getY(), 0));
       }

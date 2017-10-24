@@ -1,4 +1,4 @@
-package us.ihmc.pathPlanning.visibilityGraphs.examples;
+package us.ihmc.pathPlanning.visibilityGraphs.workingExamples;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -37,7 +37,7 @@ import us.ihmc.robotics.geometry.PlanarRegion;
 /**
  * User: Matt Date: 1/14/13
  */
-public class Example_IsStartGoalInsideRegion extends Application
+public class Example_REAL_Cinder_Maze extends Application
 {
    ArrayList<PlanarRegion> regions = new ArrayList<>();
    ArrayList<SimpleWeightedGraph<Point3D, DefaultWeightedEdge>> visMaps = new ArrayList<>();
@@ -47,10 +47,10 @@ public class Example_IsStartGoalInsideRegion extends Application
 
    JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder;
 
-   Point3D startPos = new Point3D(9.5, 9, 0); //-0.7, 3.9, 0 with region 31
-   Point3D goalPos = new Point3D(-2.5, 0.5, 0); // on region 34
+   Point3D startPos = new Point3D(2, 2, 0); //-0.7, 3.9, 0 with region 31
+   Point3D goalPos = new Point3D(0.5, 0.5, 0); // on region 34
 
-   public Example_IsStartGoalInsideRegion()
+   public Example_REAL_Cinder_Maze()
    {
    }
 
@@ -64,18 +64,53 @@ public class Example_IsStartGoalInsideRegion extends Application
       TextureColorPalette colorPalette = new TextureColorAdaptivePalette();
       javaFXMultiColorMeshBuilder = new JavaFXMultiColorMeshBuilder(colorPalette);
 
-      regions = PointCloudTools.loadPlanarRegionsFromFile("Data/PlanarRegions_NRI_Maze.txt");
+      regions = PointCloudTools.loadPlanarRegionsFromFile("Data/PlanarRegions_RD_Cinder_Maze.txt");
 
       startPos = projectPointToPlane(startPos, regions.get(0));
       goalPos = projectPointToPlane(goalPos, regions.get(0));
       
-      javaFXMultiColorMeshBuilder.addSphere(0.025f, startPos, Color.BLUE);
-      javaFXMultiColorMeshBuilder.addSphere(0.025f, goalPos, Color.RED);
-
       long startTime = System.currentTimeMillis();
+      
+      ArrayList<PlanarRegion> regions1 = new ArrayList<>();
+      regions1.add(regions.get(0));
+      regions1.add(regions.get(1));
+//      regions1.add(regions.get(2));
+
 
       NavigableRegionsManager navigableRegionsManager = new NavigableRegionsManager(regions, javaFXMultiColorMeshBuilder);
       ArrayList<Point3D> path = navigableRegionsManager.calculateBodyPath(startPos, goalPos);
+      
+      System.out.println("Total Vis. Graphs Time: " + (System.currentTimeMillis() - startTime));
+
+      javaFXMultiColorMeshBuilder.addSphere(0.03f, startPos, Color.GREEN);
+      javaFXMultiColorMeshBuilder.addSphere(0.03f, goalPos, Color.RED);
+
+      for (PlanarRegion region : navigableRegionsManager.getListOfAccesibleRegions())
+      {
+         visualizeRegion(region, Color.GREEN);
+      }
+
+      for (PlanarRegion region : navigableRegionsManager.getListOfObstacleRegions())
+      {
+         visualizeRegion(region, Color.RED);
+      }
+
+      for (int i = 1; i < path.size(); i++)
+      {
+         Point3D from = path.get(i - 1);
+         Point3D to = path.get(i);
+
+         javaFXMultiColorMeshBuilder.addLine(new Point3D(from.getX(), from.getY(), from.getZ()), new Point3D(to.getX(), to.getY(), to.getZ()), 0.025,
+                                             Color.RED);
+      }
+
+      for (int i = 0; i < path.size(); i++)
+      {
+         Point3D to = path.get(i);
+
+         javaFXMultiColorMeshBuilder.addSphere(0.03f, to, Color.YELLOW);
+
+      }
 
       MeshView meshView = new MeshView(javaFXMultiColorMeshBuilder.generateMesh());
       meshView.setMaterial(javaFXMultiColorMeshBuilder.generateMaterial());
