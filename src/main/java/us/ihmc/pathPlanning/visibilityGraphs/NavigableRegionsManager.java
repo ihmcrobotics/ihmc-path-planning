@@ -92,7 +92,8 @@ public class NavigableRegionsManager
 
       connectLocalMaps();
       createGlobalMap();
-//      forceConnectionToGoal(goalPos);
+      //forceConnectionToGoal(goalPos);
+      //
       
       //Visualize
       for (SimpleWeightedGraph<Point3D, DefaultWeightedEdge> map : visMaps)
