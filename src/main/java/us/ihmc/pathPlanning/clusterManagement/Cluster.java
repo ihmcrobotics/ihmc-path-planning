@@ -3,13 +3,14 @@ package us.ihmc.pathPlanning.clusterManagement;
 import java.util.ArrayList;
 import java.util.List;
 
+import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.euclid.tuple3D.Point3D;
 
 public class Cluster
 {
-   private Point3D originPosition = new Point3D();
+   private Point3D originPosition = new Point3D(); // FIXME this field seems to never be set but induce some additional computation.
    private List<Point3D> listOfRawPoints = new ArrayList<>();
    private final List<Point3D> listOfVertices = new ArrayList<>();
    private final List<Point3D> listOfNormals = new ArrayList<>();
@@ -18,6 +19,7 @@ public class Cluster
    private final List<Point2D> listOfNavigableExtrusions = new ArrayList<>();
    private final List<Point2D> listOfNonNavigableExtrusions = new ArrayList<>();
 
+   // TODO Provide some info about the usage/meaning of these fields
    private boolean isObstacleClosed = false;
    private double extrusionDistance = 0.0;
    private boolean isDynamic = false;
@@ -108,17 +110,7 @@ public class Cluster
 
    private Point3D calculateCentroid()
    {
-      double xAve = 0.0;
-      double yAve = 0.0;
-      double zAve = 0.0;
-      for (Point3D point : listOfRawPoints)
-      {
-         xAve = xAve + point.getX();
-         yAve = yAve + point.getY();
-         zAve = zAve + point.getZ();
-      }
-
-      return new Point3D((xAve / listOfRawPoints.size()), (yAve / listOfRawPoints.size()), (zAve / listOfRawPoints.size()));
+      return EuclidGeometryTools.averagePoint3Ds(listOfRawPoints);
    }
 
    public Point3D getCentroid()
