@@ -14,9 +14,9 @@ import us.ihmc.pathPlanning.clusterManagement.Cluster.Type;
 
 public class ClusterMgr
 {
-   ArrayList<Cluster> listOfClusters = new ArrayList<>();
-   int extrusionIndex = 0;
-   JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder;
+   private final ArrayList<Cluster> listOfClusters = new ArrayList<>();
+   private int extrusionIndex = 0;
+   private JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder;
 
    public void setVis(JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder)
    {
