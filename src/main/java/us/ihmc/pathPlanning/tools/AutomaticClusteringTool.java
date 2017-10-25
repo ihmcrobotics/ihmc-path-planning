@@ -3,13 +3,14 @@ package us.ihmc.pathPlanning.tools;
 
 
 import java.util.ArrayList;
+import java.util.List;
 
 import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.pathPlanning.clusterManagement.Cluster;
 
 public class AutomaticClusteringTool
 {
-   public static ArrayList<Cluster> createClusters(ArrayList<Point3D> listOfPoints, double clusteringDistanceThreshold)
+   public static List<Cluster> createClusters(List<Point3D> listOfPoints, double clusteringDistanceThreshold)
    {
       ArrayList<Cluster> listOfClusters = new ArrayList<>();
 
@@ -52,7 +53,7 @@ public class AutomaticClusteringTool
       return listOfClusters;
    }
      
-   public static ArrayList<Cluster> createClusters2(ArrayList<Point3D> listOfPoints, double clusteringDistanceThreshold)
+   public static List<Cluster> createClusters2(List<Point3D> listOfPoints, double clusteringDistanceThreshold)
    {
       ArrayList<Cluster> listOfClusters = new ArrayList<>();
       
