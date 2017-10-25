@@ -1,6 +1,6 @@
 package us.ihmc.pathPlanning.tools;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import us.ihmc.euclid.tuple3D.Point3D;
 
@@ -11,12 +11,11 @@ import us.ihmc.euclid.tuple3D.Point3D;
  */
 public class LinearRegression
 {
+   private List<Point3D> points;
+   private double beta1;
+   private double beta0;
 
-   private ArrayList<Point3D> points;
-   double beta1;
-   double beta0;
-
-   public LinearRegression(ArrayList<Point3D> points)
+   public LinearRegression(List<Point3D> points)
    {
       this.points = points;
    }
