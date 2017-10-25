@@ -19,12 +19,12 @@ import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.euclid.tuple4D.Quaternion;
 import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
-import us.ihmc.pathPlanning.clusterManagement.Cluster;
-import us.ihmc.pathPlanning.clusterManagement.Cluster.ExtrusionSide;
-import us.ihmc.pathPlanning.clusterManagement.Cluster.Type;
-import us.ihmc.pathPlanning.clusterManagement.ClusterMgr;
-import us.ihmc.pathPlanning.tools.LinearRegression;
-import us.ihmc.pathPlanning.tools.PointCloudTools;
+import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
+import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterMgr;
+import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.ExtrusionSide;
+import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.Type;
+import us.ihmc.pathPlanning.visibilityGraphs.tools.LinearRegression;
+import us.ihmc.pathPlanning.visibilityGraphs.tools.PointCloudTools;
 import us.ihmc.robotics.geometry.PlanarRegion;
 
 /**

@@ -1,4 +1,4 @@
-package us.ihmc.pathPlanning.tools;
+package us.ihmc.pathPlanning.visibilityGraphs.tools;
 import java.util.List;
 
 import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;

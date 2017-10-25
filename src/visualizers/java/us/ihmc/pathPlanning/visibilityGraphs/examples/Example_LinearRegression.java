@@ -11,7 +11,7 @@ import us.ihmc.javaFXToolkit.scenes.View3DFactory;
 import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.javaFXToolkit.shapes.TextureColorAdaptivePalette;
 import us.ihmc.javaFXToolkit.shapes.TextureColorPalette;
-import us.ihmc.pathPlanning.tools.LinearRegression;
+import us.ihmc.pathPlanning.visibilityGraphs.tools.LinearRegression;
 
 public class Example_LinearRegression extends Application
 {

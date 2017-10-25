@@ -1,4 +1,4 @@
-package us.ihmc.pathPlanning.clusterManagement;
+package us.ihmc.pathPlanning.visibilityGraphs.clusterManagement;
 
 import java.util.ArrayList;
 import java.util.List;

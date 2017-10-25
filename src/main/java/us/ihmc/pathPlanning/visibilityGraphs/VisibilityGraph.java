@@ -8,9 +8,9 @@ import org.jgrapht.graph.SimpleWeightedGraph;
 
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Point2D;
-import us.ihmc.pathPlanning.clusterManagement.Cluster;
-import us.ihmc.pathPlanning.clusterManagement.ClusterMgr;
-import us.ihmc.pathPlanning.tools.VisibilityTools;
+import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
+import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterMgr;
+import us.ihmc.pathPlanning.visibilityGraphs.tools.VisibilityTools;
 
 public class VisibilityGraph
 {

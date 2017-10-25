@@ -1,10 +1,10 @@
-package us.ihmc.pathPlanning.tools;
+package us.ihmc.pathPlanning.visibilityGraphs.tools;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import us.ihmc.euclid.tuple3D.Point3D;
-import us.ihmc.pathPlanning.clusterManagement.Cluster;
+import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
 
 /*
  * TODO That class does not seem to be used anymore.

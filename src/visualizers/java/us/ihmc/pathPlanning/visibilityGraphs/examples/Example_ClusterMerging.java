@@ -15,12 +15,12 @@ import us.ihmc.javaFXToolkit.scenes.View3DFactory;
 import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.javaFXToolkit.shapes.TextureColorAdaptivePalette;
 import us.ihmc.javaFXToolkit.shapes.TextureColorPalette;
-import us.ihmc.pathPlanning.clusterManagement.Cluster;
-import us.ihmc.pathPlanning.clusterManagement.Cluster.ExtrusionSide;
-import us.ihmc.pathPlanning.clusterManagement.Cluster.Type;
-import us.ihmc.pathPlanning.clusterManagement.ClusterMgr;
-import us.ihmc.pathPlanning.tools.PointCloudTools;
-import us.ihmc.pathPlanning.tools.PointCloudTools.WindingOrder;
+import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
+import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterMgr;
+import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.ExtrusionSide;
+import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.Type;
+import us.ihmc.pathPlanning.visibilityGraphs.tools.PointCloudTools;
+import us.ihmc.pathPlanning.visibilityGraphs.tools.PointCloudTools.WindingOrder;
 import us.ihmc.robotics.geometry.PlanarRegion;
 
 /**
