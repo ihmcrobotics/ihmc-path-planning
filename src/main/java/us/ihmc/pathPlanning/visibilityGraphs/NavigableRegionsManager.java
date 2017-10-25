@@ -429,7 +429,7 @@ public class NavigableRegionsManager
       return obstacleRegions;
    }
 
-   private class DistancePoint implements Comparable
+   private class DistancePoint implements Comparable<DistancePoint>
    {
       Point3D point;
       double distance;
@@ -441,10 +441,8 @@ public class NavigableRegionsManager
       }
 
       @Override
-      public int compareTo(Object arg0)
+      public int compareTo(DistancePoint point1)
       {
-         DistancePoint point1 = (DistancePoint) arg0;
-
          if (distance > point1.distance)
          {
             return 1;
@@ -460,16 +458,12 @@ public class NavigableRegionsManager
       }
    }
 
-   private class DistancePointComparator implements Comparator
+   private class DistancePointComparator implements Comparator<DistancePoint>
    {
       @Override
-      public int compare(Object arg0, Object arg1)
+      public int compare(DistancePoint point1, DistancePoint point2)
       {
-         DistancePoint point1 = (DistancePoint) arg0;
-         DistancePoint point2 = (DistancePoint) arg1;
-
          return point1.compareTo(point2);
       }
-
    }
 }
