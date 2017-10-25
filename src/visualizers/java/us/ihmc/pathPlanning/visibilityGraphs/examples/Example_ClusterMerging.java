@@ -1,11 +1,7 @@
 package us.ihmc.pathPlanning.visibilityGraphs.examples;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
+import java.util.List;
 
 import javafx.application.Application;
 import javafx.scene.paint.Color;
@@ -13,11 +9,8 @@ import javafx.scene.shape.MeshView;
 import javafx.stage.Stage;
 import us.ihmc.euclid.geometry.ConvexPolygon2D;
 import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
-import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.euclid.tuple3D.Point3D;
-import us.ihmc.euclid.tuple3D.Vector3D;
-import us.ihmc.euclid.tuple4D.Quaternion;
 import us.ihmc.javaFXToolkit.scenes.View3DFactory;
 import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.javaFXToolkit.shapes.TextureColorAdaptivePalette;
@@ -28,7 +21,6 @@ import us.ihmc.pathPlanning.clusterManagement.Cluster.Type;
 import us.ihmc.pathPlanning.clusterManagement.ClusterMgr;
 import us.ihmc.pathPlanning.tools.PointCloudTools;
 import us.ihmc.pathPlanning.tools.PointCloudTools.WindingOrder;
-import us.ihmc.pathPlanning.tools.VisibilityTools;
 import us.ihmc.robotics.geometry.PlanarRegion;
 
 /**
@@ -150,7 +142,7 @@ public class Example_ClusterMerging extends Application
       primaryStage.show();
    }
 
-   public ArrayList<Point2D> generateListOfPointsInsideHomeCluster(ArrayList<Point2D> homePoints, ArrayList<Point2D> pointsToCheck)
+   public ArrayList<Point2D> generateListOfPointsInsideHomeCluster(List<Point2D> homePoints, List<Point2D> pointsToCheck)
    {
       int startj = -1;
       int endj = -1;

@@ -1,6 +1,7 @@
 package us.ihmc.pathPlanning.clusterManagement;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Point2D;
@@ -9,13 +10,13 @@ import us.ihmc.euclid.tuple3D.Point3D;
 public class Cluster
 {
    private Point3D originPosition = new Point3D();
-   private ArrayList<Point3D> listOfRawPoints = new ArrayList<>();
-   private final ArrayList<Point3D> listOfVertices = new ArrayList<>();
-   private final ArrayList<Point3D> listOfNormals = new ArrayList<>();
-   private final ArrayList<Point3D> listOfNormalsSafe = new ArrayList<>();
-   private final ArrayList<Point3D> listOfCorrectNormals = new ArrayList<>();
-   private final ArrayList<Point2D> listOfNavigableExtrusions = new ArrayList<>();
-   private final ArrayList<Point2D> listOfNonNavigableExtrusions = new ArrayList<>();
+   private List<Point3D> listOfRawPoints = new ArrayList<>();
+   private final List<Point3D> listOfVertices = new ArrayList<>();
+   private final List<Point3D> listOfNormals = new ArrayList<>();
+   private final List<Point3D> listOfNormalsSafe = new ArrayList<>();
+   private final List<Point3D> listOfCorrectNormals = new ArrayList<>();
+   private final List<Point2D> listOfNavigableExtrusions = new ArrayList<>();
+   private final List<Point2D> listOfNonNavigableExtrusions = new ArrayList<>();
 
    private boolean isObstacleClosed = false;
    private double extrusionDistance = 0.0;
@@ -43,7 +44,7 @@ public class Cluster
    {
    }
 
-   public Cluster(ArrayList<Point3D> listOfRawPoints, boolean closed)
+   public Cluster(List<Point3D> listOfRawPoints, boolean closed)
    {
       this.listOfRawPoints = listOfRawPoints;
       isObstacleClosed = closed;
@@ -88,7 +89,7 @@ public class Cluster
       return type;
    }
 
-   public Cluster(ArrayList<Point3D> listOfRawPoints, boolean closed, boolean isDynamic, Point2D observer, String name)
+   public Cluster(List<Point3D> listOfRawPoints, boolean closed, boolean isDynamic, Point2D observer, String name)
    {
       isObstacleClosed = closed;
       this.isDynamic = isDynamic;
@@ -155,9 +156,9 @@ public class Cluster
       return name;
    }
 
-   public ArrayList<Point2D> getUpdatedNavigableExtrusions()
+   public List<Point2D> getUpdatedNavigableExtrusions()
    {
-      ArrayList<Point2D> list = new ArrayList<>();
+      List<Point2D> list = new ArrayList<>();
       for (Point2D point : listOfNavigableExtrusions)
       {
          list.add(new Point2D(point.getX() + originPosition.getX(), point.getY() + originPosition.getY()));
@@ -166,9 +167,9 @@ public class Cluster
       return list;
    }
 
-   public ArrayList<Point3D> getUpdatedRawPoints()
+   public List<Point3D> getUpdatedRawPoints()
    {
-      ArrayList<Point3D> list = new ArrayList<>();
+      List<Point3D> list = new ArrayList<>();
       for (Point3D point : listOfRawPoints)
       {
          list.add(new Point3D(point.getX() + originPosition.getX(), point.getY() + originPosition.getY(), point.getZ() + originPosition.getZ()));
@@ -177,9 +178,9 @@ public class Cluster
       return list;
    }
 
-   public ArrayList<Point3D> getUpdatedNormals()
+   public List<Point3D> getUpdatedNormals()
    {
-      ArrayList<Point3D> list = new ArrayList<>();
+      List<Point3D> list = new ArrayList<>();
       for (Point3D point : listOfNormals)
       {
          list.add(new Point3D(point.getX() + originPosition.getX(), point.getY() + originPosition.getY(), point.getZ() + originPosition.getZ()));
@@ -224,7 +225,7 @@ public class Cluster
       isDynamic = dynamic;
    }
 
-   public void addRawPoints(ArrayList<Point3D> points, boolean closed)
+   public void addRawPoints(List<Point3D> points, boolean closed)
    {
       isObstacleClosed = closed;
       listOfRawPoints.addAll(points);
@@ -243,7 +244,7 @@ public class Cluster
       return isObstacleClosed;
    }
 
-   public ArrayList<Point3D> getRawPointsInCluster()
+   public List<Point3D> getRawPointsInCluster()
    {
       return listOfRawPoints;
    }
@@ -253,7 +254,7 @@ public class Cluster
       listOfVertices.add(vertex);
    }
 
-   public ArrayList<Point3D> getListOfVertices()
+   public List<Point3D> getListOfVertices()
    {
       return listOfVertices;
    }
@@ -293,24 +294,24 @@ public class Cluster
       listOfNonNavigableExtrusions.add(0, point);
    }
 
-   public ArrayList<Point2D> getListOfNavigableExtrusions()
+   public List<Point2D> getListOfNavigableExtrusions()
    {
       return listOfNavigableExtrusions;
    }
 
-   public ArrayList<Point2D> getListOfNonNavigableExtrusions()
+   public List<Point2D> getListOfNonNavigableExtrusions()
    {
       return listOfNonNavigableExtrusions;
    }
 
-   public ArrayList<Point3D> getListOfSafeNormals()
+   public List<Point3D> getListOfSafeNormals()
    {
       return listOfNormalsSafe;
    }
 
-   public ArrayList<Point3D> getUpdatedListOfSafeNormals()
+   public List<Point3D> getUpdatedListOfSafeNormals()
    {
-      ArrayList<Point3D> list = new ArrayList<>();
+      List<Point3D> list = new ArrayList<>();
       for (Point3D point : listOfNormalsSafe)
       {
          list.add(new Point3D(point.getX() + originPosition.getX(), point.getY() + originPosition.getY(), point.getZ() + originPosition.getZ()));
@@ -319,14 +320,14 @@ public class Cluster
       return list;
    }
 
-   public ArrayList<Point3D> getListOfCorrectNormals()
+   public List<Point3D> getListOfCorrectNormals()
    {
       return listOfCorrectNormals;
    }
 
-   public ArrayList<Point3D> getNormals()
+   public List<Point3D> getNormals()
    {
-      return (ArrayList<Point3D>) listOfNormals.clone();
+      return new ArrayList<>(listOfNormals);
    }
 
    public boolean contains(Point3D point)

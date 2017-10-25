@@ -82,7 +82,7 @@ public class ClusterMgr
    {
       for (Cluster cluster : listOfClusters)
       {
-         ArrayList<Point3D> list = cluster.getRawPointsInCluster();
+         List<Point3D> list = cluster.getRawPointsInCluster();
          for (int i = 0; i < list.size(); i++)
          {
             if (i < list.size() - 1)
