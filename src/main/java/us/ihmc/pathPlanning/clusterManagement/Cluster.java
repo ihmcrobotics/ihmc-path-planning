@@ -1,6 +1,5 @@
 package us.ihmc.pathPlanning.clusterManagement;
 
-
 import java.util.ArrayList;
 
 import us.ihmc.euclid.transform.RigidBodyTransform;
@@ -25,13 +24,19 @@ public class Cluster
    private Point2D observer;
    private RigidBodyTransform transform;
    private Point3D centroid = new Point3D();
-   
-   public enum ExtrusionSide{AUTO, INSIDE, OUTSIDE};
-   
+
+   public enum ExtrusionSide
+   {
+      AUTO, INSIDE, OUTSIDE
+   };
+
    private ExtrusionSide extrusionSide = ExtrusionSide.AUTO;
-   
-   public enum Type{LINE,POLYGON};
-   
+
+   public enum Type
+   {
+      LINE, POLYGON
+   };
+
    Type type = Type.POLYGON;
 
    public Cluster()
@@ -48,20 +53,20 @@ public class Cluster
          listOfRawPoints.add(listOfRawPoints.get(0));
          listOfRawPoints.add(listOfRawPoints.get(1));
       }
-      
+
       centroid = calculateCentroid();
    }
-   
+
    public void setExtrusionSide(ExtrusionSide extrusionSide)
    {
       this.extrusionSide = extrusionSide;
    }
-   
+
    public ExtrusionSide getExtrusionSide()
    {
       return extrusionSide;
    }
-   
+
    public void setClusterClosure(boolean closed)
    {
       if (closed && !this.isObstacleClosed)
@@ -69,15 +74,15 @@ public class Cluster
          listOfRawPoints.add(listOfRawPoints.get(0));
          listOfRawPoints.add(listOfRawPoints.get(1));
       }
-      
+
       this.isObstacleClosed = closed;
    }
-   
+
    public void setType(Type type)
    {
       this.type = type;
    }
-   
+
    public Type getType()
    {
       return type;
@@ -99,32 +104,32 @@ public class Cluster
       }
       centroid = calculateCentroid();
    }
-   
+
    private Point3D calculateCentroid()
    {
       double xAve = 0.0;
       double yAve = 0.0;
       double zAve = 0.0;
-      for(Point3D point : listOfRawPoints)
+      for (Point3D point : listOfRawPoints)
       {
          xAve = xAve + point.getX();
          yAve = yAve + point.getY();
          zAve = zAve + point.getZ();
       }
-      
-      return new Point3D((xAve/listOfRawPoints.size()), (yAve/listOfRawPoints.size()), (zAve/listOfRawPoints.size()));
+
+      return new Point3D((xAve / listOfRawPoints.size()), (yAve / listOfRawPoints.size()), (zAve / listOfRawPoints.size()));
    }
-   
+
    public Point3D getCentroid()
    {
       return centroid;
    }
-   
+
    public void setTransform(RigidBodyTransform t)
    {
       transform = t;
    }
-   
+
    public RigidBodyTransform getTransform()
    {
       return transform;
@@ -161,7 +166,6 @@ public class Cluster
       return list;
    }
 
-
    public ArrayList<Point3D> getUpdatedRawPoints()
    {
       ArrayList<Point3D> list = new ArrayList<>();
@@ -188,7 +192,7 @@ public class Cluster
    {
       originPosition = point;
    }
-   
+
    public Point3D getOriginPosition()
    {
       return originPosition;
@@ -230,7 +234,7 @@ public class Cluster
          listOfRawPoints.add(points.get(0));
 
       }
-      
+
       centroid = calculateCentroid();
    }
 
