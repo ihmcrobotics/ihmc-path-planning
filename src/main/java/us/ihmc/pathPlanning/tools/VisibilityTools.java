@@ -1,13 +1,12 @@
 package us.ihmc.pathPlanning.tools;
-import java.util.ArrayList;
+import java.util.List;
 
 import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
 import us.ihmc.euclid.tuple2D.Point2D;
-import us.ihmc.euclid.tuple3D.Point3D;
 
 public class VisibilityTools
 {
-   public static boolean isPointVisible(Point2D observer, Point2D targetPoint, ArrayList<Point2D> listOfPointsInCluster)
+   public static boolean isPointVisible(Point2D observer, Point2D targetPoint, List<Point2D> listOfPointsInCluster)
    {
       for (int i = 0; i < listOfPointsInCluster.size(); i++)
       {

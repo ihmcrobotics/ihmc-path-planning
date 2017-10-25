@@ -1,12 +1,8 @@
 package us.ihmc.pathPlanning.visibilityGraphs.workingExamples;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Random;
+import java.util.List;
 
-import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
@@ -14,24 +10,19 @@ import javafx.application.Application;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.MeshView;
 import javafx.stage.Stage;
-import us.ihmc.euclid.geometry.ConvexPolygon2D;
 import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
 import us.ihmc.euclid.referenceFrame.FramePoint3D;
-import us.ihmc.euclid.referenceFrame.ReferenceFrame;
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.euclid.tuple3D.Vector3D;
-import us.ihmc.euclid.tuple4D.Quaternion;
 import us.ihmc.javaFXToolkit.scenes.View3DFactory;
 import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.javaFXToolkit.shapes.TextureColorAdaptivePalette;
 import us.ihmc.javaFXToolkit.shapes.TextureColorPalette;
-import us.ihmc.pathPlanning.clusterManagement.Cluster;
 import us.ihmc.pathPlanning.tools.PointCloudTools;
 import us.ihmc.pathPlanning.visibilityGraphs.NavigableRegionLocalPlanner;
 import us.ihmc.pathPlanning.visibilityGraphs.NavigableRegionsManager;
-import us.ihmc.pathPlanning.visibilityGraphs.VisibilityGraph;
 import us.ihmc.robotics.geometry.PlanarRegion;
 
 /**
@@ -72,7 +63,7 @@ public class Example_NRI_Maze_TEMPORARY extends Application
       long startTime = System.currentTimeMillis();
 
       NavigableRegionsManager navigableRegionsManager = new NavigableRegionsManager(regions, javaFXMultiColorMeshBuilder);
-      ArrayList<Point3D> path = navigableRegionsManager.calculateBodyPath(startPos, goalPos);
+      List<Point3D> path = navigableRegionsManager.calculateBodyPath(startPos, goalPos);
       
       System.out.println("Total Vis. Graphs Time: " + (System.currentTimeMillis() - startTime));
 

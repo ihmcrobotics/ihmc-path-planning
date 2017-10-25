@@ -1,7 +1,6 @@
 package us.ihmc.pathPlanning.bodyPathPlanner;
 
 import us.ihmc.euclid.geometry.Pose2D;
-import us.ihmc.euclid.referenceFrame.FramePoint3D;
 import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.robotics.geometry.PlanarRegionsList;
 

@@ -12,11 +12,14 @@ import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.pathPlanning.clusterManagement.Cluster.ExtrusionSide;
 import us.ihmc.pathPlanning.clusterManagement.Cluster.Type;
 
+/*
+ * TODO that class isn't very clear in general, we should talk about and review it.
+ */
 public class ClusterMgr
 {
-   ArrayList<Cluster> listOfClusters = new ArrayList<>();
-   int extrusionIndex = 0;
-   JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder;
+   private final ArrayList<Cluster> listOfClusters = new ArrayList<>();
+   private int extrusionIndex = 0;
+   private JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder;
 
    public void setVis(JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder)
    {
@@ -82,7 +85,7 @@ public class ClusterMgr
    {
       for (Cluster cluster : listOfClusters)
       {
-         ArrayList<Point3D> list = cluster.getRawPointsInCluster();
+         List<Point3D> list = cluster.getRawPointsInCluster();
          for (int i = 0; i < list.size(); i++)
          {
             if (i < list.size() - 1)
@@ -91,6 +94,7 @@ public class ClusterMgr
                Point2D second = new Point2D(list.get(i + 1).getX(), list.get(i + 1).getY());
                generateNormalsForSegment(first, second, cluster, extrusionDistance);
 
+               // TODO Remove following?
                //               if(cluster.isObstacleClosed())
                //               {
                ////                  first = new Point2D(list.get(list.size() - 1).getX(), list.get(list.size() - 1).getY());
@@ -562,10 +566,14 @@ public class ClusterMgr
       return points;
    }
 
+   // TODO That method isn't very clear
    private Point2D extrudeCorner(Point2D pointOnLine, Vector2D vec21, Point2D extrudedPoint1, Point2D extrudedPoint2, double extrusion)
    {
       Vector2D orthoVec = new Vector2D(vec21.getX() * Math.cos(Math.toRadians(90)) - vec21.getY() * Math.sin(Math.toRadians(90)),
                                        vec21.getX() * Math.sin(Math.toRadians(90)) + vec21.getY() * Math.cos(Math.toRadians(90)));
+      // TODO isn't it the same as:
+//      Vector2D orthoVec = EuclidGeometryTools.perpendicularVector2D(vec21);
+
       Point2D inter1 = EuclidGeometryTools.intersectionBetweenTwoLine2Ds(extrudedPoint1, orthoVec, extrudedPoint2, vec21);
 
       Vector2D vecExtrToCorner = new Vector2D(inter1.getX() - pointOnLine.getX(), inter1.getY() - pointOnLine.getY());

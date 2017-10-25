@@ -9,7 +9,6 @@ import java.util.List;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
-import javafx.scene.paint.Color;
 import us.ihmc.euclid.geometry.ConvexPolygon2D;
 import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
 import us.ihmc.euclid.referenceFrame.FramePoint3D;
@@ -35,13 +34,11 @@ public class NavigableRegionLocalPlanner
 {
    private static final boolean debug = false;
 
-   ArrayList<Cluster> clusters = new ArrayList<>();
-   List<PlanarRegion> regions = new ArrayList<>();
-   ArrayList<PlanarRegion> accesibleRegions = new ArrayList<>();
-   ArrayList<PlanarRegion> obstacleRegions = new ArrayList<>();
-   ArrayList<PlanarRegion> regionsInsideHomeRegion = new ArrayList<>();
-   ArrayList<PlanarRegion> lineObstacleRegions = new ArrayList<>();
-   ArrayList<PlanarRegion> polygonObstacleRegions = new ArrayList<>();
+   private final List<Cluster> clusters = new ArrayList<>();
+   private final List<PlanarRegion> regions = new ArrayList<>();
+   private List<PlanarRegion> regionsInsideHomeRegion = new ArrayList<>();
+   private final List<PlanarRegion> lineObstacleRegions = new ArrayList<>();
+   private final List<PlanarRegion> polygonObstacleRegions = new ArrayList<>();
    private ReferenceFrame localReferenceFrame;
 
    double extrusionDistance = 0.80;
@@ -79,14 +76,16 @@ public class NavigableRegionLocalPlanner
 
       FramePoint3D test = new FramePoint3D(localReferenceFrame, goalLocationInLocalFrame);
       test.changeFrame(ReferenceFrame.getWorldFrame());
-//
-//      this.regions.remove(0);
+      //
+      //      this.regions.remove(0);
    }
 
    private void createLocalReferenceFrame()
    {
       localReferenceFrame = new ReferenceFrame("regionLocalFrame", ReferenceFrame.getWorldFrame())
       {
+         private static final long serialVersionUID = -2608124148208106613L;
+
          @Override
          protected void updateTransformToParent(RigidBodyTransform transformToParent)
          {
@@ -210,9 +209,9 @@ public class NavigableRegionLocalPlanner
       localVisibilityMap = localVisibilityGraph.getVisibilityMap();
    }
 
-   private ArrayList<PlanarRegion> filterRegionsThatAreBelow(ArrayList<PlanarRegion> regionsToCheck, PlanarRegion homeRegion)
+   private List<PlanarRegion> filterRegionsThatAreBelow(List<PlanarRegion> regionsToCheck, PlanarRegion homeRegion)
    {
-      ArrayList<PlanarRegion> filteredList = new ArrayList<>();
+      List<PlanarRegion> filteredList = new ArrayList<>();
       for (PlanarRegion region : regionsToCheck)
       {
          if (!areAllPointsBelowTheRegion(region, homeRegion))
@@ -316,7 +315,7 @@ public class NavigableRegionLocalPlanner
       cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance - 0.01));
    }
 
-   private void createClustersFromRegions(PlanarRegion homeRegion, ArrayList<PlanarRegion> regions)
+   private void createClustersFromRegions(PlanarRegion homeRegion, List<PlanarRegion> regions)
    {
       for (PlanarRegion region : lineObstacleRegions)
       {
@@ -424,7 +423,7 @@ public class NavigableRegionLocalPlanner
    private ArrayList<PlanarRegion> determineWhichRegionsAreInside(PlanarRegion containingRegion, List<PlanarRegion> otherRegionsEx)
    {
       ArrayList<PlanarRegion> regionsInsideHomeRegion = new ArrayList<>();
-      
+
       for (PlanarRegion otherRegion : otherRegionsEx)
       {
          if (isPartOfTheRegionInside(otherRegion, containingRegion))
@@ -471,8 +470,8 @@ public class NavigableRegionLocalPlanner
          RigidBodyTransform transToWorld = new RigidBodyTransform();
          regionToCheck.getTransformToWorld(transToWorld);
          fpt.applyTransform(transToWorld);
-         
-//         javaFXMultiColorMeshBuilder.addSphere(0.05f, new Point3D(fpt.getX(), fpt.getY(), fpt.getZ()), Color.YELLOW);
+
+         //         javaFXMultiColorMeshBuilder.addSphere(0.05f, new Point3D(fpt.getX(), fpt.getY(), fpt.getZ()), Color.YELLOW);
 
          //         if (fpt.getPoint().getZ() < centroidOfHomeRegion.getZ())
          //         {

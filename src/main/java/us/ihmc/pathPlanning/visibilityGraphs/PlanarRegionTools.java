@@ -1,11 +1,8 @@
 package us.ihmc.pathPlanning.visibilityGraphs;
 
-import java.util.ArrayList;
-
 import us.ihmc.euclid.geometry.ConvexPolygon2D;
 import us.ihmc.euclid.geometry.Line3D;
 import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
-import us.ihmc.euclid.referenceFrame.FramePoint3D;
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.euclid.tuple3D.Point3D;

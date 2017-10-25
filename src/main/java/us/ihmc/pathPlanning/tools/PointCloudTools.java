@@ -9,9 +9,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
-import javafx.stage.DirectoryChooser;
-import javafx.stage.Window;
 import us.ihmc.euclid.geometry.ConvexPolygon2D;
 import us.ihmc.euclid.referenceFrame.FramePoint3D;
 import us.ihmc.euclid.transform.RigidBodyTransform;
@@ -159,7 +158,7 @@ public class PointCloudTools
       new PointCloudTools();
    }
 
-   public static void doBrakeDownOn2DPoints(ArrayList<Point2D> pointsToBrakeDown, double brakeDownThreshold)
+   public static void doBrakeDownOn2DPoints(List<Point2D> pointsToBrakeDown, double brakeDownThreshold)
    {
       for (int i = 1; i < pointsToBrakeDown.size(); i++)
       {
@@ -170,7 +169,7 @@ public class PointCloudTools
       }
    }
 
-   private static void doBrakeDown2D(ArrayList<Point2D> points, int index, Point2D point1, Point2D point2, double brakeDownThreshold)
+   private static void doBrakeDown2D(List<Point2D> points, int index, Point2D point1, Point2D point2, double brakeDownThreshold)
    {
       double nOfPointsToAddToSegment = Math.floor(point2.distance(point1) / brakeDownThreshold);
       Vector2D direction = new Vector2D(point2.getX() - point1.getX(), point2.getY() - point1.getY());
