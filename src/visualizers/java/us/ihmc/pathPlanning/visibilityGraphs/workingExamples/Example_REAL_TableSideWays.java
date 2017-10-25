@@ -1,8 +1,13 @@
 package us.ihmc.pathPlanning.visibilityGraphs.workingExamples;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
+import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
@@ -10,25 +15,30 @@ import javafx.application.Application;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.MeshView;
 import javafx.stage.Stage;
+import us.ihmc.euclid.geometry.ConvexPolygon2D;
 import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
 import us.ihmc.euclid.referenceFrame.FramePoint3D;
+import us.ihmc.euclid.referenceFrame.ReferenceFrame;
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.euclid.tuple3D.Vector3D;
+import us.ihmc.euclid.tuple4D.Quaternion;
 import us.ihmc.javaFXToolkit.scenes.View3DFactory;
 import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.javaFXToolkit.shapes.TextureColorAdaptivePalette;
 import us.ihmc.javaFXToolkit.shapes.TextureColorPalette;
+import us.ihmc.pathPlanning.clusterManagement.Cluster;
 import us.ihmc.pathPlanning.tools.PointCloudTools;
 import us.ihmc.pathPlanning.visibilityGraphs.NavigableRegionLocalPlanner;
 import us.ihmc.pathPlanning.visibilityGraphs.NavigableRegionsManager;
+import us.ihmc.pathPlanning.visibilityGraphs.VisibilityGraph;
 import us.ihmc.robotics.geometry.PlanarRegion;
 
 /**
  * User: Matt Date: 1/14/13
  */
-public class Example_REAL_Cinder_Maze2 extends Application
+public class Example_REAL_TableSideWays extends Application
 {
    ArrayList<PlanarRegion> regions = new ArrayList<>();
    ArrayList<SimpleWeightedGraph<Point3D, DefaultWeightedEdge>> visMaps = new ArrayList<>();
@@ -41,7 +51,7 @@ public class Example_REAL_Cinder_Maze2 extends Application
    Point3D startPos = new Point3D(2, 2, 0); //-0.7, 3.9, 0 with region 31
    Point3D goalPos = new Point3D(0.5, 0.5, 0); // on region 34
 
-   public Example_REAL_Cinder_Maze2()
+   public Example_REAL_TableSideWays()
    {
    }
 
@@ -55,7 +65,7 @@ public class Example_REAL_Cinder_Maze2 extends Application
       TextureColorPalette colorPalette = new TextureColorAdaptivePalette();
       javaFXMultiColorMeshBuilder = new JavaFXMultiColorMeshBuilder(colorPalette);
 
-      regions = PointCloudTools.loadPlanarRegionsFromFile("Data/PlanarRegions_201710240237.txt");
+      regions = PointCloudTools.loadPlanarRegionsFromFile("Data/PlanarRegions_RD_TableSideWays.txt");
 
       startPos = projectPointToPlane(startPos, regions.get(0));
       goalPos = projectPointToPlane(goalPos, regions.get(0));
