@@ -6,6 +6,9 @@ import java.util.List;
 import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.pathPlanning.clusterManagement.Cluster;
 
+/*
+ * TODO That class does not seem to be used anymore.
+ */
 public class AutomaticClusteringTool
 {
    public static List<Cluster> createClusters(List<Point3D> listOfPoints, double clusteringDistanceThreshold)
