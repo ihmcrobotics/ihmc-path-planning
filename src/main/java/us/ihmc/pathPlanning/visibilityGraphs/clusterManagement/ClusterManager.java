@@ -15,7 +15,7 @@ import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.Type;
 /*
  * TODO that class isn't very clear in general, we should talk about and review it.
  */
-public class ClusterMgr
+public class ClusterManager
 {
    private final ArrayList<Cluster> listOfClusters = new ArrayList<>();
    private int extrusionIndex = 0;

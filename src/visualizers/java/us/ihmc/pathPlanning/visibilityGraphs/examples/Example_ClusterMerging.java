@@ -16,7 +16,7 @@ import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.javaFXToolkit.shapes.TextureColorAdaptivePalette;
 import us.ihmc.javaFXToolkit.shapes.TextureColorPalette;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
-import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterMgr;
+import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterManager;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.ExtrusionSide;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.Type;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.PointCloudTools;
@@ -33,7 +33,7 @@ public class Example_ClusterMerging extends Application
 
    double extrusionDistance = 0.20;
 
-   ClusterMgr clusterMgr;
+   ClusterManager clusterMgr;
 
    ArrayList<Integer> indicesToRemOther = new ArrayList<>();
    ArrayList<Integer> indicesToAddFromHome = new ArrayList<>();
@@ -60,7 +60,7 @@ public class Example_ClusterMerging extends Application
       TextureColorPalette colorPalette = new TextureColorAdaptivePalette();
       javaFXMultiColorMeshBuilder = new JavaFXMultiColorMeshBuilder(colorPalette);
 
-      clusterMgr = new ClusterMgr();
+      clusterMgr = new ClusterManager();
       clusterMgr.setVis(javaFXMultiColorMeshBuilder);
 
       createClosedSquare_OutsideExtrusion();

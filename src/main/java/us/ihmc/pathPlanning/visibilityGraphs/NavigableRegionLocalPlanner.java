@@ -20,10 +20,10 @@ import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.euclid.tuple4D.Quaternion;
 import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
-import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterMgr;
+import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterManager;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.ExtrusionSide;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.Type;
-import us.ihmc.pathPlanning.visibilityGraphs.tools.LinearRegression;
+import us.ihmc.pathPlanning.visibilityGraphs.tools.LinearRegression3D;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.PointCloudTools;
 import us.ihmc.robotics.geometry.PlanarRegion;
 
@@ -51,7 +51,7 @@ public class NavigableRegionLocalPlanner
    Point3D startLocationInLocalFrame;
    Point3D goalLocationInLocalFrame;
 
-   ClusterMgr clusterMgr;
+   ClusterManager clusterMgr;
 
    public NavigableRegionLocalPlanner(JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder, List<PlanarRegion> regions, PlanarRegion homeRegion,
                                       Point3D start, Point3D goal, double extrusionDistance)
@@ -123,7 +123,7 @@ public class NavigableRegionLocalPlanner
       createClustersFromRegions(homeRegion, regionsInsideHomeRegion);
       createClusterForHomeRegion();
 
-      clusterMgr = new ClusterMgr();
+      clusterMgr = new ClusterManager();
       clusterMgr.setVis(javaFXMultiColorMeshBuilder);
       for (Cluster cluster : clusters)
       {
@@ -355,7 +355,7 @@ public class NavigableRegionLocalPlanner
                points.add(projectedPoint);
             }
 
-            LinearRegression linearRegression = new LinearRegression(points);
+            LinearRegression3D linearRegression = new LinearRegression3D(points);
             linearRegression.calculateRegression();
 
             //Convert to local frame

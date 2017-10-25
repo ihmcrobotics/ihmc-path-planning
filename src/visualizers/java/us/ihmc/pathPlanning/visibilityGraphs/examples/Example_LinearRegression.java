@@ -11,7 +11,7 @@ import us.ihmc.javaFXToolkit.scenes.View3DFactory;
 import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.javaFXToolkit.shapes.TextureColorAdaptivePalette;
 import us.ihmc.javaFXToolkit.shapes.TextureColorPalette;
-import us.ihmc.pathPlanning.visibilityGraphs.tools.LinearRegression;
+import us.ihmc.pathPlanning.visibilityGraphs.tools.LinearRegression3D;
 
 public class Example_LinearRegression extends Application
 {
@@ -64,7 +64,7 @@ public class Example_LinearRegression extends Application
       points.add(point16);
       points.add(point17);
 
-      LinearRegression linearRegression = new LinearRegression(points);
+      LinearRegression3D linearRegression = new LinearRegression3D(points);
       Point3D[] extremePoints = linearRegression.getTheTwoPointsFurthestApart();
 
       linearRegression.calculateRegression();

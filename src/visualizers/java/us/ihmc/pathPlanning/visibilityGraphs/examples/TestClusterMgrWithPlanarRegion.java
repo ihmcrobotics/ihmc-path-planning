@@ -22,9 +22,9 @@ import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.javaFXToolkit.shapes.TextureColorAdaptivePalette;
 import us.ihmc.javaFXToolkit.shapes.TextureColorPalette;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
-import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterMgr;
+import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterManager;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.Type;
-import us.ihmc.pathPlanning.visibilityGraphs.tools.LinearRegression;
+import us.ihmc.pathPlanning.visibilityGraphs.tools.LinearRegression3D;
 import us.ihmc.robotics.geometry.PlanarRegion;
 
 /**
@@ -65,7 +65,7 @@ public class TestClusterMgrWithPlanarRegion extends Application
       classifyExtrusions(homeRegion, lineObstacleRegions);
       createClustersFromRegions(homeRegion, regionsInsideHomeRegion);
 
-      ClusterMgr clusterMgr = new ClusterMgr();
+      ClusterManager clusterMgr = new ClusterManager();
       for (Cluster cluster : clusters)
       {
          clusterMgr.addCluster(cluster);
@@ -184,7 +184,7 @@ public class TestClusterMgrWithPlanarRegion extends Application
             points.add(projectedPoint);
          }
 
-         LinearRegression linearRegression = new LinearRegression(points);
+         LinearRegression3D linearRegression = new LinearRegression3D(points);
          linearRegression.calculateRegression();
          Point3D[] extremes = linearRegression.getTheTwoPointsFurthestApart();
          cluster.addRawPoint(extremes[0]);

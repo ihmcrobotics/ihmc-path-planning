@@ -9,13 +9,13 @@ import us.ihmc.euclid.tuple3D.Point3D;
  * can eventually move to a lower level library.
  * Check out IncrementalCovariance3D as reference.
  */
-public class LinearRegression
+public class LinearRegression3D
 {
    private List<Point3D> points;
    private double beta1;
    private double beta0;
 
-   public LinearRegression(List<Point3D> points)
+   public LinearRegression3D(List<Point3D> points)
    {
       this.points = points;
    }

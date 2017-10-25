@@ -21,7 +21,7 @@ import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.javaFXToolkit.shapes.TextureColorAdaptivePalette;
 import us.ihmc.javaFXToolkit.shapes.TextureColorPalette;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
-import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterMgr;
+import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterManager;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.Type;
 import us.ihmc.robotics.geometry.PlanarRegion;
 
@@ -69,7 +69,7 @@ public class TestVisibilityGraphs_JavaFXExample extends Application
          }
       }
 
-      ClusterMgr clusterMgr = new ClusterMgr();
+      ClusterManager clusterMgr = new ClusterManager();
 
       //      Cluster cluster = new Cluster();
       //      clusterMgr.addCluster(cluster);

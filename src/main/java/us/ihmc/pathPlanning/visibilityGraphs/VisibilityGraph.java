@@ -9,7 +9,7 @@ import org.jgrapht.graph.SimpleWeightedGraph;
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
-import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterMgr;
+import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterManager;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.VisibilityTools;
 
 public class VisibilityGraph
@@ -26,12 +26,12 @@ public class VisibilityGraph
 
    protected SimpleWeightedGraph<Point2D, DefaultWeightedEdge> staticVisibilityMap;
 
-   ClusterMgr clusterMgr;
+   ClusterManager clusterMgr;
 
    long startTimeConnectionsCreation = System.currentTimeMillis();
    long endTimeConnectionsCreation = System.currentTimeMillis();
 
-   public VisibilityGraph(ClusterMgr clusterMgr)
+   public VisibilityGraph(ClusterManager clusterMgr)
    {
       this.clusterMgr = clusterMgr;
       staticVisibilityMap = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);

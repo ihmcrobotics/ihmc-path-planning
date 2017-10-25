@@ -11,7 +11,7 @@ import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.javaFXToolkit.shapes.TextureColorAdaptivePalette;
 import us.ihmc.javaFXToolkit.shapes.TextureColorPalette;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
-import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterMgr;
+import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterManager;
 
 public class TestClusterMgr_FirstVisibleNormal extends Application
 {
@@ -32,7 +32,7 @@ public class TestClusterMgr_FirstVisibleNormal extends Application
       cluster.addRawPoint(new Point3D(3, 1, 0));
       cluster.addRawPoint(new Point3D(4, 1, 0));
 
-      ClusterMgr clusterMgr = new ClusterMgr();
+      ClusterManager clusterMgr = new ClusterManager();
       clusterMgr.addCluster(cluster);
 
       clusterMgr.generateNormalsFromRawBoundaryMap(0.25);
