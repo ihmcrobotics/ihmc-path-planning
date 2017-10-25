@@ -8,14 +8,14 @@ import us.ihmc.euclid.tuple3D.Point3D;
 
 public class Cluster
 {
-   Point3D originPosition = new Point3D();
-   ArrayList<Point3D> listOfRawPoints = new ArrayList<>();
-   ArrayList<Point3D> listOfVertices = new ArrayList<>();
-   ArrayList<Point3D> listOfNormals = new ArrayList<>();
-   ArrayList<Point3D> listOfNormalsSafe = new ArrayList<>();
-   ArrayList<Point3D> listOfCorrectNormals = new ArrayList<>();
-   ArrayList<Point2D> listOfNavigableExtrusions = new ArrayList<>();
-   ArrayList<Point2D> listOfNonNavigableExtrusions = new ArrayList<>();
+   private Point3D originPosition = new Point3D();
+   private ArrayList<Point3D> listOfRawPoints = new ArrayList<>();
+   private final ArrayList<Point3D> listOfVertices = new ArrayList<>();
+   private final ArrayList<Point3D> listOfNormals = new ArrayList<>();
+   private final ArrayList<Point3D> listOfNormalsSafe = new ArrayList<>();
+   private final ArrayList<Point3D> listOfCorrectNormals = new ArrayList<>();
+   private final ArrayList<Point2D> listOfNavigableExtrusions = new ArrayList<>();
+   private final ArrayList<Point2D> listOfNonNavigableExtrusions = new ArrayList<>();
 
    private boolean isObstacleClosed = false;
    private double extrusionDistance = 0.0;
@@ -37,7 +37,7 @@ public class Cluster
       LINE, POLYGON
    };
 
-   Type type = Type.POLYGON;
+   private Type type = Type.POLYGON;
 
    public Cluster()
    {
