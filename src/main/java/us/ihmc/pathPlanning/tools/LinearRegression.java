@@ -4,6 +4,11 @@ import java.util.ArrayList;
 
 import us.ihmc.euclid.tuple3D.Point3D;
 
+/*
+ * TODO This class should be cleaned up really good, tested, and renamed LinearRegression3D, so it
+ * can eventually move to a lower level library.
+ * Check out IncrementalCovariance3D as reference.
+ */
 public class LinearRegression
 {
 
@@ -51,7 +56,7 @@ public class LinearRegression
       beta0 = ybar - beta1 * xbar;
 
       // print results
-//      System.out.println("y   = " + beta1 + " * x + " + beta0);
+      //      System.out.println("y   = " + beta1 + " * x + " + beta0);
 
       // analyze results
       int df = n - 2;
@@ -68,15 +73,15 @@ public class LinearRegression
       double svar1 = svar / xxbar;
       double svar0 = svar / n + xbar * xbar * svar1;
 
-//      System.out.println("R^2                 = " + R2);
-//      System.out.println("std error of beta_1 = " + Math.sqrt(svar1));
-//      System.out.println("std error of beta_0 = " + Math.sqrt(svar0));
-//      svar0 = svar * sumx2 / (n * xxbar);
-//      System.out.println("std error of beta_0 = " + Math.sqrt(svar0));
-//
-//      System.out.println("SSTO = " + yybar);
-//      System.out.println("SSE  = " + rss);
-//      System.out.println("SSR  = " + ssr);
+      //      System.out.println("R^2                 = " + R2);
+      //      System.out.println("std error of beta_1 = " + Math.sqrt(svar1));
+      //      System.out.println("std error of beta_0 = " + Math.sqrt(svar0));
+      //      svar0 = svar * sumx2 / (n * xxbar);
+      //      System.out.println("std error of beta_0 = " + Math.sqrt(svar0));
+      //
+      //      System.out.println("SSTO = " + yybar);
+      //      System.out.println("SSE  = " + rss);
+      //      System.out.println("SSR  = " + ssr);
    }
 
    public double getYFromX(double x)
