@@ -21,13 +21,13 @@ public class NavigableRegionsManager
    private final static boolean debug = false;
 
    private List<PlanarRegion> regions;
-   private ArrayList<PlanarRegion> accesibleRegions = new ArrayList<>();
-   private ArrayList<PlanarRegion> obstacleRegions = new ArrayList<>();
-   private ArrayList<NavigableRegionLocalPlanner> listOfNavigableRegions = new ArrayList<>();
-   private ArrayList<SimpleWeightedGraph<Point3D, DefaultWeightedEdge>> visMaps = new ArrayList<>();
+   private List<PlanarRegion> accesibleRegions = new ArrayList<>();
+   private List<PlanarRegion> obstacleRegions = new ArrayList<>();
+   private List<NavigableRegionLocalPlanner> listOfNavigableRegions = new ArrayList<>();
+   private List<SimpleWeightedGraph<Point3D, DefaultWeightedEdge>> visMaps = new ArrayList<>();
    private SimpleWeightedGraph<Point3D, DefaultWeightedEdge> globalVisMap = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
 
-   private ArrayList<Point3D> path = new ArrayList<>();
+   private List<Point3D> path = new ArrayList<>();
 
    private JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder;
 
@@ -61,7 +61,7 @@ public class NavigableRegionsManager
       this.regions = regions;
    }
 
-   public ArrayList<Point3D> calculateBodyPath(Point3D start, Point3D goal)
+   public List<Point3D> calculateBodyPath(Point3D start, Point3D goal)
    {
       this.startPos = start;
       this.goalPos = goal;
@@ -414,17 +414,17 @@ public class NavigableRegionsManager
       return newPoint;
    }
 
-   public ArrayList<NavigableRegionLocalPlanner> getListOfLocalPlanners()
+   public List<NavigableRegionLocalPlanner> getListOfLocalPlanners()
    {
       return listOfNavigableRegions;
    }
 
-   public ArrayList<PlanarRegion> getListOfAccesibleRegions()
+   public List<PlanarRegion> getListOfAccesibleRegions()
    {
       return accesibleRegions;
    }
 
-   public ArrayList<PlanarRegion> getListOfObstacleRegions()
+   public List<PlanarRegion> getListOfObstacleRegions()
    {
       return obstacleRegions;
    }
