@@ -19,6 +19,10 @@ public class WaypointDefinedBodyPathPlan implements BodyPathPlanner
 
    public void setWaypoints(List<Point2D> waypoints)
    {
+      if (waypoints.size() < 2)
+      {
+         throw new RuntimeException("Must have at least two waypoints!");
+      }
       this.waypoints = new ArrayList<>();
       this.waypoints.addAll(waypoints);
       this.maxAlphas = new double[waypoints.size() - 1];
