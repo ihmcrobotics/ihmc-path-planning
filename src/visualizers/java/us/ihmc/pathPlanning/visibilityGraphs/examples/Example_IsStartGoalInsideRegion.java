@@ -35,10 +35,9 @@ public class Example_IsStartGoalInsideRegion extends Application
    ArrayList<NavigableRegionLocalPlanner> listOfNavigableRegions = new ArrayList<>();
 
    SimpleWeightedGraph<Point3D, DefaultWeightedEdge> globalVisMap = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
-
    JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder;
 
-   Point3D startPos = new Point3D(9.5, 9, 0); //-0.7, 3.9, 0 with region 31
+   Point3D startPos = new Point3D(12, 8, 0); //-0.7, 3.9, 0 with region 31
    Point3D goalPos = new Point3D(-2.5, 0.5, 0); // on region 34
 
    public Example_IsStartGoalInsideRegion()
@@ -60,13 +59,30 @@ public class Example_IsStartGoalInsideRegion extends Application
       startPos = projectPointToPlane(startPos, regions.get(0));
       goalPos = projectPointToPlane(goalPos, regions.get(0));
       
-      javaFXMultiColorMeshBuilder.addSphere(0.025f, startPos, Color.BLUE);
-      javaFXMultiColorMeshBuilder.addSphere(0.025f, goalPos, Color.RED);
+      javaFXMultiColorMeshBuilder.addSphere(0.045f, startPos, Color.GREEN);
+      javaFXMultiColorMeshBuilder.addSphere(0.045f, goalPos, Color.RED);
 
       long startTime = System.currentTimeMillis();
 
       NavigableRegionsManager navigableRegionsManager = new NavigableRegionsManager(regions, javaFXMultiColorMeshBuilder);
       List<Point3D> path = navigableRegionsManager.calculateBodyPath(startPos, goalPos);
+      
+      for (int i = 1; i < path.size(); i++)
+      {
+         Point3D from = path.get(i - 1);
+         Point3D to = path.get(i);
+
+         javaFXMultiColorMeshBuilder.addLine(new Point3D(from.getX(), from.getY(), from.getZ()), new Point3D(to.getX(), to.getY(), to.getZ()), 0.025,
+                                             Color.RED);
+      }
+
+      for (int i = 0; i < path.size(); i++)
+      {
+         Point3D to = path.get(i);
+
+         javaFXMultiColorMeshBuilder.addSphere(0.03f, to, Color.YELLOW);
+
+      }
 
       MeshView meshView = new MeshView(javaFXMultiColorMeshBuilder.generateMesh());
       meshView.setMaterial(javaFXMultiColorMeshBuilder.generateMaterial());
