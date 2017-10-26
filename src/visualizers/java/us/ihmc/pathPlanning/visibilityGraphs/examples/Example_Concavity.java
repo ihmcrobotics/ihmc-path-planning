@@ -32,7 +32,7 @@ import us.ihmc.robotics.lists.ListWrappingIndexTools;
  */
 public class Example_Concavity extends Application
 {
-   private static final File defaultFile = new File("../../Data/20171024_143245_PlanarRegion_LShapedGround");
+   private static final File defaultFile = new File("../../Data/20171026_131748_PlanarRegion_2StorySteepingStones");
 
    public Example_Concavity()
    {
@@ -57,8 +57,19 @@ public class Example_Concavity extends Application
       dataImporter.loadPlanarRegionData();
 
       List<PlanarRegion> regions = dataImporter.getAsPlanarRegionsList().getPlanarRegionsAsList();
+      ArrayList<PlanarRegion> filteredRegions = new ArrayList<>();
 
-      NavigableRegionsManager manager = new NavigableRegionsManager(regions, meshBuilder);
+      for(PlanarRegion region : regions)
+      {
+         if(region.getConcaveHullSize() > 2)
+         {
+            filteredRegions.add(region);
+         }
+      }
+      
+      System.out.println(regions.size() + "   " + filteredRegions.size());
+
+      NavigableRegionsManager manager = new NavigableRegionsManager(filteredRegions, meshBuilder);
 
       Point3D start = new Point3D(-0.45, -0.25, 0.05);
       Point3D goal = new Point3D(1.25, 1.45, 0.05);
@@ -72,8 +83,9 @@ public class Example_Concavity extends Application
 
       MeshView meshView = new MeshView(meshBuilder.generateMesh());
       meshView.setMaterial(meshBuilder.generateMaterial());
+      meshView.setMouseTransparent(true);
       view3dFactory.addNodeToView(meshView);
-      regions.stream().map(this::createRegionGraphics).forEach(view3dFactory::addNodeToView);
+      filteredRegions.stream().map(this::createRegionGraphics).forEach(view3dFactory::addNodeToView);
 
       primaryStage.setScene(view3dFactory.getScene());
       primaryStage.show();

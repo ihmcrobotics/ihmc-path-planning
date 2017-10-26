@@ -36,7 +36,7 @@ public class NavigableRegionsManager
    private Point3D startPos = new Point3D();
    private Point3D goalPos = new Point3D();
    
-   double connectionthreshold = 0.0;
+   double connectionthreshold = 0.2;
 
    ArrayList<DistancePoint> distancePoints = new ArrayList<>();
 
