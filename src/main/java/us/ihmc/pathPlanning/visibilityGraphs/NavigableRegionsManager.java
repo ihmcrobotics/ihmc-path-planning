@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
@@ -35,7 +36,7 @@ public class NavigableRegionsManager
 
    private Point3D startPos = new Point3D();
    private Point3D goalPos = new Point3D();
-   
+
    double connectionthreshold = 0.0;
 
    ArrayList<DistancePoint> distancePoints = new ArrayList<>();
@@ -94,7 +95,7 @@ public class NavigableRegionsManager
       createGlobalMap();
       //forceConnectionToGoal(goalPos);
       //
-      
+
       //Visualize
       for (SimpleWeightedGraph<Point3D, DefaultWeightedEdge> map : visMaps)
       {
@@ -157,21 +158,21 @@ public class NavigableRegionsManager
       path.clear();
 
       Point3D lastPoint = null;
-//      ArrayList<DefaultWeightedEdge> solution = (ArrayList<DefaultWeightedEdge>) DijkstraShortestPath.findPathBetween(globalVisMap, startpt, goalpt);
-//      for (DefaultWeightedEdge edge : solution)
-//      {
-//         Point3D from = globalVisMap.getEdgeSource(edge);
-//         Point3D to = globalVisMap.getEdgeTarget(edge);
-//         pathLength = pathLength + from.distance(to);
-//
-//         if (!path.contains(new Point3D(from)))
-//            path.add(from);
-//         if (!path.contains(new Point3D(to)))
-//            path.add(to);
-//
-//         //         javaFXMultiColorMeshBuilder.addLine(new Point3D(from.getX(), from.getY(), from.getZ()), new Point3D(to.getX(), to.getY(), to.getZ()), 0.025,
-//         //                                             Color.RED);
-//      }
+      ArrayList<DefaultWeightedEdge> solution = (ArrayList<DefaultWeightedEdge>) DijkstraShortestPath.findPathBetween(globalVisMap, startpt, goalpt);
+      for (DefaultWeightedEdge edge : solution)
+      {
+         Point3D from = globalVisMap.getEdgeSource(edge);
+         Point3D to = globalVisMap.getEdgeTarget(edge);
+         pathLength = pathLength + from.distance(to);
+
+         if (!path.contains(new Point3D(from)))
+            path.add(from);
+         if (!path.contains(new Point3D(to)))
+            path.add(to);
+
+         //         javaFXMultiColorMeshBuilder.addLine(new Point3D(from.getX(), from.getY(), from.getZ()), new Point3D(to.getX(), to.getY(), to.getZ()), 0.025,
+         //                                             Color.RED);
+      }
 
       return path;
    }
@@ -210,14 +211,14 @@ public class NavigableRegionsManager
       {
          DistancePoint dpt = distancePoints.get(i);
          javaFXMultiColorMeshBuilder.addSphere(0.025f, dpt.point, Color.BLUE);
-         
+
          globalVisMap.addVertex(dpt.point);
          globalVisMap.addVertex(goal);
-         
+
          DefaultWeightedEdge edge = new DefaultWeightedEdge();
          globalVisMap.addEdge(dpt.point, goal, edge);
          globalVisMap.setEdgeWeight(edge, dpt.point.distance(goal));
-         
+
          javaFXMultiColorMeshBuilder.addLine(dpt.point, goal, 0.0052, Color.CYAN);
       }
    }
