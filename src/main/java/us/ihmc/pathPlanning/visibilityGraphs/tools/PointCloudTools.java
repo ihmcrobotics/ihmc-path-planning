@@ -187,8 +187,14 @@ public class PointCloudTools
 
    public static void savePlanarRegionsToFile(PlanarRegionsList planarRegionsList)
    {
+      savePlanarRegionsToFile(planarRegionsList, null, null);
+   }
+
+   public static void savePlanarRegionsToFile(PlanarRegionsList planarRegionsList, Point3D start, Point3D goal)
+   {
       Thread thread = new Thread()
       {
+         @Override
          public void run()
          {
             if (planarRegionsList != null)
@@ -248,6 +254,15 @@ public class PointCloudTools
                      }
                   }
 
+                  if (start != null)
+                  {
+                     bw.write("start," + start + System.getProperty("line.separator"));
+                  }
+                  if (goal != null)
+                  {
+                     bw.write("goal," + goal + System.getProperty("line.separator"));
+                  }
+
                   bw.close();
                }
                catch (IOException e1)
@@ -264,10 +279,18 @@ public class PointCloudTools
 
    public static ArrayList<PlanarRegion> loadPlanarRegionsFromFile(String fileName)
    {
+      return loadPlanarRegionsFromFile(fileName, new Point3D(), new Point3D());
+   }
+
+   public static ArrayList<PlanarRegion> loadPlanarRegionsFromFile(String fileName, Point3D start, Point3D goal)
+   {
       ArrayList<PlanarRegion> regions = new ArrayList<>();
       ArrayList<Cluster> clusters = new ArrayList<>();
       BufferedReader br = null;
       FileReader fr = null;
+
+      start.setToNaN();
+      goal.setToNaN();
 
       try
       {
@@ -332,6 +355,30 @@ public class PointCloudTools
 
                RigidBodyTransform rigidBodyTransform = new RigidBodyTransform(quat, translation);
                cluster.setTransform(rigidBodyTransform);
+            }
+            else if (sCurrentLine.contains("start,"))
+            {
+               sCurrentLine = sCurrentLine.substring(sCurrentLine.indexOf(",") + 1, sCurrentLine.length());
+               sCurrentLine = sCurrentLine.replace("(", "");
+               sCurrentLine = sCurrentLine.replace(")", "");
+
+               String[] points = sCurrentLine.split(",");
+               double x = Double.parseDouble(points[0]);
+               double y = Double.parseDouble(points[1]);
+               double z = Double.parseDouble(points[2]);
+               start.set(x, y, z);
+            }
+            else if (sCurrentLine.contains("goal,"))
+            {
+               sCurrentLine = sCurrentLine.substring(sCurrentLine.indexOf(",") + 1, sCurrentLine.length());
+               sCurrentLine = sCurrentLine.replace("(", "");
+               sCurrentLine = sCurrentLine.replace(")", "");
+
+               String[] points = sCurrentLine.split(",");
+               double x = Double.parseDouble(points[0]);
+               double y = Double.parseDouble(points[1]);
+               double z = Double.parseDouble(points[2]);
+               goal.set(x, y, z);
             }
             else
             {
