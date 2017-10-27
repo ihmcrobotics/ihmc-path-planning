@@ -5,9 +5,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.jgrapht.alg.DijkstraShortestPath;
-import org.jgrapht.graph.DefaultWeightedEdge;
-
 import javafx.application.Application;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.MeshView;
@@ -23,8 +20,8 @@ import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.javaFXToolkit.shapes.TextureColorAdaptivePalette;
 import us.ihmc.javaFXToolkit.shapes.TextureColorPalette;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
-import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterManager;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.Type;
+import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterManager;
 import us.ihmc.robotics.geometry.PlanarRegion;
 
 /**
@@ -85,41 +82,22 @@ public class TestVisibilityGraphs_Connectivity extends Application
       clusterMgr.addCluster(cluster4);
       cluster4.setType(Type.POLYGON);
 
-      cluster4.addRawPoint(new Point3D(5, -1, 0));
-      cluster4.addRawPoint(new Point3D(5, 1, 0));
-      cluster4.addRawPoint(new Point3D(6, 1, 0));
-      cluster4.addRawPoint(new Point3D(6, -1, 0));
+      cluster4.addRawPointInWorld(new Point3D(5, -1, 0));
+      cluster4.addRawPointInWorld(new Point3D(5, 1, 0));
+      cluster4.addRawPointInWorld(new Point3D(6, 1, 0));
+      cluster4.addRawPointInWorld(new Point3D(6, -1, 0));
 
       cluster4.setClusterClosure(true);
 
       clusterMgr.performExtrusions(new Point2D(), extrusionDistance);
-      
 
-      for (Point3D point : cluster4.getRawPointsInCluster())
+      for (Point3D point : cluster4.getRawPointsInWorld())
       {
          javaFXMultiColorMeshBuilder.addSphere(0.1f, point, Color.RED);
       }
 
-      for (int i = 1; i < cluster4.getRawPointsInCluster().size(); i++)
-      {
-         javaFXMultiColorMeshBuilder.addLine(new Point3D(cluster4.getRawPointsInCluster().get(i - 1).getX(), cluster4.getRawPointsInCluster().get(i - 1).getY(),
-                                                         0),
-                                             new Point3D(cluster4.getRawPointsInCluster().get(i).getX(), cluster4.getRawPointsInCluster().get(i).getY(), 0),
-                                             0.005, Color.GREEN);
-      }
-      javaFXMultiColorMeshBuilder.addLine(new Point3D(cluster4.getRawPointsInCluster().get(cluster4.getRawPointsInCluster().size() - 1).getX(),
-                                                      cluster4.getRawPointsInCluster().get(cluster4.getRawPointsInCluster().size() - 1).getY(), 0),
-                                          new Point3D(cluster4.getRawPointsInCluster().get(0).getX(), cluster4.getRawPointsInCluster().get(0).getY(), 0), 0.005,
-                                          Color.GREEN);
-
-      for (int i = 1; i < cluster4.getListOfNonNavigableExtrusions().size(); i++)
-      {
-         javaFXMultiColorMeshBuilder.addLine(new Point3D(cluster4.getListOfNonNavigableExtrusions().get(i - 1).getX(),
-                                                         cluster4.getListOfNonNavigableExtrusions().get(i - 1).getY(), 0),
-                                             new Point3D(cluster4.getListOfNonNavigableExtrusions().get(i).getX(),
-                                                         cluster4.getListOfNonNavigableExtrusions().get(i).getY(), 0),
-                                             0.005, Color.YELLOW);
-      }
+      javaFXMultiColorMeshBuilder.addMultiLine(cluster4.getRawPointsInWorld(), 0.005, Color.GREEN, true);
+      javaFXMultiColorMeshBuilder.addMultiLine(cluster4.getNonNavigableExtrusionsInWorld(), 0.005, Color.YELLOW, false);
 
       //      VisibilityGraph visibilityGraph = new VisibilityGraph(clusterMgr);
       //      visibilityGraph.createStaticVisibilityMap(new Point2D(), new Point2D(10, 0));
@@ -164,6 +142,7 @@ public class TestVisibilityGraphs_Connectivity extends Application
 
    }
 
+   @Deprecated
    public ArrayList<Point3D> loadPointCloudFromFile(String fileName)
    {
       ArrayList<Cluster> clusters = new ArrayList<>();
@@ -198,7 +177,7 @@ public class TestVisibilityGraphs_Connectivity extends Application
             {
                if (!pointsTemp.isEmpty())
                {
-                  cluster.addRawPoints(pointsTemp, true);
+                  cluster.addRawPointsInWorld(pointsTemp, true);
                   pointsTemp.clear();
                }
 
@@ -230,7 +209,7 @@ public class TestVisibilityGraphs_Connectivity extends Application
                Quaternion quat = new Quaternion(qx, qy, qz, qs);
 
                RigidBodyTransform rigidBodyTransform = new RigidBodyTransform(quat, translation);
-               cluster.setTransform(rigidBodyTransform);
+               cluster.setTransformToWorld(rigidBodyTransform);
             }
             else
             {
@@ -254,16 +233,9 @@ public class TestVisibilityGraphs_Connectivity extends Application
 
          for (Cluster cluster1 : clusters)
          {
-            ArrayList<Point2D> vertices = new ArrayList<>();
+            ConvexPolygon2D convexPolygon = new ConvexPolygon2D(cluster1.getRawPointsInLocal());
 
-            for (Point3D pt : cluster1.getRawPointsInCluster())
-            {
-               vertices.add(new Point2D(pt.getX(), pt.getY()));
-            }
-
-            ConvexPolygon2D convexPolygon = new ConvexPolygon2D(vertices);
-
-            PlanarRegion planarRegion = new PlanarRegion(cluster1.getTransform(), convexPolygon);
+            PlanarRegion planarRegion = new PlanarRegion(cluster1.getTransformToWorld(), convexPolygon);
 
             regions.add(planarRegion);
          }

@@ -27,10 +27,10 @@ public class TestClusterMgr_FirstVisibleNormal extends Application
       JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder = new JavaFXMultiColorMeshBuilder(colorPalette );
       
       Cluster cluster = new Cluster();
-      cluster.addRawPoint(new Point3D(1, 1, 0));
-      cluster.addRawPoint(new Point3D(2, 1, 0));
-      cluster.addRawPoint(new Point3D(3, 1, 0));
-      cluster.addRawPoint(new Point3D(4, 1, 0));
+      cluster.addRawPointInWorld(new Point3D(1, 1, 0));
+      cluster.addRawPointInWorld(new Point3D(2, 1, 0));
+      cluster.addRawPointInWorld(new Point3D(3, 1, 0));
+      cluster.addRawPointInWorld(new Point3D(4, 1, 0));
 
       ClusterManager clusterMgr = new ClusterManager();
       clusterMgr.addCluster(cluster);
@@ -40,7 +40,7 @@ public class TestClusterMgr_FirstVisibleNormal extends Application
 
       javaFXMultiColorMeshBuilder.addSphere(0.1f, new Point3D(), Color.GREEN);
 
-      for (Point3D point : cluster.getRawPointsInCluster())
+      for (Point3D point : cluster.getRawPointsInWorld())
       {
          javaFXMultiColorMeshBuilder.addSphere(0.1f, point, Color.BISQUE);
       }
@@ -54,9 +54,9 @@ public class TestClusterMgr_FirstVisibleNormal extends Application
          i = 1;
       }
 
-      for (int j = i; j < cluster.getListOfSafeNormals().size(); j = j + 2)
+      for (int j = i; j < cluster.getNumberOfSafeNormals(); j = j + 2)
       {
-         javaFXMultiColorMeshBuilder.addSphere(0.1f, cluster.getListOfSafeNormals().get(j), Color.RED);
+         javaFXMultiColorMeshBuilder.addSphere(0.1f, cluster.getSafeNormalInWorld(j), Color.RED);
       }
       
       MeshView meshView = new MeshView(javaFXMultiColorMeshBuilder.generateMesh());

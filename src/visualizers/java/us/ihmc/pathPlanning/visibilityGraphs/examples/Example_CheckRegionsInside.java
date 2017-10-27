@@ -223,7 +223,7 @@ public class Example_CheckRegionsInside extends Application
             {
                if (!pointsTemp.isEmpty())
                {
-                  cluster.addRawPoints(pointsTemp, true);
+                  cluster.addRawPointsInWorld(pointsTemp, true);
                   pointsTemp.clear();
                }
 
@@ -255,7 +255,7 @@ public class Example_CheckRegionsInside extends Application
                Quaternion quat = new Quaternion(qx, qy, qz, qs);
 
                RigidBodyTransform rigidBodyTransform = new RigidBodyTransform(quat, translation);
-               cluster.setTransform(rigidBodyTransform);
+               cluster.setTransformToWorld(rigidBodyTransform);
             }
             else
             {
@@ -281,14 +281,14 @@ public class Example_CheckRegionsInside extends Application
          {
             ArrayList<Point2D> vertices = new ArrayList<>();
 
-            for (Point3D pt : cluster1.getRawPointsInCluster())
+            for (Point3D pt : cluster1.getRawPointsInWorld())
             {
                vertices.add(new Point2D(pt.getX(), pt.getY()));
             }
 
             ConvexPolygon2D convexPolygon = new ConvexPolygon2D(vertices);
 
-            PlanarRegion planarRegion = new PlanarRegion(cluster1.getTransform(), convexPolygon);
+            PlanarRegion planarRegion = new PlanarRegion(cluster1.getTransformToWorld(), convexPolygon);
 
             regions.add(planarRegion);
          }

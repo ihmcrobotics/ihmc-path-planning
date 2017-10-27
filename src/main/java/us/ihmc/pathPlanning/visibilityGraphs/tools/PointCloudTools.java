@@ -277,11 +277,13 @@ public class PointCloudTools
       thread.start();
    }
 
+   @Deprecated
    public static ArrayList<PlanarRegion> loadPlanarRegionsFromFile(String fileName)
    {
       return loadPlanarRegionsFromFile(fileName, new Point3D(), new Point3D());
    }
 
+   @Deprecated
    public static ArrayList<PlanarRegion> loadPlanarRegionsFromFile(String fileName, Point3D start, Point3D goal)
    {
       ArrayList<PlanarRegion> regions = new ArrayList<>();
@@ -322,7 +324,7 @@ public class PointCloudTools
                if (!pointsTemp.isEmpty())
                {
                   //                  System.out.println("adding points");
-                  cluster.addRawPoints(pointsTemp, true);
+                  cluster.addRawPointsInWorld(pointsTemp, true);
                   pointsTemp.clear();
                }
 
@@ -354,7 +356,7 @@ public class PointCloudTools
                Quaternion quat = new Quaternion(qx, qy, qz, qs);
 
                RigidBodyTransform rigidBodyTransform = new RigidBodyTransform(quat, translation);
-               cluster.setTransform(rigidBodyTransform);
+               cluster.setTransformToWorld(rigidBodyTransform);
             }
             else if (sCurrentLine.contains("start,"))
             {
@@ -403,24 +405,15 @@ public class PointCloudTools
          if (!pointsTemp.isEmpty())
          {
             //            System.out.println("adding points");
-            cluster.addRawPoints(pointsTemp, true);
+            cluster.addRawPointsInWorld(pointsTemp, true);
             pointsTemp.clear();
          }
 
          for (Cluster cluster1 : clusters)
          {
-            ArrayList<Point2D> vertices = new ArrayList<>();
+            ConvexPolygon2D convexPolygon = new ConvexPolygon2D(cluster1.getRawPointsInLocal());
 
-            //            System.out.println("\n\n");
-            for (Point3D pt : cluster1.getRawPointsInCluster())
-            {
-               //               System.out.println(pt);
-               vertices.add(new Point2D(pt.getX(), pt.getY()));
-            }
-
-            ConvexPolygon2D convexPolygon = new ConvexPolygon2D(vertices);
-
-            PlanarRegion planarRegion = new PlanarRegion(cluster1.getTransform(), convexPolygon);
+            PlanarRegion planarRegion = new PlanarRegion(cluster1.getTransformToWorld(), convexPolygon);
 
             regions.add(planarRegion);
          }

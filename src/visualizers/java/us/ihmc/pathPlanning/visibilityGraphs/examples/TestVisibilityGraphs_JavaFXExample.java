@@ -100,21 +100,21 @@ public class TestVisibilityGraphs_JavaFXExample extends Application
       cluster4.setType(Type.POLYGON);
       cluster4.setClusterClosure(true);
 
-      cluster4.addRawPoint(new Point3D(5, -1, 0));
-      cluster4.addRawPoint(new Point3D(5, 1, 0));
-      cluster4.addRawPoint(new Point3D(6, 1, 0));
-      cluster4.addRawPoint(new Point3D(6, -1, 0));
+      cluster4.addRawPointInWorld(new Point3D(5, -1, 0));
+      cluster4.addRawPointInWorld(new Point3D(5, 1, 0));
+      cluster4.addRawPointInWorld(new Point3D(6, 1, 0));
+      cluster4.addRawPointInWorld(new Point3D(6, -1, 0));
 
       clusterMgr.performExtrusions(new Point2D(), extrusionDistance);
 
-      for (Point3D point : cluster4.getRawPointsInCluster())
+      for (Point3D point : cluster4.getRawPointsInWorld())
       {
          javaFXMultiColorMeshBuilder.addSphere(0.1f, point, Color.AQUAMARINE);
       }
 
-      for (int i = 1; i < cluster4.getRawPointsInCluster().size(); i++)
+      for (int i = 1; i < cluster4.getRawPointsInWorld().size(); i++)
       {
-         javaFXMultiColorMeshBuilder.addLine(cluster4.getRawPointsInCluster().get(i - 1), cluster4.getRawPointsInCluster().get(i), 0.005, Color.BLACK);
+         javaFXMultiColorMeshBuilder.addLine(cluster4.getRawPointsInWorld().get(i - 1), cluster4.getRawPointsInWorld().get(i), 0.005, Color.BLACK);
       }
       //
       //      for (int i = 1; i < cluster4.getListOfNonNavigableExtrusions().size(); i++)
@@ -197,7 +197,7 @@ public class TestVisibilityGraphs_JavaFXExample extends Application
             {
                if (!pointsTemp.isEmpty())
                {
-                  cluster.addRawPoints(pointsTemp, true);
+                  cluster.addRawPointsInWorld(pointsTemp, true);
                   pointsTemp.clear();
                }
 
@@ -229,7 +229,7 @@ public class TestVisibilityGraphs_JavaFXExample extends Application
                Quaternion quat = new Quaternion(qx, qy, qz, qs);
 
                RigidBodyTransform rigidBodyTransform = new RigidBodyTransform(quat, translation);
-               cluster.setTransform(rigidBodyTransform);
+               cluster.setTransformToWorld(rigidBodyTransform);
             }
             else
             {
@@ -256,14 +256,14 @@ public class TestVisibilityGraphs_JavaFXExample extends Application
          {
             ArrayList<Point2D> vertices = new ArrayList<>();
 
-            for (Point3D pt : cluster1.getRawPointsInCluster())
+            for (Point3D pt : cluster1.getRawPointsInWorld())
             {
                vertices.add(new Point2D(pt.getX(), pt.getY()));
             }
 
             ConvexPolygon2D convexPolygon = new ConvexPolygon2D(vertices);
 
-            PlanarRegion planarRegion = new PlanarRegion(cluster1.getTransform(), convexPolygon);
+            PlanarRegion planarRegion = new PlanarRegion(cluster1.getTransformToWorld(), convexPolygon);
             planarRegion.setRegionId(random.nextInt());
 
             regions.add(planarRegion);

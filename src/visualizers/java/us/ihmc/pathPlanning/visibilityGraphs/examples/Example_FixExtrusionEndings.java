@@ -35,7 +35,7 @@ public class Example_FixExtrusionEndings extends Application
    ArrayList<PlanarRegion> regions = new ArrayList<>();
 
    double extrusionDistance = 0.20;
-   
+
    ClusterManager clusterMgr;
 
    public Example_FixExtrusionEndings()
@@ -74,27 +74,27 @@ public class Example_FixExtrusionEndings extends Application
 
       clusterMgr = new ClusterManager();
       clusterMgr.setVis(javaFXMultiColorMeshBuilder);
-      
+
       createClosedSquare_InsideExtrusion();
       createClosedSquare_OutsideExtrusion();
       createOpenSquare_Extrusion();
       createLine_Extrusion();
 
       clusterMgr.performExtrusions(new Point2D(), extrusionDistance);
-      
-      for(Cluster cluster : clusters)
+
+      for (Cluster cluster : clusters)
       {
-         for (Point3D point : cluster.getRawPointsInCluster())
+         for (Point3D point : cluster.getRawPointsInWorld())
          {
             javaFXMultiColorMeshBuilder.addSphere(0.03f, point, Color.AQUAMARINE);
          }
 
-         for (int i = 1; i < cluster.getRawPointsInCluster().size(); i++)
+         for (int i = 1; i < cluster.getRawPointsInLocal().size(); i++)
          {
-            javaFXMultiColorMeshBuilder.addLine(cluster.getRawPointsInCluster().get(i - 1), cluster.getRawPointsInCluster().get(i), 0.005, Color.AQUAMARINE);
+            javaFXMultiColorMeshBuilder.addLine(cluster.getRawPointsInWorld().get(i - 1), cluster.getRawPointsInWorld().get(i), 0.005, Color.AQUAMARINE);
          }
          //      
-         for (Point3D point : cluster.getListOfSafeNormals())
+         for (Point3D point : cluster.getSafeNormalsInWorld())
          {
             javaFXMultiColorMeshBuilder.addSphere(0.03f, point, Color.WHITE);
          }
@@ -104,15 +104,7 @@ public class Example_FixExtrusionEndings extends Application
          //         javaFXMultiColorMeshBuilder.addSphere(0.03f, new Point3D(point.getX(), point.getY(), 0), Color.YELLOW);
          //      }
          //      
-         for (int i = 1; i < cluster.getListOfNonNavigableExtrusions().size(); i++)
-         {
-            Point3D pt1 = new Point3D(cluster.getListOfNonNavigableExtrusions().get(i - 1).getX(),
-                                      cluster.getListOfNonNavigableExtrusions().get(i - 1).getY(), 0);
-            Point3D pt2 = new Point3D(cluster.getListOfNonNavigableExtrusions().get(i).getX(), cluster.getListOfNonNavigableExtrusions().get(i).getY(), 0);
-
-            javaFXMultiColorMeshBuilder.addLine(pt1, pt2, 0.005, Color.YELLOW);
-         }
-         
+         javaFXMultiColorMeshBuilder.addMultiLine(cluster.getNonNavigableExtrusionsInWorld(), 0.005, Color.YELLOW, false);
       }
 
       MeshView meshView = new MeshView(javaFXMultiColorMeshBuilder.generateMesh());
@@ -122,62 +114,62 @@ public class Example_FixExtrusionEndings extends Application
       primaryStage.setScene(view3dFactory.getScene());
       primaryStage.show();
    }
-   
+
    private void createClosedSquare_InsideExtrusion()
    {
       Cluster cluster4 = new Cluster();
       clusterMgr.addCluster(cluster4);
       cluster4.setType(Type.POLYGON);
-      
-      cluster4.addRawPoint(new Point3D(-0.975,  0.475 + 5,  0.000));
-      cluster4.addRawPoint(new Point3D(0.975,  0.475 + 5,  0.000));
-      cluster4.addRawPoint(new Point3D(0.975, -0.475 + 5,  0.000));
-      cluster4.addRawPoint(new Point3D(-0.975, -0.475 + 5,  0.000));
-      
+
+      cluster4.addRawPointInWorld(new Point3D(-0.975, 0.475 + 5, 0.000));
+      cluster4.addRawPointInWorld(new Point3D(0.975, 0.475 + 5, 0.000));
+      cluster4.addRawPointInWorld(new Point3D(0.975, -0.475 + 5, 0.000));
+      cluster4.addRawPointInWorld(new Point3D(-0.975, -0.475 + 5, 0.000));
+
       cluster4.setClusterClosure(true);
       cluster4.setExtrusionSide(ExtrusionSide.INSIDE);
       clusters.add(cluster4);
    }
-   
+
    private void createClosedSquare_OutsideExtrusion()
    {
       Cluster cluster4 = new Cluster();
       clusterMgr.addCluster(cluster4);
       cluster4.setType(Type.POLYGON);
-      
-      cluster4.addRawPoint(new Point3D(-0.975,  0.475 + 2,  0.000));
-      cluster4.addRawPoint(new Point3D(0.975,  0.475 + 2,  0.000));
-      cluster4.addRawPoint(new Point3D(0.975, -0.475 + 2,  0.000));
-      cluster4.addRawPoint(new Point3D(-0.975, -0.475 + 2,  0.000));
-      
+
+      cluster4.addRawPointInWorld(new Point3D(-0.975, 0.475 + 2, 0.000));
+      cluster4.addRawPointInWorld(new Point3D(0.975, 0.475 + 2, 0.000));
+      cluster4.addRawPointInWorld(new Point3D(0.975, -0.475 + 2, 0.000));
+      cluster4.addRawPointInWorld(new Point3D(-0.975, -0.475 + 2, 0.000));
+
       cluster4.setClusterClosure(true);
       cluster4.setExtrusionSide(ExtrusionSide.OUTSIDE);
       clusters.add(cluster4);
    }
-   
+
    private void createOpenSquare_Extrusion()
    {
       Cluster cluster4 = new Cluster();
       clusterMgr.addCluster(cluster4);
       cluster4.setType(Type.POLYGON);
-      
-      cluster4.addRawPoint(new Point3D(-0.975 + 3,  0.475 + 2,  0.000));
-      cluster4.addRawPoint(new Point3D(0.975 + 3,  0.475 + 2,  0.000));
-      cluster4.addRawPoint(new Point3D(0.975 + 3, -0.475 + 2,  0.000));
-      cluster4.addRawPoint(new Point3D(-0.975 + 3, -0.475 + 2,  0.000));
-      
+
+      cluster4.addRawPointInWorld(new Point3D(-0.975 + 3, 0.475 + 2, 0.000));
+      cluster4.addRawPointInWorld(new Point3D(0.975 + 3, 0.475 + 2, 0.000));
+      cluster4.addRawPointInWorld(new Point3D(0.975 + 3, -0.475 + 2, 0.000));
+      cluster4.addRawPointInWorld(new Point3D(-0.975 + 3, -0.475 + 2, 0.000));
+
       clusters.add(cluster4);
    }
-   
+
    private void createLine_Extrusion()
    {
       Cluster cluster4 = new Cluster();
       clusterMgr.addCluster(cluster4);
       cluster4.setType(Type.LINE);
-      
-      cluster4.addRawPoint(new Point3D(-0.975 + 6,  0.475 + 2,  0.000));
-      cluster4.addRawPoint(new Point3D(0.975 + 6,  0.475 + 2,  0.000));
-      
+
+      cluster4.addRawPointInWorld(new Point3D(-0.975 + 6, 0.475 + 2, 0.000));
+      cluster4.addRawPointInWorld(new Point3D(0.975 + 6, 0.475 + 2, 0.000));
+
       clusters.add(cluster4);
    }
 
@@ -215,7 +207,7 @@ public class Example_FixExtrusionEndings extends Application
             {
                if (!pointsTemp.isEmpty())
                {
-                  cluster.addRawPoints(pointsTemp, true);
+                  cluster.addRawPointsInWorld(pointsTemp, true);
                   pointsTemp.clear();
                }
 
@@ -247,7 +239,7 @@ public class Example_FixExtrusionEndings extends Application
                Quaternion quat = new Quaternion(qx, qy, qz, qs);
 
                RigidBodyTransform rigidBodyTransform = new RigidBodyTransform(quat, translation);
-               cluster.setTransform(rigidBodyTransform);
+               cluster.setTransformToWorld(rigidBodyTransform);
             }
             else
             {
@@ -274,14 +266,14 @@ public class Example_FixExtrusionEndings extends Application
          {
             ArrayList<Point2D> vertices = new ArrayList<>();
 
-            for (Point3D pt : cluster1.getRawPointsInCluster())
+            for (Point3D pt : cluster1.getRawPointsInWorld())
             {
                vertices.add(new Point2D(pt.getX(), pt.getY()));
             }
 
             ConvexPolygon2D convexPolygon = new ConvexPolygon2D(vertices);
 
-            PlanarRegion planarRegion = new PlanarRegion(cluster1.getTransform(), convexPolygon);
+            PlanarRegion planarRegion = new PlanarRegion(cluster1.getTransformToWorld(), convexPolygon);
             planarRegion.setRegionId(random.nextInt());
 
             regions.add(planarRegion);

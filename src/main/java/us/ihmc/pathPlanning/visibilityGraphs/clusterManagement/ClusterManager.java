@@ -7,7 +7,7 @@ import javafx.scene.paint.Color;
 import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
 import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.euclid.tuple2D.Vector2D;
-import us.ihmc.euclid.tuple3D.Point3D;
+import us.ihmc.euclid.tuple2D.interfaces.Point2DReadOnly;
 import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.ExtrusionSide;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.Type;
@@ -40,7 +40,7 @@ public class ClusterManager
    {
       int index = 0;
 
-      for (int i = 0; i < cluster.getNormals().size(); i++)
+      for (int i = 0; i < cluster.getNumberOfNormals(); i++)
       {
          if (isNormalVisible(cluster, i, observer))
          {
@@ -63,17 +63,15 @@ public class ClusterManager
 
    private boolean isNormalVisible(Cluster cluster, int normalIndex, Point2D observer)
    {
-      for (int i = 1; i < cluster.getRawPointsInCluster().size(); i++)
+      List<Point2D> rawPointsInLocal = cluster.getRawPointsInLocal();
+      for (int i = 1; i < rawPointsInLocal.size(); i++)
       {
-         Point2D target = new Point2D(cluster.getNormals().get(normalIndex).getX(), cluster.getNormals().get(normalIndex).getY());
+         Point2D target = new Point2D(cluster.getNormalInLocal(normalIndex));
 
-         Point3D startPt = cluster.getRawPointsInCluster().get(i - 1);
-         Point3D endPt = cluster.getRawPointsInCluster().get(i);
+         Point2D startPt = rawPointsInLocal.get(i - 1);
+         Point2D endPt = rawPointsInLocal.get(i);
 
-         Point2D startPt2d = new Point2D(startPt.getX(), startPt.getY());
-         Point2D endPt2d = new Point2D(endPt.getX(), endPt.getY());
-
-         if (EuclidGeometryTools.doLineSegment2DsIntersect(observer, target, startPt2d, endPt2d))
+         if (EuclidGeometryTools.doLineSegment2DsIntersect(observer, target, startPt, endPt))
          {
             return false;
          }
@@ -85,13 +83,13 @@ public class ClusterManager
    {
       for (Cluster cluster : listOfClusters)
       {
-         List<Point3D> list = cluster.getRawPointsInCluster();
-         for (int i = 0; i < list.size(); i++)
+         List<Point2D> rawPoints = cluster.getRawPointsInLocal();
+         for (int i = 0; i < rawPoints.size(); i++)
          {
-            if (i < list.size() - 1)
+            if (i < rawPoints.size() - 1)
             {
-               Point2D first = new Point2D(list.get(i).getX(), list.get(i).getY());
-               Point2D second = new Point2D(list.get(i + 1).getX(), list.get(i + 1).getY());
+               Point2D first = rawPoints.get(i);
+               Point2D second = rawPoints.get(i + 1);
                generateNormalsForSegment(first, second, cluster, extrusionDistance);
 
                // TODO Remove following?
@@ -110,20 +108,20 @@ public class ClusterManager
       }
    }
 
-   private void generateNormalsForSegment(Point2D first, Point2D second, Cluster cluster, double extrusionDistance)
+   private void generateNormalsForSegment(Point2DReadOnly first, Point2DReadOnly second, Cluster cluster, double extrusionDistance)
    {
       List<Point2D> points = EuclidGeometryTools.perpendicularBisectorSegment2D(first, second, 0.001);
 
       for (Point2D normalPoint : points)
       {
-         cluster.addNormal(new Point3D(normalPoint.getX(), normalPoint.getY(), 0));
+         cluster.addNormalInLocal(normalPoint);
       }
 
       points = EuclidGeometryTools.perpendicularBisectorSegment2D(first, second, extrusionDistance + cluster.getAdditionalExtrusionDistance());
 
       for (Point2D normalPoint : points)
       {
-         cluster.addSafeNormal(new Point3D(normalPoint.getX(), normalPoint.getY(), 0));
+         cluster.addSafeNormalInLocal(normalPoint);
       }
    }
 
@@ -140,33 +138,28 @@ public class ClusterManager
 
       if (cluster.getType() == Type.LINE)
       {
-//         System.out.println("Extruding line");
-//         System.out.println("Distance: " + extrusionDistance);
-         
+         //         System.out.println("Extruding line");
+         //         System.out.println("Distance: " + extrusionDistance);
+
          double extrusionDist1 = extrusionDistance - 0.01 + cluster.getAdditionalExtrusionDistance();
          double extrusionDist2 = extrusionDistance + cluster.getAdditionalExtrusionDistance();
-         
-//         System.out.println(extrusionDist1 + "   " + extrusionDist2);
 
-         ArrayList<Point2D> nonNavExtrusions = extrudeLine(new Point2D(cluster.getRawPointsInCluster().get(0).getX(),
-                                                                       cluster.getRawPointsInCluster().get(0).getY()),
-                                                           new Point2D(cluster.getRawPointsInCluster().get(1).getX(),
-                                                                       cluster.getRawPointsInCluster().get(1).getY()),
-                                                           extrusionDist1);
-         ArrayList<Point2D> navExtrusions = extrudeLine(new Point2D(cluster.getRawPointsInCluster().get(0).getX(),
-                                                                    cluster.getRawPointsInCluster().get(0).getY()),
-                                                        new Point2D(cluster.getRawPointsInCluster().get(1).getX(),
-                                                                    cluster.getRawPointsInCluster().get(1).getY()),
-                                                        extrusionDist2);
+         //         System.out.println(extrusionDist1 + "   " + extrusionDist2);
+
+         ArrayList<Point2D> nonNavExtrusions = extrudeLine(
+               new Point2D(cluster.getRawPointsInLocal().get(0).getX(), cluster.getRawPointsInLocal().get(0).getY()),
+               new Point2D(cluster.getRawPointsInLocal().get(1).getX(), cluster.getRawPointsInLocal().get(1).getY()), extrusionDist1);
+         ArrayList<Point2D> navExtrusions = extrudeLine(new Point2D(cluster.getRawPointsInLocal().get(0).getX(), cluster.getRawPointsInLocal().get(0).getY()),
+               new Point2D(cluster.getRawPointsInLocal().get(1).getX(), cluster.getRawPointsInLocal().get(1).getY()), extrusionDist2);
 
          for (Point2D pt : nonNavExtrusions)
          {
-            cluster.addNonNavigableExtrusionPoint(pt);
+            cluster.addNonNavigableExtrusionInLocal(pt);
          }
 
          for (Point2D pt : navExtrusions)
          {
-            cluster.addNavigableExtrusionPoint(new Point3D(pt.getX(), pt.getY(), 0));
+            cluster.addNavigableExtrusionInLocal(pt);
          }
       }
 
@@ -223,28 +216,27 @@ public class ClusterManager
 
    private void extrudedFirstNonNavigableExtrusion(Cluster cluster, int index, double extrusionDistance)
    {
-      Point3D point1 = cluster.getRawPointsInCluster().get(cluster.getRawPointsInCluster().size() - 1);
-      Point3D point2 = cluster.getRawPointsInCluster().get(0);
-      Point3D point3 = cluster.getRawPointsInCluster().get(1);
+      Point2D point1 = cluster.getLastRawPointInLocal();
+      Point2D point2 = cluster.getRawPointInLocal(0);
+      Point2D point3 = cluster.getRawPointInLocal(1);
 
       if (javaFXMultiColorMeshBuilder != null)
       {
-         javaFXMultiColorMeshBuilder.addSphere(0.2f, point1, Color.YELLOW);
-         javaFXMultiColorMeshBuilder.addSphere(0.2f, point2, Color.YELLOW);
-         javaFXMultiColorMeshBuilder.addSphere(0.2f, point3, Color.YELLOW);
+         javaFXMultiColorMeshBuilder.addSphere(0.2f, cluster.getLastRawPointInWorld(), Color.YELLOW);
+         javaFXMultiColorMeshBuilder.addSphere(0.2f, cluster.getRawPointInWorld(0), Color.YELLOW);
+         javaFXMultiColorMeshBuilder.addSphere(0.2f, cluster.getRawPointInWorld(1), Color.YELLOW);
       }
 
       Vector2D vec1 = new Vector2D(point2.getX() - point1.getX(), point2.getY() - point1.getY());
       Vector2D vec2 = new Vector2D(point3.getX() - point2.getX(), point3.getY() - point2.getY());
 
-      Point2D normal1 = new Point2D(cluster.getListOfSafeNormals().get(cluster.getListOfSafeNormals().size() - 1).getX(),
-                                    cluster.getListOfSafeNormals().get(cluster.getListOfSafeNormals().size() - 1).getY());
-      Point2D normal2 = new Point2D(cluster.getListOfSafeNormals().get(0).getX(), cluster.getListOfSafeNormals().get(0).getY());
+      Point2D normal1 = cluster.getLastSafeNormalInLocal();
+      Point2D normal2 = cluster.getSafeNormalInLocal(0);
 
       if (javaFXMultiColorMeshBuilder != null)
       {
-         javaFXMultiColorMeshBuilder.addSphere(0.2f, new Point3D(normal1.getX(), normal1.getY(), 0), Color.WHITE);
-         javaFXMultiColorMeshBuilder.addSphere(0.2f, new Point3D(normal2.getX(), normal2.getY(), 0), Color.WHITE);
+         javaFXMultiColorMeshBuilder.addSphere(0.2f, cluster.getLastSafeNormalInWorld(), Color.WHITE);
+         javaFXMultiColorMeshBuilder.addSphere(0.2f, cluster.getSafeNormalInWorld(0), Color.WHITE);
       }
 
       Point2D intersectionPoint = EuclidGeometryTools.intersectionBetweenTwoLine2Ds(normal1, vec1, normal2, vec2);
@@ -262,7 +254,7 @@ public class ClusterManager
       normalIntersection.normalize();
 
       Point2D adjustedIntersection = new Point2D(point2.getX() + normalIntersection.getX() * (extrusionDistance),
-                                                 point2.getY() + normalIntersection.getY() * (extrusionDistance));
+            point2.getY() + normalIntersection.getY() * (extrusionDistance));
 
       double x1 = point1.getX() + ((point2.getX() - point1.getX()) * 0.5);
       double y1 = point1.getY() + ((point2.getY() - point1.getY()) * 0.5);
@@ -279,23 +271,23 @@ public class ClusterManager
       Point2D safePoint2 = new Point2D(point2.getX() + vec32.getX() * 0.7, point2.getY() + vec32.getY() * 0.7);
 
       //         cluster.addNonNavigableExtrusionPoint(new Point3D(safePoint1.getX(), safePoint1.getY(), 0));
-      cluster.addNonNavigableExtrusionPoint(adjustedIntersection);
+      cluster.addNonNavigableExtrusionInLocal(adjustedIntersection);
       //         cluster.addNonNavigableExtrusionPoint(new Point3D(safePoint2.getX(), safePoint2.getY(), 0));
    }
 
    private void extrudedNonNavigableBoundary(int index, Cluster cluster, double extrusionDistance)
    {
-      for (int i = 0; i < cluster.getRawPointsInCluster().size() - 2; i++)
+      for (int i = 0; i < cluster.getRawPointsInLocal().size() - 2; i++)
       {
-         Point3D point1 = cluster.getRawPointsInCluster().get(i);
-         Point3D point2 = cluster.getRawPointsInCluster().get(i + 1);
-         Point3D point3 = cluster.getRawPointsInCluster().get(i + 2);
+         Point2D point1 = cluster.getRawPointInLocal(i);
+         Point2D point2 = cluster.getRawPointInLocal(i + 1);
+         Point2D point3 = cluster.getRawPointInLocal(i + 2);
 
          Vector2D vec1 = new Vector2D(point2.getX() - point1.getX(), point2.getY() - point1.getY());
          Vector2D vec2 = new Vector2D(point3.getX() - point2.getX(), point3.getY() - point2.getY());
 
-         Point2D normal1 = new Point2D(cluster.getListOfSafeNormals().get(index).getX(), cluster.getListOfSafeNormals().get(index).getY());
-         Point2D normal2 = new Point2D(cluster.getListOfSafeNormals().get(index + 2).getX(), cluster.getListOfSafeNormals().get(index + 2).getY());
+         Point2D normal1 = cluster.getSafeNormalInLocal(index);
+         Point2D normal2 = cluster.getSafeNormalInLocal(index + 2);
 
          Point2D intersectionPoint = EuclidGeometryTools.intersectionBetweenTwoLine2Ds(normal1, vec1, normal2, vec2);
 
@@ -312,7 +304,7 @@ public class ClusterManager
          normalIntersection.normalize();
 
          Point2D adjustedIntersection = new Point2D(point2.getX() + normalIntersection.getX() * (extrusionDistance),
-                                                    point2.getY() + normalIntersection.getY() * (extrusionDistance));
+               point2.getY() + normalIntersection.getY() * (extrusionDistance));
 
          double x1 = point1.getX() + ((point2.getX() - point1.getX()) * 0.5);
          double y1 = point1.getY() + ((point2.getY() - point1.getY()) * 0.5);
@@ -329,7 +321,7 @@ public class ClusterManager
          Point2D safePoint2 = new Point2D(point2.getX() + vec32.getX() * 0.7, point2.getY() + vec32.getY() * 0.7);
 
          //         cluster.addNonNavigableExtrusionPoint(new Point3D(safePoint1.getX(), safePoint1.getY(), 0));
-         cluster.addNonNavigableExtrusionPoint(adjustedIntersection);
+         cluster.addNonNavigableExtrusionInLocal(adjustedIntersection);
          //         cluster.addNonNavigableExtrusionPoint(new Point3D(safePoint2.getX(), safePoint2.getY(), 0));
 
          index = index + 2;
@@ -337,23 +329,23 @@ public class ClusterManager
 
       if (cluster.isObstacleClosed())
       {
-         cluster.addNonNavigableExtrusionPoint(cluster.getListOfNonNavigableExtrusions().get(0));
+         cluster.addNonNavigableExtrusionInLocal(cluster.getNonNavigableExtrusionsInLocal().get(0));
       }
    }
 
    private void extrudedNavigableBoundary(int index, Cluster cluster, double extrusionDistance)
    {
-      for (int i = 0; i < cluster.getRawPointsInCluster().size() - 2; i++)
+      for (int i = 0; i < cluster.getRawPointsInLocal().size() - 2; i++)
       {
-         Point3D point1 = cluster.getRawPointsInCluster().get(i);
-         Point3D point2 = cluster.getRawPointsInCluster().get(i + 1);
-         Point3D point3 = cluster.getRawPointsInCluster().get(i + 2);
+         Point2D point1 = cluster.getRawPointInLocal(i);
+         Point2D point2 = cluster.getRawPointInLocal(i + 1);
+         Point2D point3 = cluster.getRawPointInLocal(i + 2);
 
          Vector2D vec1 = new Vector2D(point2.getX() - point1.getX(), point2.getY() - point1.getY());
          Vector2D vec2 = new Vector2D(point3.getX() - point2.getX(), point3.getY() - point2.getY());
 
-         Point2D normal1 = new Point2D(cluster.getListOfSafeNormals().get(index).getX(), cluster.getListOfSafeNormals().get(index).getY());
-         Point2D normal2 = new Point2D(cluster.getListOfSafeNormals().get(index + 2).getX(), cluster.getListOfSafeNormals().get(index + 2).getY());
+         Point2D normal1 = cluster.getSafeNormalInLocal(index);
+         Point2D normal2 = cluster.getSafeNormalInLocal(index + 2);
 
          Point2D intersectionPoint = EuclidGeometryTools.intersectionBetweenTwoLine2Ds(normal1, vec1, normal2, vec2);
 
@@ -370,7 +362,7 @@ public class ClusterManager
          normalIntersection.normalize();
 
          Point2D adjustedIntersection = new Point2D(point2.getX() + normalIntersection.getX() * (extrusionDistance),
-                                                    point2.getY() + normalIntersection.getY() * (extrusionDistance));
+               point2.getY() + normalIntersection.getY() * (extrusionDistance));
 
          double x1 = point1.getX() + ((point2.getX() - point1.getX()) * 0.5);
          double y1 = point1.getY() + ((point2.getY() - point1.getY()) * 0.5);
@@ -387,7 +379,7 @@ public class ClusterManager
          Point2D safePoint2 = new Point2D(point2.getX() + vec32.getX() * 0.7, point2.getY() + vec32.getY() * 0.7);
 
          //         cluster.addNavigableExtrusionPoint(new Point3D(safePoint1.getX(), safePoint1.getY(), 0));
-         cluster.addNavigableExtrusionPoint(new Point3D(adjustedIntersection.getX(), adjustedIntersection.getY(), 0));
+         cluster.addNavigableExtrusionInLocal(adjustedIntersection);
          //         cluster.addNavigableExtrusionPoint(new Point3D(safePoint2.getX(), safePoint2.getY(), 0));
 
          index = index + 2;
@@ -395,7 +387,7 @@ public class ClusterManager
 
       if (cluster.isObstacleClosed())
       {
-         cluster.addNavigableExtrusionPoint(new Point3D(cluster.getListOfNavigableExtrusions().get(0)));
+         cluster.addNavigableExtrusionInLocal(cluster.getNavigableExtrusionInLocal(0));
       }
 
    }
@@ -404,17 +396,17 @@ public class ClusterManager
    {
       if (cluster.isObstacleClosed())
       {
-         for (int i = 0; i < cluster.getRawPointsInCluster().size() - 2; i++)
+         for (int i = 0; i < cluster.getRawPointsInLocal().size() - 2; i++)
          {
-            Point3D point1 = cluster.getRawPointsInCluster().get(cluster.getRawPointsInCluster().size() - 1);
-            Point3D point2 = cluster.getRawPointsInCluster().get(0);
-            Point3D point3 = cluster.getRawPointsInCluster().get(1);
+            Point2D point1 = cluster.getLastRawPointInLocal();
+            Point2D point2 = cluster.getRawPointInLocal(0);
+            Point2D point3 = cluster.getRawPointInLocal(1);
 
             Vector2D vec1 = new Vector2D(point2.getX() - point1.getX(), point2.getY() - point1.getY());
             Vector2D vec2 = new Vector2D(point3.getX() - point2.getX(), point3.getY() - point2.getY());
 
-            Point2D normal1 = new Point2D(cluster.getListOfSafeNormals().get(index).getX(), cluster.getListOfSafeNormals().get(index).getY());
-            Point2D normal2 = new Point2D(cluster.getListOfSafeNormals().get(index + 2).getX(), cluster.getListOfSafeNormals().get(index + 2).getY());
+            Point2D normal1 = cluster.getSafeNormalInLocal(index);
+            Point2D normal2 = cluster.getSafeNormalInLocal(index + 2);
 
             Point2D intersectionPoint = EuclidGeometryTools.intersectionBetweenTwoLine2Ds(normal1, vec1, normal2, vec2);
 
@@ -431,7 +423,7 @@ public class ClusterManager
             normalIntersection.normalize();
 
             Point2D adjustedIntersection = new Point2D(point2.getX() + normalIntersection.getX() * (extrusionDistance),
-                                                       point2.getY() + normalIntersection.getY() * (extrusionDistance));
+                  point2.getY() + normalIntersection.getY() * (extrusionDistance));
 
             double x1 = point1.getX() + ((point2.getX() - point1.getX()) * 0.5);
             double y1 = point1.getY() + ((point2.getY() - point1.getY()) * 0.5);
@@ -448,7 +440,7 @@ public class ClusterManager
             Point2D safePoint2 = new Point2D(point2.getX() + vec32.getX() * 0.7, point2.getY() + vec32.getY() * 0.7);
 
             //         cluster.addNonNavigableExtrusionPoint(new Point3D(safePoint1.getX(), safePoint1.getY(), 0));
-            cluster.addNonNavigableExtrusionPoint(adjustedIntersection);
+            cluster.addNonNavigableExtrusionInLocal(adjustedIntersection);
             //         cluster.addNonNavigableExtrusionPoint(new Point3D(safePoint2.getX(), safePoint2.getY(), 0));
          }
       }
@@ -459,9 +451,9 @@ public class ClusterManager
       if (cluster.isObstacleClosed())
       {
          //First Extrusion
-         Point3D point1 = cluster.getRawPointsInCluster().get(cluster.getRawPointsInCluster().size() - 2);
-         Point3D point2 = cluster.getRawPointsInCluster().get(cluster.getRawPointsInCluster().size() - 1);
-         Point3D point3 = cluster.getRawPointsInCluster().get(0);
+         Point2D point1 = cluster.getRawPointInLocal(cluster.getRawPointsInLocal().size() - 2);
+         Point2D point2 = cluster.getRawPointInLocal(cluster.getRawPointsInLocal().size() - 1);
+         Point2D point3 = cluster.getRawPointInLocal(0);
 
          //         javaFXMultiColorMeshBuilder.addSphere(0.04f, point1, Color.RED);
          //         javaFXMultiColorMeshBuilder.addSphere(0.04f, point2, Color.RED);
@@ -478,7 +470,7 @@ public class ClusterManager
          Point2D extrudedPoint = new Point2D(point2.getX() + dirVector.getX() * extrusionDistance, point2.getY() + dirVector.getY() * extrusionDistance);
          //         javaFXMultiColorMeshBuilder.addSphere(0.04f, new Point3D(extrudedPoint.getX(), extrudedPoint.getY(), 0), Color.YELLOW);
          //
-         cluster.addNonNavigableExtrusionPoint(extrudedPoint);
+         cluster.addNonNavigableExtrusionInLocal(extrudedPoint);
       }
    }
 
@@ -487,9 +479,9 @@ public class ClusterManager
       if (cluster.isObstacleClosed())
       {
          //First Extrusion
-         Point3D point1 = cluster.getRawPointsInCluster().get(cluster.getRawPointsInCluster().size() - 1);
-         Point3D point2 = cluster.getRawPointsInCluster().get(0);
-         Point3D point3 = cluster.getRawPointsInCluster().get(1);
+         Point2D point1 = cluster.getRawPointInLocal(cluster.getRawPointsInLocal().size() - 1);
+         Point2D point2 = cluster.getRawPointInLocal(0);
+         Point2D point3 = cluster.getRawPointInLocal(1);
 
          //         javaFXMultiColorMeshBuilder.addSphere(0.04f, point1, Color.YELLOW);
          //         javaFXMultiColorMeshBuilder.addSphere(0.04f, point2, Color.YELLOW);
@@ -506,7 +498,7 @@ public class ClusterManager
          Point2D extrudedPoint = new Point2D(point2.getX() + dirVector.getX() * extrusionDistance, point2.getY() + dirVector.getY() * extrusionDistance);
          //         javaFXMultiColorMeshBuilder.addSphere(0.04f, new Point3D(extrudedPoint.getX(), extrudedPoint.getY(), 0), Color.YELLOW);
 
-         cluster.addNavigableExtrusionPoint(new Point3D(extrudedPoint.getX(), extrudedPoint.getY(), 0));
+         cluster.addNavigableExtrusionInLocal(extrudedPoint);
       }
    }
 
@@ -515,9 +507,9 @@ public class ClusterManager
       if (cluster.isObstacleClosed())
       {
          //First Extrusion
-         Point3D point1 = cluster.getRawPointsInCluster().get(cluster.getRawPointsInCluster().size() - 2);
-         Point3D point2 = cluster.getRawPointsInCluster().get(cluster.getRawPointsInCluster().size() - 1);
-         Point3D point3 = cluster.getRawPointsInCluster().get(0);
+         Point2D point1 = cluster.getRawPointInLocal(cluster.getRawPointsInLocal().size() - 2);
+         Point2D point2 = cluster.getRawPointInLocal(cluster.getRawPointsInLocal().size() - 1);
+         Point2D point3 = cluster.getRawPointInLocal(0);
 
          //         javaFXMultiColorMeshBuilder.addSphere(0.04f, point1, Color.YELLOW);
          //         javaFXMultiColorMeshBuilder.addSphere(0.04f, point2, Color.YELLOW);
@@ -534,7 +526,7 @@ public class ClusterManager
          Point2D extrudedPoint = new Point2D(point2.getX() + dirVector.getX() * extrusionDistance, point2.getY() + dirVector.getY() * extrusionDistance);
          //         javaFXMultiColorMeshBuilder.addSphere(0.04f, new Point3D(extrudedPoint.getX(), extrudedPoint.getY(), 0), Color.YELLOW);
 
-         cluster.addNavigableExtrusionPoint(new Point3D(extrudedPoint.getX(), extrudedPoint.getY(), 0));
+         cluster.addNavigableExtrusionInLocal(extrudedPoint);
       }
    }
 
@@ -570,9 +562,9 @@ public class ClusterManager
    private Point2D extrudeCorner(Point2D pointOnLine, Vector2D vec21, Point2D extrudedPoint1, Point2D extrudedPoint2, double extrusion)
    {
       Vector2D orthoVec = new Vector2D(vec21.getX() * Math.cos(Math.toRadians(90)) - vec21.getY() * Math.sin(Math.toRadians(90)),
-                                       vec21.getX() * Math.sin(Math.toRadians(90)) + vec21.getY() * Math.cos(Math.toRadians(90)));
+            vec21.getX() * Math.sin(Math.toRadians(90)) + vec21.getY() * Math.cos(Math.toRadians(90)));
       // TODO isn't it the same as:
-//      Vector2D orthoVec = EuclidGeometryTools.perpendicularVector2D(vec21);
+      //      Vector2D orthoVec = EuclidGeometryTools.perpendicularVector2D(vec21);
 
       Point2D inter1 = EuclidGeometryTools.intersectionBetweenTwoLine2Ds(extrudedPoint1, orthoVec, extrudedPoint2, vec21);
 

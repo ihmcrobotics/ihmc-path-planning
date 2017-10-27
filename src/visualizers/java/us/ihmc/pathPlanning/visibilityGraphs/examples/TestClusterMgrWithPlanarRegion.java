@@ -40,7 +40,7 @@ public class TestClusterMgrWithPlanarRegion extends Application
 
    double extrusionDistance = 0.60;
    Point2D startingPosition = new Point2D(1.5, 0);
-   
+
    JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder;
 
    public TestClusterMgrWithPlanarRegion()
@@ -82,22 +82,8 @@ public class TestClusterMgrWithPlanarRegion extends Application
       {
          //         if(cluster.getType() == Type.LINE)
          //         {
-         for (int i = 1; i < cluster.getListOfNonNavigableExtrusions().size(); i++)
-         {
-            javaFXMultiColorMeshBuilder.addLine(new Point3D(cluster.getListOfNonNavigableExtrusions().get(i - 1).getX(),
-                                                            cluster.getListOfNonNavigableExtrusions().get(i - 1).getY(), 0),
-                                                new Point3D(cluster.getListOfNonNavigableExtrusions().get(i).getX(),
-                                                            cluster.getListOfNonNavigableExtrusions().get(i).getY(), 0),
-                                                0.005, Color.ORANGE);
-         }
-         for (int i = 1; i < cluster.getListOfNavigableExtrusions().size(); i++)
-         {
-            javaFXMultiColorMeshBuilder.addLine(new Point3D(cluster.getListOfNavigableExtrusions().get(i - 1).getX(),
-                                                            cluster.getListOfNavigableExtrusions().get(i - 1).getY(), 0),
-                                                new Point3D(cluster.getListOfNavigableExtrusions().get(i).getX(),
-                                                            cluster.getListOfNavigableExtrusions().get(i).getY(), 0),
-                                                0.005, Color.GREEN);
-         }
+         javaFXMultiColorMeshBuilder.addMultiLine(cluster.getNonNavigableExtrusionsInWorld(), 0.005, Color.ORANGE, false);
+         javaFXMultiColorMeshBuilder.addMultiLine(cluster.getNavigableExtrusionsInWorld(), 0.005, Color.GREEN, false);
          //         }
       }
 
@@ -105,9 +91,9 @@ public class TestClusterMgrWithPlanarRegion extends Application
       {
          RigidBodyTransform transform = new RigidBodyTransform();
          region.getTransformToWorld(transform);
-         
+
          Color color = Color.RED;
-         for(int i = 0; i < region.getNumberOfConvexPolygons(); i++)
+         for (int i = 0; i < region.getNumberOfConvexPolygons(); i++)
          {
             javaFXMultiColorMeshBuilder.addPolygon(transform, region.getConvexPolygon(i), color);
          }
@@ -117,9 +103,9 @@ public class TestClusterMgrWithPlanarRegion extends Application
       {
          RigidBodyTransform transform = new RigidBodyTransform();
          region.getTransformToWorld(transform);
-         
+
          Color color = Color.AZURE;
-         for(int i = 0; i < region.getNumberOfConvexPolygons(); i++)
+         for (int i = 0; i < region.getNumberOfConvexPolygons(); i++)
          {
             javaFXMultiColorMeshBuilder.addPolygon(transform, region.getConvexPolygon(i), color);
          }
@@ -187,8 +173,8 @@ public class TestClusterMgrWithPlanarRegion extends Application
          LinearRegression3D linearRegression = new LinearRegression3D(points);
          linearRegression.calculateRegression();
          Point3D[] extremes = linearRegression.getTheTwoPointsFurthestApart();
-         cluster.addRawPoint(extremes[0]);
-         cluster.addRawPoint(extremes[1]);
+         cluster.addRawPointInWorld(extremes[0]);
+         cluster.addRawPointInWorld(extremes[1]);
 
          javaFXMultiColorMeshBuilder.addLine(extremes[0], extremes[1], 0.005, Color.BLUE);
       }
@@ -222,13 +208,13 @@ public class TestClusterMgrWithPlanarRegion extends Application
             Point3D projectedPoint = new Point3D();
             EuclidGeometryTools.orthogonalProjectionOnPlane3D(pointToProject, point3D, normal, projectedPoint);
             points.add(projectedPoint);
-            cluster.addRawPoint(projectedPoint);
+            cluster.addRawPointInWorld(projectedPoint);
          }
       }
 
       for (Cluster cluster : clusters)
       {
-         System.out.println("Created a cluster of type: " + cluster.getType() + " with " + cluster.getRawPointsInCluster().size() + " points");
+         System.out.println("Created a cluster of type: " + cluster.getType() + " with " + cluster.getRawPointsInLocal().size() + " points");
       }
    }
 
@@ -309,7 +295,7 @@ public class TestClusterMgrWithPlanarRegion extends Application
 
       Cluster cluster = new Cluster();
       clusters.add(cluster);
-      cluster.setObserver(new Point2D());
+      cluster.setObserverInLocal(new Point2D());
 
       for (int i = 0; i < regionToProject.getConvexHull().getNumberOfVertices(); i++)
       {
@@ -324,10 +310,9 @@ public class TestClusterMgrWithPlanarRegion extends Application
          Point3D pointToProject = fpt.getPoint();
          Point3D projectedPoint = new Point3D();
          EuclidGeometryTools.orthogonalProjectionOnPlane3D(pointToProject, point3D, normal, projectedPoint);
-         
+
          javaFXMultiColorMeshBuilder.addLine(projectedPoint, pointToProject, 0.005, Color.YELLOW);
          javaFXMultiColorMeshBuilder.addSphere(0.1f, pointToProject, Color.YELLOW);
-
 
          Color color = Color.YELLOW;
          if (pointToProject.distance(projectedPoint) > 0.1)
@@ -337,7 +322,7 @@ public class TestClusterMgrWithPlanarRegion extends Application
 
          javaFXMultiColorMeshBuilder.addSphere(0.1f, projectedPoint, Color.YELLOW);
 
-         cluster.addRawPoint(projectedPoint);
+         cluster.addRawPointInWorld(projectedPoint);
       }
    }
 
@@ -385,7 +370,6 @@ public class TestClusterMgrWithPlanarRegion extends Application
       return null;
    }
 
-
    public ArrayList<Point3D> loadPointCloudFromFile(String fileName)
    {
       ArrayList<Cluster> clusters = new ArrayList<>();
@@ -420,7 +404,7 @@ public class TestClusterMgrWithPlanarRegion extends Application
             {
                if (!pointsTemp.isEmpty())
                {
-                  cluster.addRawPoints(pointsTemp, true);
+                  cluster.addRawPointsInWorld(pointsTemp, true);
                   pointsTemp.clear();
                }
 
@@ -452,7 +436,7 @@ public class TestClusterMgrWithPlanarRegion extends Application
                Quaternion quat = new Quaternion(qx, qy, qz, qs);
 
                RigidBodyTransform rigidBodyTransform = new RigidBodyTransform(quat, translation);
-               cluster.setTransform(rigidBodyTransform);
+               cluster.setTransformToWorld(rigidBodyTransform);
             }
             else
             {
@@ -478,14 +462,14 @@ public class TestClusterMgrWithPlanarRegion extends Application
          {
             ArrayList<Point2D> vertices = new ArrayList<>();
 
-            for (Point3D pt : cluster1.getRawPointsInCluster())
+            for (Point3D pt : cluster1.getRawPointsInWorld())
             {
                vertices.add(new Point2D(pt.getX(), pt.getY()));
             }
 
             ConvexPolygon2D convexPolygon = new ConvexPolygon2D(vertices);
 
-            PlanarRegion planarRegion = new PlanarRegion(cluster1.getTransform(), convexPolygon);
+            PlanarRegion planarRegion = new PlanarRegion(cluster1.getTransformToWorld(), convexPolygon);
 
             regions.add(planarRegion);
          }
