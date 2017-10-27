@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -25,6 +26,7 @@ import us.ihmc.pathPlanning.visibilityGraphs.NavigableRegionsManager;
 import us.ihmc.robotEnvironmentAwareness.ui.graphicsBuilders.OcTreeMeshBuilder;
 import us.ihmc.robotEnvironmentAwareness.ui.io.PlanarRegionDataImporter;
 import us.ihmc.robotics.geometry.PlanarRegion;
+import us.ihmc.robotics.geometry.PlanarRegionsList;
 import us.ihmc.robotics.lists.ListWrappingIndexTools;
 
 /**
@@ -48,25 +50,26 @@ public class Example_Concavity extends Application
       TextureColorPalette colorPalette = new TextureColorAdaptivePalette();
       JavaFXMultiColorMeshBuilder meshBuilder = new JavaFXMultiColorMeshBuilder(colorPalette);
 
-      PlanarRegionDataImporter dataImporter;
+      PlanarRegionsList planarRegionData;
+
       if (defaultFile != null)
-         dataImporter = new PlanarRegionDataImporter(defaultFile);
+         planarRegionData = PlanarRegionDataImporter.importPlanRegionData(defaultFile);
       else
-         dataImporter = PlanarRegionDataImporter.createImporterWithFileChooser(primaryStage);
+         planarRegionData = PlanarRegionDataImporter.importUsingFileChooser(primaryStage);
+      if (planarRegionData == null)
+         Platform.exit();
 
-      dataImporter.loadPlanarRegionData();
-
-      List<PlanarRegion> regions = dataImporter.getAsPlanarRegionsList().getPlanarRegionsAsList();
+      List<PlanarRegion> regions = planarRegionData.getPlanarRegionsAsList();
       ArrayList<PlanarRegion> filteredRegions = new ArrayList<>();
 
-      for(PlanarRegion region : regions)
+      for (PlanarRegion region : regions)
       {
-         if(region.getConcaveHullSize() > 2)
+         if (region.getConcaveHullSize() > 2)
          {
             filteredRegions.add(region);
          }
       }
-      
+
       System.out.println(regions.size() + "   " + filteredRegions.size());
 
       NavigableRegionsManager manager = new NavigableRegionsManager(filteredRegions, meshBuilder);
