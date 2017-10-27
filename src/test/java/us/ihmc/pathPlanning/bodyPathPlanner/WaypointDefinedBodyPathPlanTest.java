@@ -41,7 +41,7 @@ public class WaypointDefinedBodyPathPlanTest
    @Rule
    public TestName name = new TestName();
 
-   @Test
+   @Test(timeout = 30000)
    public void testSimpleBodyPath()
    {
       WaypointDefinedBodyPathPlan plan = new WaypointDefinedBodyPathPlan();

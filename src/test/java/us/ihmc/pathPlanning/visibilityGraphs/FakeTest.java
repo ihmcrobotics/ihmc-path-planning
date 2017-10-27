@@ -6,7 +6,7 @@ import org.junit.Test;
 
 public class FakeTest
 {
-   @Test
+   @Test(timeout = 30000)
    public void testPassing() throws Exception
    {
       assertTrue(true);
