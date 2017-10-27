@@ -16,7 +16,7 @@ public class Cluster
    private final RigidBodyTransform transformToWorld = new RigidBodyTransform();
 
    private final List<Point2D> rawPointsLocal = new ArrayList<>();
-   private final List<Point3D> listOfNormals = new ArrayList<>();
+   private final List<Point2D> normalsInLocal = new ArrayList<>();
    private final List<Point3D> listOfNormalsSafe = new ArrayList<>();
    private final List<Point3D> listOfCorrectNormals = new ArrayList<>();
    private final List<Point2D> listOfNavigableExtrusions = new ArrayList<>();
@@ -124,11 +124,6 @@ public class Cluster
       return rawPointsLocal.stream().map(Point3D::new).collect(Collectors.toList());
    }
 
-   public List<Point3D> getUpdatedNormals()
-   {
-      return listOfNormals.stream().map(Point3D::new).collect(Collectors.toList());
-   }
-
    public void setAdditionalExtrusionDistance(double extrusionDistance)
    {
       this.extrusionDistance = extrusionDistance;
@@ -196,14 +191,14 @@ public class Cluster
    }
 
    public Point2D getLastRawPointInLocal()
-      {
+   {
       return rawPointsLocal.get(getNumberOfRawPoints() - 1);
    }
 
    public List<Point2D> getRawPointsInLocal()
    {
       return rawPointsLocal;
-      }
+   }
 
    public Point3D getRawPointInWorld(int i)
    {
@@ -220,9 +215,14 @@ public class Cluster
       return rawPointsLocal.stream().map(this::toWorld3D).collect(Collectors.toList());
    }
 
-   public void addNormal(Point3D normal)
+   public void addNormalInLocal(Point2DReadOnly normalInLocal)
    {
-      listOfNormals.add(normal);
+      normalsInLocal.add(new Point2D(normalInLocal));
+   }
+
+   public void addNormalInWorld(Point3DReadOnly normalInWorld)
+   {
+      normalsInLocal.add(toLocal2D(normalInWorld));
    }
 
    public void addSafeNormal(Point3D normal)
@@ -280,9 +280,29 @@ public class Cluster
       return listOfCorrectNormals;
    }
 
-   public List<Point3D> getNormals()
+   public int getNumberOfNormals()
    {
-      return new ArrayList<>(listOfNormals);
+      return normalsInLocal.size();
+   }
+
+   public Point2D getNormalInLocal(int i)
+   {
+      return normalsInLocal.get(i);
+   }
+
+   public List<Point2D> getNormalsInLocal()
+   {
+      return normalsInLocal;
+   }
+
+   public Point3D getNormalInWorld(int i)
+   {
+      return toWorld3D(getNormalInLocal(i));
+   }
+
+   public List<Point3D> getNormalsInWorld()
+   {
+      return normalsInLocal.stream().map(this::toWorld3D).collect(Collectors.toList());
    }
 
    public boolean contains(Point2DReadOnly pointInLocal)
