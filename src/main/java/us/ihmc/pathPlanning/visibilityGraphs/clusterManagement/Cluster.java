@@ -60,6 +60,23 @@ public class Cluster
       centroid = calculateCentroid();
    }
 
+   public Cluster(List<Point3D> listOfRawPoints, boolean closed, boolean isDynamic, Point2D observer, String name)
+   {
+      isObstacleClosed = closed;
+      this.isDynamic = isDynamic;
+      this.observer = observer;
+      this.listOfRawPoints.addAll(listOfRawPoints);
+      this.name = name;
+
+      if (closed)
+      {
+         this.listOfRawPoints.add(this.listOfRawPoints.get(0));
+         this.listOfRawPoints.add(this.listOfRawPoints.get(1));
+
+      }
+      centroid = calculateCentroid();
+   }
+
    public void setExtrusionSide(ExtrusionSide extrusionSide)
    {
       this.extrusionSide = extrusionSide;
@@ -89,23 +106,6 @@ public class Cluster
    public Type getType()
    {
       return type;
-   }
-
-   public Cluster(List<Point3D> listOfRawPoints, boolean closed, boolean isDynamic, Point2D observer, String name)
-   {
-      isObstacleClosed = closed;
-      this.isDynamic = isDynamic;
-      this.observer = observer;
-      this.listOfRawPoints.addAll(listOfRawPoints);
-      this.name = name;
-
-      if (closed)
-      {
-         this.listOfRawPoints.add(this.listOfRawPoints.get(0));
-         this.listOfRawPoints.add(this.listOfRawPoints.get(1));
-
-      }
-      centroid = calculateCentroid();
    }
 
    private Point3D calculateCentroid()
