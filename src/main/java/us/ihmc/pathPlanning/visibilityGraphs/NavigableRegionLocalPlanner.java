@@ -267,7 +267,7 @@ public class NavigableRegionLocalPlanner
       {
          System.out.println("Adding extra points");
       }
-      PointCloudTools.doBrakeDownOn2DPoints(cluster.getListOfNavigableExtrusions(), 0.25);
+      PointCloudTools.doBrakeDownOn2DPoints(cluster.getNavigableExtrusionsInLocal(), 0.25);
       if (debug)
       {
          System.out.println("Finished Adding extra points");

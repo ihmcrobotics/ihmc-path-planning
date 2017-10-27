@@ -73,8 +73,8 @@ public class Example_ClusterMerging extends Application
       Cluster homeCluster = clusters.get(0);
       Cluster clusterToCheck = clusters.get(1);
 
-      ArrayList<Point2D> navigablePoints = generateListOfPointsInsideHomeCluster(homeCluster.getListOfNavigableExtrusions(),
-                                                                                 clusterToCheck.getListOfNavigableExtrusions());
+      ArrayList<Point2D> navigablePoints = generateListOfPointsInsideHomeCluster(homeCluster.getNavigableExtrusionsInLocal(),
+                                                                                 clusterToCheck.getNavigableExtrusionsInLocal());
       ArrayList<Point2D> nonNavigablePoints = generateListOfPointsInsideHomeCluster(homeCluster.getListOfNonNavigableExtrusions(),
                                                                                     clusterToCheck.getListOfNonNavigableExtrusions());
 

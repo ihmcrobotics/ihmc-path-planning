@@ -40,7 +40,7 @@ public class TestClusterMgrWithPlanarRegion extends Application
 
    double extrusionDistance = 0.60;
    Point2D startingPosition = new Point2D(1.5, 0);
-   
+
    JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder;
 
    public TestClusterMgrWithPlanarRegion()
@@ -84,19 +84,14 @@ public class TestClusterMgrWithPlanarRegion extends Application
          //         {
          for (int i = 1; i < cluster.getListOfNonNavigableExtrusions().size(); i++)
          {
-            javaFXMultiColorMeshBuilder.addLine(new Point3D(cluster.getListOfNonNavigableExtrusions().get(i - 1).getX(),
-                                                            cluster.getListOfNonNavigableExtrusions().get(i - 1).getY(), 0),
-                                                new Point3D(cluster.getListOfNonNavigableExtrusions().get(i).getX(),
-                                                            cluster.getListOfNonNavigableExtrusions().get(i).getY(), 0),
-                                                0.005, Color.ORANGE);
+            javaFXMultiColorMeshBuilder.addLine(
+                  new Point3D(cluster.getListOfNonNavigableExtrusions().get(i - 1).getX(), cluster.getListOfNonNavigableExtrusions().get(i - 1).getY(), 0),
+                  new Point3D(cluster.getListOfNonNavigableExtrusions().get(i).getX(), cluster.getListOfNonNavigableExtrusions().get(i).getY(), 0), 0.005,
+                  Color.ORANGE);
          }
-         for (int i = 1; i < cluster.getListOfNavigableExtrusions().size(); i++)
+         for (int i = 1; i < cluster.getNumberOfNavigableExtrusions(); i++)
          {
-            javaFXMultiColorMeshBuilder.addLine(new Point3D(cluster.getListOfNavigableExtrusions().get(i - 1).getX(),
-                                                            cluster.getListOfNavigableExtrusions().get(i - 1).getY(), 0),
-                                                new Point3D(cluster.getListOfNavigableExtrusions().get(i).getX(),
-                                                            cluster.getListOfNavigableExtrusions().get(i).getY(), 0),
-                                                0.005, Color.GREEN);
+            javaFXMultiColorMeshBuilder.addMultiLine(cluster.getNavigableExtrusionsInWorld(), 0.005, Color.GREEN, false);
          }
          //         }
       }
@@ -105,9 +100,9 @@ public class TestClusterMgrWithPlanarRegion extends Application
       {
          RigidBodyTransform transform = new RigidBodyTransform();
          region.getTransformToWorld(transform);
-         
+
          Color color = Color.RED;
-         for(int i = 0; i < region.getNumberOfConvexPolygons(); i++)
+         for (int i = 0; i < region.getNumberOfConvexPolygons(); i++)
          {
             javaFXMultiColorMeshBuilder.addPolygon(transform, region.getConvexPolygon(i), color);
          }
@@ -117,9 +112,9 @@ public class TestClusterMgrWithPlanarRegion extends Application
       {
          RigidBodyTransform transform = new RigidBodyTransform();
          region.getTransformToWorld(transform);
-         
+
          Color color = Color.AZURE;
-         for(int i = 0; i < region.getNumberOfConvexPolygons(); i++)
+         for (int i = 0; i < region.getNumberOfConvexPolygons(); i++)
          {
             javaFXMultiColorMeshBuilder.addPolygon(transform, region.getConvexPolygon(i), color);
          }
@@ -324,10 +319,9 @@ public class TestClusterMgrWithPlanarRegion extends Application
          Point3D pointToProject = fpt.getPoint();
          Point3D projectedPoint = new Point3D();
          EuclidGeometryTools.orthogonalProjectionOnPlane3D(pointToProject, point3D, normal, projectedPoint);
-         
+
          javaFXMultiColorMeshBuilder.addLine(projectedPoint, pointToProject, 0.005, Color.YELLOW);
          javaFXMultiColorMeshBuilder.addSphere(0.1f, pointToProject, Color.YELLOW);
-
 
          Color color = Color.YELLOW;
          if (pointToProject.distance(projectedPoint) > 0.1)
@@ -384,7 +378,6 @@ public class TestClusterMgrWithPlanarRegion extends Application
       }
       return null;
    }
-
 
    public ArrayList<Point3D> loadPointCloudFromFile(String fileName)
    {

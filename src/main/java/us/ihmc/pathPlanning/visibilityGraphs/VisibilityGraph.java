@@ -38,6 +38,7 @@ public class VisibilityGraph
    }
 
    RigidBodyTransform transform = new RigidBodyTransform();
+
    public void setTransform(RigidBodyTransform transform)
    {
       this.transform = transform;
@@ -77,7 +78,7 @@ public class VisibilityGraph
    }
 
    public static ArrayList<Point2D> convertEdgesToPath(SimpleWeightedGraph<Point2D, DefaultWeightedEdge> visibilityMap, ArrayList<DefaultWeightedEdge> edges,
-                                                 Point2D start, Point2D goal)
+         Point2D start, Point2D goal)
    {
       ArrayList<Point2D> path = new ArrayList<>();
       Point2D lastNode = start;
@@ -112,18 +113,17 @@ public class VisibilityGraph
       return path;
    }
 
-
    public void createStaticVisibilityMap(Point2D start, Point2D goal)
    {
       startTimeConnectionsCreation = System.currentTimeMillis();
       listOfObserverPoints.clear();
 
-      if(start != null)
+      if (start != null)
       {
          listOfObserverPoints.add(start);
       }
 
-      if(goal != null)
+      if (goal != null)
       {
          listOfObserverPoints.add(goal);
       }
@@ -133,7 +133,7 @@ public class VisibilityGraph
       {
          if (!cluster.isDynamic())
          {
-            for (Point2D point : cluster.getUpdatedNavigableExtrusions())
+            for (Point2D point : cluster.getNavigableExtrusionsInLocal())
             {
                listOfObserverPoints.add(point);
             }
@@ -181,7 +181,7 @@ public class VisibilityGraph
    {
       for (Cluster cluster : clusterMgr.getClusters())
       {
-         if(!VisibilityTools.isPointVisible(observer, targetPoint, cluster.getListOfNonNavigableExtrusions()))
+         if (!VisibilityTools.isPointVisible(observer, targetPoint, cluster.getListOfNonNavigableExtrusions()))
          {
             return false;
          }

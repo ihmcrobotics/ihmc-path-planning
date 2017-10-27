@@ -18,7 +18,7 @@ public class Cluster
    private final List<Point2D> rawPointsLocal = new ArrayList<>();
    private final List<Point2D> normalsInLocal = new ArrayList<>();
    private final List<Point2D> safeNormalsInLocal = new ArrayList<>();
-   private final List<Point2D> listOfNavigableExtrusions = new ArrayList<>();
+   private final List<Point2D> navigableExtrusionsInLocal = new ArrayList<>();
    private final List<Point2D> listOfNonNavigableExtrusions = new ArrayList<>();
 
    // TODO Provide some info about the usage/meaning of these fields
@@ -111,11 +111,6 @@ public class Cluster
    public String getName()
    {
       return name;
-   }
-
-   public List<Point2D> getUpdatedNavigableExtrusions()
-   {
-      return listOfNavigableExtrusions.stream().map(Point2D::new).collect(Collectors.toList());
    }
 
    public List<Point3D> getUpdatedRawPoints()
@@ -234,14 +229,24 @@ public class Cluster
       safeNormalsInLocal.add(toLocal2D(safeNormalInWorld));
    }
 
-   public void addNavigableExtrusionPoint(Point3D point)
+   public void addNavigableExtrusionInLocal(Point2DReadOnly navigableExtrusionInLocal)
    {
-      listOfNavigableExtrusions.add(new Point2D(point));
+      navigableExtrusionsInLocal.add(new Point2D(navigableExtrusionInLocal));
    }
 
-   public void addFirstNavigableExtrusionPoint(Point3D point)
+   public void addNavigableExtrusionInWorld(Point3DReadOnly navigableExtrusionInWorld)
    {
-      listOfNavigableExtrusions.add(0, new Point2D(point));
+      navigableExtrusionsInLocal.add(toLocal2D(navigableExtrusionInWorld));
+   }
+
+   public void addFirstNavigableExtrusionInLocal(Point2DReadOnly navigableExtrusionInLocal)
+   {
+      navigableExtrusionsInLocal.add(0, new Point2D(navigableExtrusionInLocal));
+   }
+
+   public void addFirstNavigableExtrusionInWorld(Point3DReadOnly navigableExtrusionInWorld)
+   {
+      navigableExtrusionsInLocal.add(0, toLocal2D(navigableExtrusionInWorld));
    }
 
    public void addNonNavigableExtrusionPoint(Point2D point)
@@ -254,9 +259,29 @@ public class Cluster
       listOfNonNavigableExtrusions.add(0, point);
    }
 
-   public List<Point2D> getListOfNavigableExtrusions()
+   public int getNumberOfNavigableExtrusions()
    {
-      return listOfNavigableExtrusions;
+      return navigableExtrusionsInLocal.size();
+   }
+
+   public Point2D getNavigableExtrusionInLocal(int i)
+   {
+      return navigableExtrusionsInLocal.get(i);
+   }
+
+   public List<Point2D> getNavigableExtrusionsInLocal()
+   {
+      return navigableExtrusionsInLocal;
+   }
+   
+   public Point3D getNavigableExtrusionInWorld(int i)
+   {
+      return toWorld3D(getNavigableExtrusionInLocal(i));
+   }
+   
+   public List<Point3D> getNavigableExtrusionsInWorld()
+   {
+      return navigableExtrusionsInLocal.stream().map(this::toWorld3D).collect(Collectors.toList());
    }
 
    public List<Point2D> getListOfNonNavigableExtrusions()

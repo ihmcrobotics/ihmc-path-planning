@@ -8,7 +8,6 @@ import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
 import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.euclid.tuple2D.Vector2D;
 import us.ihmc.euclid.tuple2D.interfaces.Point2DReadOnly;
-import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.ExtrusionSide;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.Type;
@@ -160,7 +159,7 @@ public class ClusterManager
 
          for (Point2D pt : navExtrusions)
          {
-            cluster.addNavigableExtrusionPoint(new Point3D(pt.getX(), pt.getY(), 0));
+            cluster.addNavigableExtrusionInLocal(pt);
          }
       }
 
@@ -380,7 +379,7 @@ public class ClusterManager
          Point2D safePoint2 = new Point2D(point2.getX() + vec32.getX() * 0.7, point2.getY() + vec32.getY() * 0.7);
 
          //         cluster.addNavigableExtrusionPoint(new Point3D(safePoint1.getX(), safePoint1.getY(), 0));
-         cluster.addNavigableExtrusionPoint(new Point3D(adjustedIntersection.getX(), adjustedIntersection.getY(), 0));
+         cluster.addNavigableExtrusionInLocal(adjustedIntersection);
          //         cluster.addNavigableExtrusionPoint(new Point3D(safePoint2.getX(), safePoint2.getY(), 0));
 
          index = index + 2;
@@ -388,7 +387,7 @@ public class ClusterManager
 
       if (cluster.isObstacleClosed())
       {
-         cluster.addNavigableExtrusionPoint(new Point3D(cluster.getListOfNavigableExtrusions().get(0)));
+         cluster.addNavigableExtrusionInLocal(cluster.getNavigableExtrusionInLocal(0));
       }
 
    }
@@ -499,7 +498,7 @@ public class ClusterManager
          Point2D extrudedPoint = new Point2D(point2.getX() + dirVector.getX() * extrusionDistance, point2.getY() + dirVector.getY() * extrusionDistance);
          //         javaFXMultiColorMeshBuilder.addSphere(0.04f, new Point3D(extrudedPoint.getX(), extrudedPoint.getY(), 0), Color.YELLOW);
 
-         cluster.addNavigableExtrusionPoint(new Point3D(extrudedPoint.getX(), extrudedPoint.getY(), 0));
+         cluster.addNavigableExtrusionInLocal(extrudedPoint);
       }
    }
 
@@ -527,7 +526,7 @@ public class ClusterManager
          Point2D extrudedPoint = new Point2D(point2.getX() + dirVector.getX() * extrusionDistance, point2.getY() + dirVector.getY() * extrusionDistance);
          //         javaFXMultiColorMeshBuilder.addSphere(0.04f, new Point3D(extrudedPoint.getX(), extrudedPoint.getY(), 0), Color.YELLOW);
 
-         cluster.addNavigableExtrusionPoint(new Point3D(extrudedPoint.getX(), extrudedPoint.getY(), 0));
+         cluster.addNavigableExtrusionInLocal(extrudedPoint);
       }
    }
 
