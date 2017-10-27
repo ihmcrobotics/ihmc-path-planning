@@ -82,17 +82,8 @@ public class TestClusterMgrWithPlanarRegion extends Application
       {
          //         if(cluster.getType() == Type.LINE)
          //         {
-         for (int i = 1; i < cluster.getListOfNonNavigableExtrusions().size(); i++)
-         {
-            javaFXMultiColorMeshBuilder.addLine(
-                  new Point3D(cluster.getListOfNonNavigableExtrusions().get(i - 1).getX(), cluster.getListOfNonNavigableExtrusions().get(i - 1).getY(), 0),
-                  new Point3D(cluster.getListOfNonNavigableExtrusions().get(i).getX(), cluster.getListOfNonNavigableExtrusions().get(i).getY(), 0), 0.005,
-                  Color.ORANGE);
-         }
-         for (int i = 1; i < cluster.getNumberOfNavigableExtrusions(); i++)
-         {
-            javaFXMultiColorMeshBuilder.addMultiLine(cluster.getNavigableExtrusionsInWorld(), 0.005, Color.GREEN, false);
-         }
+         javaFXMultiColorMeshBuilder.addMultiLine(cluster.getNonNavigableExtrusionsInWorld(), 0.005, Color.ORANGE, false);
+         javaFXMultiColorMeshBuilder.addMultiLine(cluster.getNavigableExtrusionsInWorld(), 0.005, Color.GREEN, false);
          //         }
       }
 

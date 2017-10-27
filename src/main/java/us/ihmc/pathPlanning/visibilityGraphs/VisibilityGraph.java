@@ -181,7 +181,7 @@ public class VisibilityGraph
    {
       for (Cluster cluster : clusterMgr.getClusters())
       {
-         if (!VisibilityTools.isPointVisible(observer, targetPoint, cluster.getListOfNonNavigableExtrusions()))
+         if (!VisibilityTools.isPointVisible(observer, targetPoint, cluster.getNonNavigableExtrusionsInLocal()))
          {
             return false;
          }

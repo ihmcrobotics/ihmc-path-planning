@@ -19,7 +19,7 @@ public class Cluster
    private final List<Point2D> normalsInLocal = new ArrayList<>();
    private final List<Point2D> safeNormalsInLocal = new ArrayList<>();
    private final List<Point2D> navigableExtrusionsInLocal = new ArrayList<>();
-   private final List<Point2D> listOfNonNavigableExtrusions = new ArrayList<>();
+   private final List<Point2D> nonNavigableExtrusionsInLocal = new ArrayList<>();
 
    // TODO Provide some info about the usage/meaning of these fields
    private boolean isObstacleClosed = false;
@@ -249,14 +249,24 @@ public class Cluster
       navigableExtrusionsInLocal.add(0, toLocal2D(navigableExtrusionInWorld));
    }
 
-   public void addNonNavigableExtrusionPoint(Point2D point)
+   public void addNonNavigableExtrusionInLocal(Point2DReadOnly nonNavigableExtrusionInLocal)
    {
-      listOfNonNavigableExtrusions.add(point);
+      nonNavigableExtrusionsInLocal.add(new Point2D(nonNavigableExtrusionInLocal));
    }
 
-   public void addFirstNonNavigableExtrusionPoint(Point2D point)
+   public void addNonNavigableExtrusionInWorld(Point3DReadOnly nonNavigableExtrusionInWorld)
    {
-      listOfNonNavigableExtrusions.add(0, point);
+      nonNavigableExtrusionsInLocal.add(toLocal2D(nonNavigableExtrusionInWorld));
+   }
+
+   public void addFirstNonNavigableExtrusionInLocal(Point2DReadOnly nonNavigableExtrusionInLocal)
+   {
+      nonNavigableExtrusionsInLocal.add(0, new Point2D(nonNavigableExtrusionInLocal));
+   }
+
+   public void addFirstNonNavigableExtrusionInWorld(Point3DReadOnly nonNavigableExtrusionInWorld)
+   {
+      nonNavigableExtrusionsInLocal.add(0, toLocal2D(nonNavigableExtrusionInWorld));
    }
 
    public int getNumberOfNavigableExtrusions()
@@ -284,9 +294,29 @@ public class Cluster
       return navigableExtrusionsInLocal.stream().map(this::toWorld3D).collect(Collectors.toList());
    }
 
-   public List<Point2D> getListOfNonNavigableExtrusions()
+   public int getNumberOfNonNavigableExtrusions()
    {
-      return listOfNonNavigableExtrusions;
+      return nonNavigableExtrusionsInLocal.size();
+   }
+
+   public Point2D getNonNavigableExtrusionInLocal(int i)
+   {
+      return nonNavigableExtrusionsInLocal.get(i);
+   }
+
+   public List<Point2D> getNonNavigableExtrusionsInLocal()
+   {
+      return nonNavigableExtrusionsInLocal;
+   }
+   
+   public Point3D getNonNavigableExtrusionInWorld(int i)
+   {
+      return toWorld3D(getNonNavigableExtrusionInLocal(i));
+   }
+   
+   public List<Point3D> getNonNavigableExtrusionsInWorld()
+   {
+      return nonNavigableExtrusionsInLocal.stream().map(this::toWorld3D).collect(Collectors.toList());
    }
 
    public int getNumberOfNormals()

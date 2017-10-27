@@ -5,9 +5,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import org.jgrapht.alg.DijkstraShortestPath;
-import org.jgrapht.graph.DefaultWeightedEdge;
-
 import javafx.application.Application;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.MeshView;
@@ -23,8 +20,8 @@ import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.javaFXToolkit.shapes.TextureColorAdaptivePalette;
 import us.ihmc.javaFXToolkit.shapes.TextureColorPalette;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
-import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterManager;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.Type;
+import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterManager;
 import us.ihmc.robotics.geometry.PlanarRegion;
 
 /**
@@ -93,33 +90,14 @@ public class TestVisibilityGraphs_Connectivity extends Application
       cluster4.setClusterClosure(true);
 
       clusterMgr.performExtrusions(new Point2D(), extrusionDistance);
-      
 
       for (Point3D point : cluster4.getRawPointsInWorld())
       {
          javaFXMultiColorMeshBuilder.addSphere(0.1f, point, Color.RED);
       }
 
-      for (int i = 1; i < cluster4.getRawPointsInLocal().size(); i++)
-      {
-         javaFXMultiColorMeshBuilder.addLine(new Point3D(cluster4.getRawPointsInLocal().get(i - 1).getX(), cluster4.getRawPointsInLocal().get(i - 1).getY(),
-                                                         0),
-                                             new Point3D(cluster4.getRawPointsInLocal().get(i).getX(), cluster4.getRawPointsInLocal().get(i).getY(), 0),
-                                             0.005, Color.GREEN);
-      }
-      javaFXMultiColorMeshBuilder.addLine(new Point3D(cluster4.getRawPointsInLocal().get(cluster4.getRawPointsInLocal().size() - 1).getX(),
-                                                      cluster4.getRawPointsInLocal().get(cluster4.getRawPointsInLocal().size() - 1).getY(), 0),
-                                          new Point3D(cluster4.getRawPointsInLocal().get(0).getX(), cluster4.getRawPointsInLocal().get(0).getY(), 0), 0.005,
-                                          Color.GREEN);
-
-      for (int i = 1; i < cluster4.getListOfNonNavigableExtrusions().size(); i++)
-      {
-         javaFXMultiColorMeshBuilder.addLine(new Point3D(cluster4.getListOfNonNavigableExtrusions().get(i - 1).getX(),
-                                                         cluster4.getListOfNonNavigableExtrusions().get(i - 1).getY(), 0),
-                                             new Point3D(cluster4.getListOfNonNavigableExtrusions().get(i).getX(),
-                                                         cluster4.getListOfNonNavigableExtrusions().get(i).getY(), 0),
-                                             0.005, Color.YELLOW);
-      }
+      javaFXMultiColorMeshBuilder.addMultiLine(cluster4.getRawPointsInWorld(), 0.005, Color.GREEN, true);
+      javaFXMultiColorMeshBuilder.addMultiLine(cluster4.getNonNavigableExtrusionsInWorld(), 0.005, Color.YELLOW, false);
 
       //      VisibilityGraph visibilityGraph = new VisibilityGraph(clusterMgr);
       //      visibilityGraph.createStaticVisibilityMap(new Point2D(), new Point2D(10, 0));

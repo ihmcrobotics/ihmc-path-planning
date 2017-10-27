@@ -154,7 +154,7 @@ public class ClusterManager
 
          for (Point2D pt : nonNavExtrusions)
          {
-            cluster.addNonNavigableExtrusionPoint(pt);
+            cluster.addNonNavigableExtrusionInLocal(pt);
          }
 
          for (Point2D pt : navExtrusions)
@@ -271,7 +271,7 @@ public class ClusterManager
       Point2D safePoint2 = new Point2D(point2.getX() + vec32.getX() * 0.7, point2.getY() + vec32.getY() * 0.7);
 
       //         cluster.addNonNavigableExtrusionPoint(new Point3D(safePoint1.getX(), safePoint1.getY(), 0));
-      cluster.addNonNavigableExtrusionPoint(adjustedIntersection);
+      cluster.addNonNavigableExtrusionInLocal(adjustedIntersection);
       //         cluster.addNonNavigableExtrusionPoint(new Point3D(safePoint2.getX(), safePoint2.getY(), 0));
    }
 
@@ -321,7 +321,7 @@ public class ClusterManager
          Point2D safePoint2 = new Point2D(point2.getX() + vec32.getX() * 0.7, point2.getY() + vec32.getY() * 0.7);
 
          //         cluster.addNonNavigableExtrusionPoint(new Point3D(safePoint1.getX(), safePoint1.getY(), 0));
-         cluster.addNonNavigableExtrusionPoint(adjustedIntersection);
+         cluster.addNonNavigableExtrusionInLocal(adjustedIntersection);
          //         cluster.addNonNavigableExtrusionPoint(new Point3D(safePoint2.getX(), safePoint2.getY(), 0));
 
          index = index + 2;
@@ -329,7 +329,7 @@ public class ClusterManager
 
       if (cluster.isObstacleClosed())
       {
-         cluster.addNonNavigableExtrusionPoint(cluster.getListOfNonNavigableExtrusions().get(0));
+         cluster.addNonNavigableExtrusionInLocal(cluster.getNonNavigableExtrusionsInLocal().get(0));
       }
    }
 
@@ -440,7 +440,7 @@ public class ClusterManager
             Point2D safePoint2 = new Point2D(point2.getX() + vec32.getX() * 0.7, point2.getY() + vec32.getY() * 0.7);
 
             //         cluster.addNonNavigableExtrusionPoint(new Point3D(safePoint1.getX(), safePoint1.getY(), 0));
-            cluster.addNonNavigableExtrusionPoint(adjustedIntersection);
+            cluster.addNonNavigableExtrusionInLocal(adjustedIntersection);
             //         cluster.addNonNavigableExtrusionPoint(new Point3D(safePoint2.getX(), safePoint2.getY(), 0));
          }
       }
@@ -470,7 +470,7 @@ public class ClusterManager
          Point2D extrudedPoint = new Point2D(point2.getX() + dirVector.getX() * extrusionDistance, point2.getY() + dirVector.getY() * extrusionDistance);
          //         javaFXMultiColorMeshBuilder.addSphere(0.04f, new Point3D(extrudedPoint.getX(), extrudedPoint.getY(), 0), Color.YELLOW);
          //
-         cluster.addNonNavigableExtrusionPoint(extrudedPoint);
+         cluster.addNonNavigableExtrusionInLocal(extrudedPoint);
       }
    }
 

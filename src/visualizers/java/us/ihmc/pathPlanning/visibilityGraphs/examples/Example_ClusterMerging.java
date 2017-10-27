@@ -75,8 +75,8 @@ public class Example_ClusterMerging extends Application
 
       ArrayList<Point2D> navigablePoints = generateListOfPointsInsideHomeCluster(homeCluster.getNavigableExtrusionsInLocal(),
                                                                                  clusterToCheck.getNavigableExtrusionsInLocal());
-      ArrayList<Point2D> nonNavigablePoints = generateListOfPointsInsideHomeCluster(homeCluster.getListOfNonNavigableExtrusions(),
-                                                                                    clusterToCheck.getListOfNonNavigableExtrusions());
+      ArrayList<Point2D> nonNavigablePoints = generateListOfPointsInsideHomeCluster(homeCluster.getNonNavigableExtrusionsInLocal(),
+                                                                                    clusterToCheck.getNonNavigableExtrusionsInLocal());
 
       //      for (int i = 1; i < navigablePoints.size(); i++)
       //      {
@@ -123,15 +123,7 @@ public class Example_ClusterMerging extends Application
          //         javaFXMultiColorMeshBuilder.addSphere(0.03f, new Point3D(point.getX(), point.getY(), 0), Color.YELLOW);
          //      }
          //      
-         for (int i = 1; i < cluster.getListOfNonNavigableExtrusions().size(); i++)
-         {
-            Point3D pt1 = new Point3D(cluster.getListOfNonNavigableExtrusions().get(i - 1).getX(), cluster.getListOfNonNavigableExtrusions().get(i - 1).getY(),
-                                      0);
-            Point3D pt2 = new Point3D(cluster.getListOfNonNavigableExtrusions().get(i).getX(), cluster.getListOfNonNavigableExtrusions().get(i).getY(), 0);
-
-            javaFXMultiColorMeshBuilder.addLine(pt1, pt2, 0.005, Color.YELLOW);
-         }
-
+            javaFXMultiColorMeshBuilder.addMultiLine(cluster.getNonNavigableExtrusionsInWorld(), 0.005, Color.YELLOW, false);
       }
 
       MeshView meshView = new MeshView(javaFXMultiColorMeshBuilder.generateMesh());
