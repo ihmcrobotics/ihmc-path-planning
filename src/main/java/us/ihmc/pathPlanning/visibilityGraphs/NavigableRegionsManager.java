@@ -2,7 +2,6 @@ package us.ihmc.pathPlanning.visibilityGraphs;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 
 import org.jgrapht.alg.DijkstraShortestPath;
@@ -157,7 +156,7 @@ public class NavigableRegionsManager
          path.clear();
 
          ArrayList<DefaultWeightedEdge> solution = (ArrayList<DefaultWeightedEdge>) DijkstraShortestPath.findPathBetween(globalVisMap, startpt, goalPt);
-         
+
          for (DefaultWeightedEdge edge : solution)
          {
             Point3D from = globalVisMap.getEdgeSource(edge);
@@ -175,14 +174,14 @@ public class NavigableRegionsManager
             //         javaFXMultiColorMeshBuilder.addLine(new Point3D(from.getX(), from.getY(), from.getZ()), new Point3D(to.getX(), to.getY(), to.getZ()), 0.025,
             //                                             Color.RED);
          }
-         
+
          if(!path.get(0).epsilonEquals(startpt, 1e-5))
          {
             Point3D pointOut = path.get(1);
             path.remove(1);
             path.add(0, pointOut);
          }
-         
+
       }
 
       //      javaFXMultiColorMeshBuilder.addSphere(0.045f, startpt, Color.ORANGE);
@@ -275,7 +274,10 @@ public class NavigableRegionsManager
       {
          DistancePoint dpt = distancePoints.get(i);
          tempPoint = dpt.point;
-         javaFXMultiColorMeshBuilder.addSphere(0.025f, dpt.point, Color.BLUE);
+         if (javaFXMultiColorMeshBuilder != null)
+         {
+            javaFXMultiColorMeshBuilder.addSphere(0.025f, dpt.point, Color.BLUE);
+         }
 
          points.add(new PointPair(dpt.point, position));
          //         globalVisMap.addVertex(dpt.point);
