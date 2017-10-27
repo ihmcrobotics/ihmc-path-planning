@@ -135,6 +135,7 @@ public class NavigableRegionLocalPlanner
          System.out.println("Extruding obstacles...");
       }
 
+      // TODO The use of Double.MAX_VALUE for the observer seems rather risky. I'm actually surprised that it works.
       clusterMgr.performExtrusions(new Point2D(Double.MAX_VALUE, Double.MAX_VALUE), extrusionDistance);
 
       //Visuals local frame
