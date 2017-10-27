@@ -20,9 +20,9 @@ import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.euclid.tuple4D.Quaternion;
 import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
-import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterManager;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.ExtrusionSide;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.Type;
+import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterManager;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.LinearRegression3D;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.PointCloudTools;
 import us.ihmc.robotics.geometry.PlanarRegion;
@@ -586,26 +586,30 @@ public class NavigableRegionLocalPlanner
 
    private Vector3D calculateNormal(PlanarRegion region)
    {
-      if (!region.getConvexHull().isEmpty())
-      {
-         FramePoint3D fpt1 = new FramePoint3D();
-         fpt1.set(new Point3D(region.getConvexHull().getVertex(0).getX(), region.getConvexHull().getVertex(0).getY(), 0));
-         RigidBodyTransform trans = new RigidBodyTransform();
-         region.getTransformToWorld(trans);
-         fpt1.applyTransform(trans);
+      Vector3D normal = new Vector3D();
+      region.getNormal(normal);
+      return normal;
 
-         FramePoint3D fpt2 = new FramePoint3D();
-         fpt2.set(new Point3D(region.getConvexHull().getVertex(1).getX(), region.getConvexHull().getVertex(1).getY(), 0));
-         fpt2.applyTransform(trans);
-
-         FramePoint3D fpt3 = new FramePoint3D();
-         fpt3.set(new Point3D(region.getConvexHull().getVertex(2).getX(), region.getConvexHull().getVertex(2).getY(), 0));
-         fpt3.applyTransform(trans);
-
-         Vector3D normal = EuclidGeometryTools.normal3DFromThreePoint3Ds(fpt1.getPoint(), fpt2.getPoint(), fpt3.getPoint());
-         return normal;
-      }
-      return null;
+//      if (!region.getConvexHull().isEmpty())
+//      {
+//         FramePoint3D fpt1 = new FramePoint3D();
+//         fpt1.set(new Point3D(region.getConvexHull().getVertex(0).getX(), region.getConvexHull().getVertex(0).getY(), 0));
+//         RigidBodyTransform trans = new RigidBodyTransform();
+//         region.getTransformToWorld(trans);
+//         fpt1.applyTransform(trans);
+//
+//         FramePoint3D fpt2 = new FramePoint3D();
+//         fpt2.set(new Point3D(region.getConvexHull().getVertex(1).getX(), region.getConvexHull().getVertex(1).getY(), 0));
+//         fpt2.applyTransform(trans);
+//
+//         FramePoint3D fpt3 = new FramePoint3D();
+//         fpt3.set(new Point3D(region.getConvexHull().getVertex(2).getX(), region.getConvexHull().getVertex(2).getY(), 0));
+//         fpt3.applyTransform(trans);
+//
+//         Vector3D normal = EuclidGeometryTools.normal3DFromThreePoint3Ds(fpt1.getPoint(), fpt2.getPoint(), fpt3.getPoint());
+//         return normal;
+//      }
+//      return null;
    }
 
    public ArrayList<Point3D> loadPointCloudFromFile(String fileName)
