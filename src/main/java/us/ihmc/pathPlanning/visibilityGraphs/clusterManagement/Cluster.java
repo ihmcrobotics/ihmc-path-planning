@@ -2,6 +2,7 @@ package us.ihmc.pathPlanning.visibilityGraphs.clusterManagement;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
 import us.ihmc.euclid.transform.RigidBodyTransform;
@@ -10,9 +11,9 @@ import us.ihmc.euclid.tuple3D.Point3D;
 
 public class Cluster
 {
-   private Point3D originPosition = new Point3D(); // FIXME this field seems to never be set but induce some additional computation.
+   private final RigidBodyTransform transformToWorld = new RigidBodyTransform();
+
    private List<Point3D> listOfRawPoints = new ArrayList<>();
-   private final List<Point3D> listOfVertices = new ArrayList<>();
    private final List<Point3D> listOfNormals = new ArrayList<>();
    private final List<Point3D> listOfNormalsSafe = new ArrayList<>();
    private final List<Point3D> listOfCorrectNormals = new ArrayList<>();
@@ -25,7 +26,6 @@ public class Cluster
    private boolean isDynamic = false;
    private String name;
    private Point2D observer;
-   private RigidBodyTransform transform;
    private Point3D centroid = new Point3D();
 
    public enum ExtrusionSide
@@ -118,14 +118,14 @@ public class Cluster
       return centroid;
    }
 
-   public void setTransform(RigidBodyTransform t)
+   public void setTransformToWorld(RigidBodyTransform transform)
    {
-      transform = t;
+      transformToWorld.set(transform);
    }
 
-   public RigidBodyTransform getTransform()
+   public RigidBodyTransform getTransformToWorld()
    {
-      return transform;
+      return transformToWorld;
    }
 
    public void setObserver(Point2D observer)
@@ -150,45 +150,17 @@ public class Cluster
 
    public List<Point2D> getUpdatedNavigableExtrusions()
    {
-      List<Point2D> list = new ArrayList<>();
-      for (Point2D point : listOfNavigableExtrusions)
-      {
-         list.add(new Point2D(point.getX() + originPosition.getX(), point.getY() + originPosition.getY()));
-      }
-
-      return list;
+      return listOfNavigableExtrusions.stream().map(Point2D::new).collect(Collectors.toList());
    }
 
    public List<Point3D> getUpdatedRawPoints()
    {
-      List<Point3D> list = new ArrayList<>();
-      for (Point3D point : listOfRawPoints)
-      {
-         list.add(new Point3D(point.getX() + originPosition.getX(), point.getY() + originPosition.getY(), point.getZ() + originPosition.getZ()));
-      }
-
-      return list;
+      return listOfRawPoints.stream().map(Point3D::new).collect(Collectors.toList());
    }
 
    public List<Point3D> getUpdatedNormals()
    {
-      List<Point3D> list = new ArrayList<>();
-      for (Point3D point : listOfNormals)
-      {
-         list.add(new Point3D(point.getX() + originPosition.getX(), point.getY() + originPosition.getY(), point.getZ() + originPosition.getZ()));
-      }
-
-      return list;
-   }
-
-   public void updatePosition(Point3D point)
-   {
-      originPosition = point;
-   }
-
-   public Point3D getOriginPosition()
-   {
-      return originPosition;
+      return listOfNormals.stream().map(Point3D::new).collect(Collectors.toList());
    }
 
    public void setAdditionalExtrusionDistance(double extrusionDistance)
@@ -241,16 +213,6 @@ public class Cluster
       return listOfRawPoints;
    }
 
-   public void addVertex(Point3D vertex)
-   {
-      listOfVertices.add(vertex);
-   }
-
-   public List<Point3D> getListOfVertices()
-   {
-      return listOfVertices;
-   }
-
    public void addNormal(Point3D normal)
    {
       listOfNormals.add(normal);
@@ -268,12 +230,12 @@ public class Cluster
 
    public void addNavigableExtrusionPoint(Point3D point)
    {
-      listOfNavigableExtrusions.add(new Point2D(point.getX(), point.getY()));
+      listOfNavigableExtrusions.add(new Point2D(point));
    }
 
    public void addFirstNavigableExtrusionPoint(Point3D point)
    {
-      listOfNavigableExtrusions.add(0, new Point2D(point.getX(), point.getY()));
+      listOfNavigableExtrusions.add(0, new Point2D(point));
    }
 
    public void addNonNavigableExtrusionPoint(Point2D point)
@@ -303,13 +265,7 @@ public class Cluster
 
    public List<Point3D> getUpdatedListOfSafeNormals()
    {
-      List<Point3D> list = new ArrayList<>();
-      for (Point3D point : listOfNormalsSafe)
-      {
-         list.add(new Point3D(point.getX() + originPosition.getX(), point.getY() + originPosition.getY(), point.getZ() + originPosition.getZ()));
-      }
-
-      return list;
+      return listOfNormalsSafe.stream().map(Point3D::new).collect(Collectors.toList());
    }
 
    public List<Point3D> getListOfCorrectNormals()

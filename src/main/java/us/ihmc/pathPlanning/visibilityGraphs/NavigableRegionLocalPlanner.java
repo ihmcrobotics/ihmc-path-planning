@@ -15,15 +15,14 @@ import us.ihmc.euclid.referenceFrame.FramePoint3D;
 import us.ihmc.euclid.referenceFrame.ReferenceFrame;
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Point2D;
-import us.ihmc.euclid.tuple2D.interfaces.Point2DReadOnly;
 import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.euclid.tuple4D.Quaternion;
 import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
+import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterManager;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.ExtrusionSide;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.Type;
-import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterManager;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.LinearRegression3D;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.PointCloudTools;
 import us.ihmc.robotics.geometry.PlanarRegion;
@@ -293,11 +292,9 @@ public class NavigableRegionLocalPlanner
       clusters.add(cluster);
       cluster.setType(Type.POLYGON);
 
-      Point2D[] concaveHull = homeRegion.getConcaveHull();
-
-      for (int i = 0; i < concaveHull.length; i++)
+      for (int i = 0; i < homeRegion.getConvexHull().getNumberOfVertices(); i++)
       {
-         Point2DReadOnly point2D = concaveHull[i];
+         Point2D point2D = (Point2D) homeRegion.getConvexHull().getVertex(i);
          Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
          FramePoint3D fpt = new FramePoint3D();
          fpt.set(point3D);
@@ -589,30 +586,26 @@ public class NavigableRegionLocalPlanner
 
    private Vector3D calculateNormal(PlanarRegion region)
    {
-      Vector3D normal = new Vector3D();
-      region.getNormal(normal);
-      return normal;
+      if (!region.getConvexHull().isEmpty())
+      {
+         FramePoint3D fpt1 = new FramePoint3D();
+         fpt1.set(new Point3D(region.getConvexHull().getVertex(0).getX(), region.getConvexHull().getVertex(0).getY(), 0));
+         RigidBodyTransform trans = new RigidBodyTransform();
+         region.getTransformToWorld(trans);
+         fpt1.applyTransform(trans);
 
-//      if (!region.getConvexHull().isEmpty())
-//      {
-//         FramePoint3D fpt1 = new FramePoint3D();
-//         fpt1.set(new Point3D(region.getConvexHull().getVertex(0).getX(), region.getConvexHull().getVertex(0).getY(), 0));
-//         RigidBodyTransform trans = new RigidBodyTransform();
-//         region.getTransformToWorld(trans);
-//         fpt1.applyTransform(trans);
-//
-//         FramePoint3D fpt2 = new FramePoint3D();
-//         fpt2.set(new Point3D(region.getConvexHull().getVertex(1).getX(), region.getConvexHull().getVertex(1).getY(), 0));
-//         fpt2.applyTransform(trans);
-//
-//         FramePoint3D fpt3 = new FramePoint3D();
-//         fpt3.set(new Point3D(region.getConvexHull().getVertex(2).getX(), region.getConvexHull().getVertex(2).getY(), 0));
-//         fpt3.applyTransform(trans);
-//
-//         Vector3D normal = EuclidGeometryTools.normal3DFromThreePoint3Ds(fpt1.getPoint(), fpt2.getPoint(), fpt3.getPoint());
-//         return normal;
-//      }
-//      return null;
+         FramePoint3D fpt2 = new FramePoint3D();
+         fpt2.set(new Point3D(region.getConvexHull().getVertex(1).getX(), region.getConvexHull().getVertex(1).getY(), 0));
+         fpt2.applyTransform(trans);
+
+         FramePoint3D fpt3 = new FramePoint3D();
+         fpt3.set(new Point3D(region.getConvexHull().getVertex(2).getX(), region.getConvexHull().getVertex(2).getY(), 0));
+         fpt3.applyTransform(trans);
+
+         Vector3D normal = EuclidGeometryTools.normal3DFromThreePoint3Ds(fpt1.getPoint(), fpt2.getPoint(), fpt3.getPoint());
+         return normal;
+      }
+      return null;
    }
 
    public ArrayList<Point3D> loadPointCloudFromFile(String fileName)
@@ -681,7 +674,7 @@ public class NavigableRegionLocalPlanner
                Quaternion quat = new Quaternion(qx, qy, qz, qs);
 
                RigidBodyTransform rigidBodyTransform = new RigidBodyTransform(quat, translation);
-               cluster.setTransform(rigidBodyTransform);
+               cluster.setTransformToWorld(rigidBodyTransform);
             }
             else
             {
@@ -714,7 +707,7 @@ public class NavigableRegionLocalPlanner
 
             ConvexPolygon2D convexPolygon = new ConvexPolygon2D(vertices);
 
-            PlanarRegion planarRegion = new PlanarRegion(cluster1.getTransform(), convexPolygon);
+            PlanarRegion planarRegion = new PlanarRegion(cluster1.getTransformToWorld(), convexPolygon);
 
             regions.add(planarRegion);
          }
