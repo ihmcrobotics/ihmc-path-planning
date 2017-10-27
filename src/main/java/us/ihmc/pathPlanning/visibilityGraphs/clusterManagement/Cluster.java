@@ -27,7 +27,7 @@ public class Cluster
    private boolean isDynamic = false;
    private String name;
    private Point2D observer;
-   private Point3D centroid = new Point3D();
+   private Point2D centroidInLocal = new Point2D();
 
    public enum ExtrusionSide
    {
@@ -78,9 +78,14 @@ public class Cluster
       return type;
    }
 
-   public Point3D getCentroid()
+   public Point2D getCentroidInLocal()
    {
-      return centroid;
+      return centroidInLocal;
+   }
+
+   public Point3D getCentroidInWorld()
+   {
+      return toWorld3D(centroidInLocal);
    }
 
    public void setTransformToWorld(RigidBodyTransform transform)
@@ -93,9 +98,9 @@ public class Cluster
       return transformToWorld;
    }
 
-   public void setObserver(Point2D observer)
+   public void setObserver(Point2DReadOnly observer)
    {
-      this.observer = observer;
+      this.observer = new Point2D(observer);
    }
 
    public Point2D getObserver()
@@ -113,9 +118,19 @@ public class Cluster
       return name;
    }
 
-   public List<Point3D> getUpdatedRawPoints()
+   public boolean isDynamic()
    {
-      return rawPointsLocal.stream().map(Point3D::new).collect(Collectors.toList());
+      return isDynamic;
+   }
+
+   public void setDynamic(boolean dynamic)
+   {
+      isDynamic = dynamic;
+   }
+
+   public boolean isObstacleClosed()
+   {
+      return isObstacleClosed;
    }
 
    public void setAdditionalExtrusionDistance(double extrusionDistance)
@@ -131,7 +146,7 @@ public class Cluster
    public void addRawPointInLocal(Point2DReadOnly pointInLocal)
    {
       rawPointsLocal.add(new Point2D(pointInLocal));
-      centroid.set(EuclidGeometryTools.averagePoint2Ds(rawPointsLocal));
+      centroidInLocal.set(EuclidGeometryTools.averagePoint2Ds(rawPointsLocal));
    }
 
    public void addRawPointInWorld(Point3DReadOnly pointInWorld)
@@ -147,31 +162,15 @@ public class Cluster
       if (closed)
       {
          rawPointsLocal.add(new Point2D(pointsInLocal.get(0)));
-
       }
 
-      centroid.set(EuclidGeometryTools.averagePoint2Ds(rawPointsLocal));
+      centroidInLocal.set(EuclidGeometryTools.averagePoint2Ds(rawPointsLocal));
    }
 
    public void addRawPointsInWorld(List<? extends Point3DReadOnly> pointsInWorld, boolean closed)
    {
       List<Point2D> pointsInLocal = pointsInWorld.stream().map(this::toLocal2D).collect(Collectors.toList());
       addRawPointsInLocal(pointsInLocal, closed);
-   }
-
-   public boolean isDynamic()
-   {
-      return isDynamic;
-   }
-
-   public void setDynamic(boolean dynamic)
-   {
-      isDynamic = dynamic;
-   }
-
-   public boolean isObstacleClosed()
-   {
-      return isObstacleClosed;
    }
 
    public int getNumberOfRawPoints()
@@ -283,12 +282,12 @@ public class Cluster
    {
       return navigableExtrusionsInLocal;
    }
-   
+
    public Point3D getNavigableExtrusionInWorld(int i)
    {
       return toWorld3D(getNavigableExtrusionInLocal(i));
    }
-   
+
    public List<Point3D> getNavigableExtrusionsInWorld()
    {
       return navigableExtrusionsInLocal.stream().map(this::toWorld3D).collect(Collectors.toList());
@@ -308,12 +307,12 @@ public class Cluster
    {
       return nonNavigableExtrusionsInLocal;
    }
-   
+
    public Point3D getNonNavigableExtrusionInWorld(int i)
    {
       return toWorld3D(getNonNavigableExtrusionInLocal(i));
    }
-   
+
    public List<Point3D> getNonNavigableExtrusionsInWorld()
    {
       return nonNavigableExtrusionsInLocal.stream().map(this::toWorld3D).collect(Collectors.toList());

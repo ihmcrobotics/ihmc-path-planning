@@ -238,7 +238,7 @@ public class Example_PacketCommunicator extends Application
                obstacleRegions.add(region);
                Cluster cluster = new Cluster();
                clusters.add(cluster);
-               cluster.setObserver(new Point2D(clusters.get(0).getCentroid().getX(), clusters.get(0).getCentroid().getY()));
+               cluster.setObserver(clusters.get(0).getCentroidInLocal());
 
                for (int i = 0; i < region.getConvexHull().getNumberOfVertices(); i++)
                {
