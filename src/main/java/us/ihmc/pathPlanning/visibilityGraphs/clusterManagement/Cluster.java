@@ -26,7 +26,7 @@ public class Cluster
    private double extrusionDistance = 0.0;
    private boolean isDynamic = false;
    private String name;
-   private Point2D observer;
+   private Point2D observerInLocal;
    private Point2D centroidInLocal = new Point2D();
 
    public enum ExtrusionSide
@@ -98,14 +98,19 @@ public class Cluster
       return transformToWorld;
    }
 
-   public void setObserver(Point2DReadOnly observer)
+   public void setObserverInLocal(Point2DReadOnly observerInLocal)
    {
-      this.observer = new Point2D(observer);
+      this.observerInLocal = new Point2D(observerInLocal);
    }
 
-   public Point2D getObserver()
+   public Point2D getObserverInLocal()
    {
-      return observer;
+      return observerInLocal;
+   }
+   
+   public Point3D getObserverInWorld()
+   {
+      return toWorld3D(observerInLocal);
    }
 
    public void setName(String name)

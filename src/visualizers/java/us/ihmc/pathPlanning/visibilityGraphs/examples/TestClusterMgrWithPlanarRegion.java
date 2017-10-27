@@ -295,7 +295,7 @@ public class TestClusterMgrWithPlanarRegion extends Application
 
       Cluster cluster = new Cluster();
       clusters.add(cluster);
-      cluster.setObserver(new Point2D());
+      cluster.setObserverInLocal(new Point2D());
 
       for (int i = 0; i < regionToProject.getConvexHull().getNumberOfVertices(); i++)
       {
