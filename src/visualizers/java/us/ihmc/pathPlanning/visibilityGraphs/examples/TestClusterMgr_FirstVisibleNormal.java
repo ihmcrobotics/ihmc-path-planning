@@ -54,9 +54,9 @@ public class TestClusterMgr_FirstVisibleNormal extends Application
          i = 1;
       }
 
-      for (int j = i; j < cluster.getListOfSafeNormals().size(); j = j + 2)
+      for (int j = i; j < cluster.getNumberOfSafeNormals(); j = j + 2)
       {
-         javaFXMultiColorMeshBuilder.addSphere(0.1f, cluster.getListOfSafeNormals().get(j), Color.RED);
+         javaFXMultiColorMeshBuilder.addSphere(0.1f, cluster.getSafeNormalInWorld(j), Color.RED);
       }
       
       MeshView meshView = new MeshView(javaFXMultiColorMeshBuilder.generateMesh());

@@ -94,7 +94,7 @@ public class Example_FixExtrusionEndings extends Application
             javaFXMultiColorMeshBuilder.addLine(cluster.getRawPointsInWorld().get(i - 1), cluster.getRawPointsInWorld().get(i), 0.005, Color.AQUAMARINE);
          }
          //      
-         for (Point3D point : cluster.getListOfSafeNormals())
+         for (Point3D point : cluster.getSafeNormalsInWorld())
          {
             javaFXMultiColorMeshBuilder.addSphere(0.03f, point, Color.WHITE);
          }

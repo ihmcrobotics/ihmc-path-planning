@@ -122,7 +122,7 @@ public class ClusterManager
 
       for (Point2D normalPoint : points)
       {
-         cluster.addSafeNormal(new Point3D(normalPoint));
+         cluster.addSafeNormalInLocal(normalPoint);
       }
    }
 
@@ -231,14 +231,13 @@ public class ClusterManager
       Vector2D vec1 = new Vector2D(point2.getX() - point1.getX(), point2.getY() - point1.getY());
       Vector2D vec2 = new Vector2D(point3.getX() - point2.getX(), point3.getY() - point2.getY());
 
-      Point2D normal1 = new Point2D(cluster.getListOfSafeNormals().get(cluster.getListOfSafeNormals().size() - 1).getX(),
-            cluster.getListOfSafeNormals().get(cluster.getListOfSafeNormals().size() - 1).getY());
-      Point2D normal2 = new Point2D(cluster.getListOfSafeNormals().get(0).getX(), cluster.getListOfSafeNormals().get(0).getY());
+      Point2D normal1 = cluster.getLastSafeNormalInLocal();
+      Point2D normal2 = cluster.getSafeNormalInLocal(0);
 
       if (javaFXMultiColorMeshBuilder != null)
       {
-         javaFXMultiColorMeshBuilder.addSphere(0.2f, new Point3D(normal1.getX(), normal1.getY(), 0), Color.WHITE);
-         javaFXMultiColorMeshBuilder.addSphere(0.2f, new Point3D(normal2.getX(), normal2.getY(), 0), Color.WHITE);
+         javaFXMultiColorMeshBuilder.addSphere(0.2f, cluster.getLastSafeNormalInWorld(), Color.WHITE);
+         javaFXMultiColorMeshBuilder.addSphere(0.2f, cluster.getSafeNormalInWorld(0), Color.WHITE);
       }
 
       Point2D intersectionPoint = EuclidGeometryTools.intersectionBetweenTwoLine2Ds(normal1, vec1, normal2, vec2);
@@ -288,8 +287,8 @@ public class ClusterManager
          Vector2D vec1 = new Vector2D(point2.getX() - point1.getX(), point2.getY() - point1.getY());
          Vector2D vec2 = new Vector2D(point3.getX() - point2.getX(), point3.getY() - point2.getY());
 
-         Point2D normal1 = new Point2D(cluster.getListOfSafeNormals().get(index).getX(), cluster.getListOfSafeNormals().get(index).getY());
-         Point2D normal2 = new Point2D(cluster.getListOfSafeNormals().get(index + 2).getX(), cluster.getListOfSafeNormals().get(index + 2).getY());
+         Point2D normal1 = cluster.getSafeNormalInLocal(index);
+         Point2D normal2 = cluster.getSafeNormalInLocal(index + 2);
 
          Point2D intersectionPoint = EuclidGeometryTools.intersectionBetweenTwoLine2Ds(normal1, vec1, normal2, vec2);
 
@@ -346,8 +345,8 @@ public class ClusterManager
          Vector2D vec1 = new Vector2D(point2.getX() - point1.getX(), point2.getY() - point1.getY());
          Vector2D vec2 = new Vector2D(point3.getX() - point2.getX(), point3.getY() - point2.getY());
 
-         Point2D normal1 = new Point2D(cluster.getListOfSafeNormals().get(index).getX(), cluster.getListOfSafeNormals().get(index).getY());
-         Point2D normal2 = new Point2D(cluster.getListOfSafeNormals().get(index + 2).getX(), cluster.getListOfSafeNormals().get(index + 2).getY());
+         Point2D normal1 = cluster.getSafeNormalInLocal(index);
+         Point2D normal2 = cluster.getSafeNormalInLocal(index + 2);
 
          Point2D intersectionPoint = EuclidGeometryTools.intersectionBetweenTwoLine2Ds(normal1, vec1, normal2, vec2);
 
@@ -407,8 +406,8 @@ public class ClusterManager
             Vector2D vec1 = new Vector2D(point2.getX() - point1.getX(), point2.getY() - point1.getY());
             Vector2D vec2 = new Vector2D(point3.getX() - point2.getX(), point3.getY() - point2.getY());
 
-            Point2D normal1 = new Point2D(cluster.getListOfSafeNormals().get(index).getX(), cluster.getListOfSafeNormals().get(index).getY());
-            Point2D normal2 = new Point2D(cluster.getListOfSafeNormals().get(index + 2).getX(), cluster.getListOfSafeNormals().get(index + 2).getY());
+            Point2D normal1 = cluster.getSafeNormalInLocal(index);
+            Point2D normal2 = cluster.getSafeNormalInLocal(index + 2);
 
             Point2D intersectionPoint = EuclidGeometryTools.intersectionBetweenTwoLine2Ds(normal1, vec1, normal2, vec2);
 

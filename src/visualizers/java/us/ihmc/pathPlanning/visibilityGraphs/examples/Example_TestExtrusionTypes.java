@@ -126,7 +126,7 @@ public class Example_TestExtrusionTypes extends Application
          javaFXMultiColorMeshBuilder.addLine(cluster4.getRawPointsInWorld().get(i - 1), cluster4.getRawPointsInWorld().get(i), 0.005, Color.AQUAMARINE);
       }
 //      
-      for (Point3D point : cluster4.getListOfSafeNormals())
+      for (Point3D point : cluster4.getSafeNormalsInWorld())
       {
          javaFXMultiColorMeshBuilder.addSphere(0.03f, point, Color.WHITE);
       }
