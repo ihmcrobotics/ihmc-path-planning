@@ -32,7 +32,7 @@ import us.ihmc.robotics.lists.ListWrappingIndexTools;
  */
 public class Example_Concavity extends Application
 {
-   private static final File defaultFile = new File("../../Data/20171026_131748_PlanarRegion_2StorySteepingStones");
+   private static final File defaultFile = new File("../../Data/20171026_131304_PlanarRegion_Ramp_2Story");
 
    public Example_Concavity()
    {
