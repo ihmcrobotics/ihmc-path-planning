@@ -7,13 +7,15 @@ import java.util.stream.Collectors;
 import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Point2D;
+import us.ihmc.euclid.tuple2D.interfaces.Point2DReadOnly;
 import us.ihmc.euclid.tuple3D.Point3D;
+import us.ihmc.euclid.tuple3D.interfaces.Point3DReadOnly;
 
 public class Cluster
 {
    private final RigidBodyTransform transformToWorld = new RigidBodyTransform();
 
-   private List<Point3D> listOfRawPoints = new ArrayList<>();
+   private final List<Point2D> rawPointsLocal = new ArrayList<>();
    private final List<Point3D> listOfNormals = new ArrayList<>();
    private final List<Point3D> listOfNormalsSafe = new ArrayList<>();
    private final List<Point3D> listOfCorrectNormals = new ArrayList<>();
@@ -46,37 +48,6 @@ public class Cluster
    {
    }
 
-   public Cluster(List<Point3D> listOfRawPoints, boolean closed)
-   {
-      this.listOfRawPoints = listOfRawPoints;
-      isObstacleClosed = closed;
-
-      if (closed)
-      {
-         listOfRawPoints.add(listOfRawPoints.get(0));
-         listOfRawPoints.add(listOfRawPoints.get(1));
-      }
-
-      centroid = calculateCentroid();
-   }
-
-   public Cluster(List<Point3D> listOfRawPoints, boolean closed, boolean isDynamic, Point2D observer, String name)
-   {
-      isObstacleClosed = closed;
-      this.isDynamic = isDynamic;
-      this.observer = observer;
-      this.listOfRawPoints.addAll(listOfRawPoints);
-      this.name = name;
-
-      if (closed)
-      {
-         this.listOfRawPoints.add(this.listOfRawPoints.get(0));
-         this.listOfRawPoints.add(this.listOfRawPoints.get(1));
-
-      }
-      centroid = calculateCentroid();
-   }
-
    public void setExtrusionSide(ExtrusionSide extrusionSide)
    {
       this.extrusionSide = extrusionSide;
@@ -91,8 +62,8 @@ public class Cluster
    {
       if (closed && !this.isObstacleClosed)
       {
-         listOfRawPoints.add(listOfRawPoints.get(0));
-         listOfRawPoints.add(listOfRawPoints.get(1));
+         rawPointsLocal.add(rawPointsLocal.get(0));
+         rawPointsLocal.add(rawPointsLocal.get(1));
       }
 
       this.isObstacleClosed = closed;
@@ -106,11 +77,6 @@ public class Cluster
    public Type getType()
    {
       return type;
-   }
-
-   private Point3D calculateCentroid()
-   {
-      return EuclidGeometryTools.averagePoint3Ds(listOfRawPoints);
    }
 
    public Point3D getCentroid()
@@ -155,7 +121,7 @@ public class Cluster
 
    public List<Point3D> getUpdatedRawPoints()
    {
-      return listOfRawPoints.stream().map(Point3D::new).collect(Collectors.toList());
+      return rawPointsLocal.stream().map(Point3D::new).collect(Collectors.toList());
    }
 
    public List<Point3D> getUpdatedNormals()
@@ -173,10 +139,35 @@ public class Cluster
       return extrusionDistance;
    }
 
-   public void addRawPoint(Point3D point)
+   public void addRawPointInLocal(Point2DReadOnly pointInLocal)
    {
-      listOfRawPoints.add(point);
-      centroid = calculateCentroid();
+      rawPointsLocal.add(new Point2D(pointInLocal));
+      centroid.set(EuclidGeometryTools.averagePoint2Ds(rawPointsLocal));
+   }
+
+   public void addRawPointInWorld(Point3DReadOnly pointInWorld)
+   {
+      addRawPointInLocal(toLocal2D(pointInWorld));
+   }
+
+   public void addRawPointsInLocal(List<? extends Point2DReadOnly> pointsInLocal, boolean closed)
+   {
+      isObstacleClosed = closed;
+      pointsInLocal.forEach(point -> rawPointsLocal.add(new Point2D(point)));
+
+      if (closed)
+      {
+         rawPointsLocal.add(new Point2D(pointsInLocal.get(0)));
+
+      }
+
+      centroid.set(EuclidGeometryTools.averagePoint2Ds(rawPointsLocal));
+   }
+
+   public void addRawPointsInWorld(List<? extends Point3DReadOnly> pointsInWorld, boolean closed)
+   {
+      List<Point2D> pointsInLocal = pointsInWorld.stream().map(this::toLocal2D).collect(Collectors.toList());
+      addRawPointsInLocal(pointsInLocal, closed);
    }
 
    public boolean isDynamic()
@@ -189,28 +180,44 @@ public class Cluster
       isDynamic = dynamic;
    }
 
-   public void addRawPoints(List<Point3D> points, boolean closed)
-   {
-      isObstacleClosed = closed;
-      listOfRawPoints.addAll(points);
-
-      if (closed)
-      {
-         listOfRawPoints.add(points.get(0));
-
-      }
-
-      centroid = calculateCentroid();
-   }
-
    public boolean isObstacleClosed()
    {
       return isObstacleClosed;
    }
 
-   public List<Point3D> getRawPointsInCluster()
+   public int getNumberOfRawPoints()
    {
-      return listOfRawPoints;
+      return rawPointsLocal.size();
+   }
+
+   public Point2D getRawPointInLocal(int i)
+   {
+      return rawPointsLocal.get(i);
+   }
+
+   public Point2D getLastRawPointInLocal()
+      {
+      return rawPointsLocal.get(getNumberOfRawPoints() - 1);
+   }
+
+   public List<Point2D> getRawPointsInLocal()
+   {
+      return rawPointsLocal;
+      }
+
+   public Point3D getRawPointInWorld(int i)
+   {
+      return toWorld3D(rawPointsLocal.get(i));
+   }
+
+   public Point3D getLastRawPointInWorld()
+   {
+      return toWorld3D(getLastRawPointInLocal());
+   }
+
+   public List<Point3D> getRawPointsInWorld()
+   {
+      return rawPointsLocal.stream().map(this::toWorld3D).collect(Collectors.toList());
    }
 
    public void addNormal(Point3D normal)
@@ -278,16 +285,35 @@ public class Cluster
       return new ArrayList<>(listOfNormals);
    }
 
-   public boolean contains(Point3D point)
+   public boolean contains(Point2DReadOnly pointInLocal)
    {
-      for (Point3D point1 : listOfRawPoints)
+      for (Point2D rawPoint : rawPointsLocal)
       {
-         if (point1.distance(point) < 1E-3)
+         if (rawPoint.distance(pointInLocal) < 1E-3)
          {
             return true;
          }
       }
 
       return false;
+   }
+
+   private Point3D toWorld3D(Point2DReadOnly pointInLocal)
+   {
+      Point3D pointInWorld = new Point3D(pointInLocal);
+      transformToWorld.transform(pointInWorld);
+      return pointInWorld;
+   }
+
+   private Point3D toLocal3D(Point3DReadOnly pointInWorld)
+   {
+      Point3D pointInLocal = new Point3D();
+      transformToWorld.inverseTransform(pointInWorld, pointInLocal);
+      return pointInLocal;
+   }
+
+   private Point2D toLocal2D(Point3DReadOnly pointInWorld)
+   {
+      return new Point2D(toLocal3D(pointInWorld));
    }
 }

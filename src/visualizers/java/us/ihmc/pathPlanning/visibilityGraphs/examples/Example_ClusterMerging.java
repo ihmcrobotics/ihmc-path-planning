@@ -103,14 +103,14 @@ public class Example_ClusterMerging extends Application
 
       for (Cluster cluster : clusters)
       {
-         for (Point3D point : cluster.getRawPointsInCluster())
+         for (Point3D point : cluster.getRawPointsInWorld())
          {
             javaFXMultiColorMeshBuilder.addSphere(0.03f, point, Color.AQUAMARINE);
          }
 
-         for (int i = 1; i < cluster.getRawPointsInCluster().size(); i++)
+         for (int i = 1; i < cluster.getRawPointsInLocal().size(); i++)
          {
-            javaFXMultiColorMeshBuilder.addLine(cluster.getRawPointsInCluster().get(i - 1), cluster.getRawPointsInCluster().get(i), 0.005, Color.AQUAMARINE);
+            javaFXMultiColorMeshBuilder.addLine(cluster.getRawPointsInWorld().get(i - 1), cluster.getRawPointsInWorld().get(i), 0.005, Color.AQUAMARINE);
          }
          //      
          //         for (Point3D point : cluster.getListOfSafeNormals())
@@ -233,10 +233,10 @@ public class Example_ClusterMerging extends Application
       clusterMgr.addCluster(cluster4);
       cluster4.setType(Type.POLYGON);
 
-      cluster4.addRawPoint(new Point3D(-0.975, 0.475 + 2, 0.000));
-      cluster4.addRawPoint(new Point3D(0.975, 0.475 + 2, 0.000));
-      cluster4.addRawPoint(new Point3D(0.975, -0.475 + 2, 0.000));
-      cluster4.addRawPoint(new Point3D(-0.975, -0.475 + 2, 0.000));
+      cluster4.addRawPointInWorld(new Point3D(-0.975, 0.475 + 2, 0.000));
+      cluster4.addRawPointInWorld(new Point3D(0.975, 0.475 + 2, 0.000));
+      cluster4.addRawPointInWorld(new Point3D(0.975, -0.475 + 2, 0.000));
+      cluster4.addRawPointInWorld(new Point3D(-0.975, -0.475 + 2, 0.000));
 
       cluster4.setClusterClosure(true);
       cluster4.setExtrusionSide(ExtrusionSide.OUTSIDE);
@@ -249,8 +249,8 @@ public class Example_ClusterMerging extends Application
       clusterMgr.addCluster(cluster4);
       cluster4.setType(Type.LINE);
 
-      cluster4.addRawPoint(new Point3D(-0.975 + 2, 0.475 + 1.5, 0.000));
-      cluster4.addRawPoint(new Point3D(0.975 + 2, 0.475 + 1.5, 0.000));
+      cluster4.addRawPointInWorld(new Point3D(-0.975 + 2, 0.475 + 1.5, 0.000));
+      cluster4.addRawPointInWorld(new Point3D(0.975 + 2, 0.475 + 1.5, 0.000));
 
       clusters.add(cluster4);
    }

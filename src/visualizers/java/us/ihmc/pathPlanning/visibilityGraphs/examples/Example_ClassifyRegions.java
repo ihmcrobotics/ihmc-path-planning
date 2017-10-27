@@ -109,7 +109,7 @@ public class Example_ClassifyRegions extends Application
                   fpt.applyTransform(transToWorld);
                   Point3D pointToProject = fpt.getPoint();
 
-                  cluster.addRawPoint(pointToProject);
+                  cluster.addRawPointInWorld(pointToProject);
                }
             }
             else
@@ -178,7 +178,7 @@ public class Example_ClassifyRegions extends Application
             {
                if (!pointsTemp.isEmpty())
                {
-                  cluster.addRawPoints(pointsTemp, true);
+                  cluster.addRawPointsInWorld(pointsTemp, true);
                   pointsTemp.clear();
                }
 
@@ -236,7 +236,7 @@ public class Example_ClassifyRegions extends Application
          {
             ArrayList<Point2D> vertices = new ArrayList<>();
 
-            for (Point3D pt : cluster1.getRawPointsInCluster())
+            for (Point3D pt : cluster1.getRawPointsInWorld())
             {
                vertices.add(new Point2D(pt.getX(), pt.getY()));
             }

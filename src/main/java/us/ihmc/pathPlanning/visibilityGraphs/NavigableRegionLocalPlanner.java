@@ -291,22 +291,12 @@ public class NavigableRegionLocalPlanner
       Cluster cluster = new Cluster();
       clusters.add(cluster);
       cluster.setType(Type.POLYGON);
+      cluster.setTransformToWorld(localReferenceFrame.getTransformToWorldFrame());
 
-      for (int i = 0; i < homeRegion.getConvexHull().getNumberOfVertices(); i++)
+      Point2D[] concaveHull = homeRegion.getConcaveHull();
+      for (Point2D vertex : concaveHull)
       {
-         Point2D point2D = (Point2D) homeRegion.getConvexHull().getVertex(i);
-         Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
-         FramePoint3D fpt = new FramePoint3D();
-         fpt.set(point3D);
-         RigidBodyTransform transToWorld = new RigidBodyTransform();
-         homeRegion.getTransformToWorld(transToWorld);
-         fpt.applyTransform(transToWorld);
-         Point3D pointToProject = fpt.getPoint();
-
-         FramePoint3D ptfpt = new FramePoint3D(ReferenceFrame.getWorldFrame(), pointToProject);
-         ptfpt.changeFrame(localReferenceFrame);
-
-         cluster.addRawPoint(ptfpt.getPoint());
+         cluster.addRawPointInLocal(vertex);
          //         javaFXMultiColorMeshBuilder.addSphere(0.05f, new Point3D(pointToProject.getX(), pointToProject.getY(), pointToProject.getZ()), Color.GREEN);
       }
 
@@ -365,8 +355,8 @@ public class NavigableRegionLocalPlanner
             extreme1Fpt.changeFrame(localReferenceFrame);
             extreme2Fpt.changeFrame(localReferenceFrame);
 
-            cluster.addRawPoint(extreme1Fpt.getPoint());
-            cluster.addRawPoint(extreme2Fpt.getPoint());
+            cluster.addRawPointInWorld(extreme1Fpt.getPoint());
+            cluster.addRawPointInWorld(extreme2Fpt.getPoint());
 
             //                           javaFXMultiColorMeshBuilder.addLine(extreme1Fpt.getPoint(), extreme2Fpt.getPoint(), 0.005, Color.BLUE);
          }
@@ -404,7 +394,7 @@ public class NavigableRegionLocalPlanner
                FramePoint3D pointFpt = new FramePoint3D(ReferenceFrame.getWorldFrame(), projectedPoint);
                pointFpt.changeFrame(localReferenceFrame);
 
-               cluster.addRawPoint(pointFpt.getPoint());
+               cluster.addRawPointInWorld(pointFpt.getPoint());
             }
 
             cluster.setClusterClosure(true);
@@ -415,7 +405,7 @@ public class NavigableRegionLocalPlanner
       {
          for (Cluster cluster : clusters)
          {
-            System.out.println("Created a cluster of type: " + cluster.getType() + " with " + cluster.getRawPointsInCluster().size() + " points");
+            System.out.println("Created a cluster of type: " + cluster.getType() + " with " + cluster.getRawPointsInLocal().size() + " points");
          }
       }
    }
@@ -608,6 +598,7 @@ public class NavigableRegionLocalPlanner
       return null;
    }
 
+   @Deprecated
    public ArrayList<Point3D> loadPointCloudFromFile(String fileName)
    {
       ArrayList<Cluster> clusters = new ArrayList<>();
@@ -642,7 +633,7 @@ public class NavigableRegionLocalPlanner
             {
                if (!pointsTemp.isEmpty())
                {
-                  cluster.addRawPoints(pointsTemp, true);
+                  cluster.addRawPointsInWorld(pointsTemp, true);
                   pointsTemp.clear();
                }
 
@@ -698,14 +689,7 @@ public class NavigableRegionLocalPlanner
 
          for (Cluster cluster1 : clusters)
          {
-            ArrayList<Point2D> vertices = new ArrayList<>();
-
-            for (Point3D pt : cluster1.getRawPointsInCluster())
-            {
-               vertices.add(new Point2D(pt.getX(), pt.getY()));
-            }
-
-            ConvexPolygon2D convexPolygon = new ConvexPolygon2D(vertices);
+            ConvexPolygon2D convexPolygon = new ConvexPolygon2D(cluster1.getRawPointsInLocal());
 
             PlanarRegion planarRegion = new PlanarRegion(cluster1.getTransformToWorld(), convexPolygon);
 

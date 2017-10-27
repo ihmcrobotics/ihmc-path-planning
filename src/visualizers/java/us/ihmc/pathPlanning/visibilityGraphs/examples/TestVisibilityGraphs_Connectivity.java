@@ -85,31 +85,31 @@ public class TestVisibilityGraphs_Connectivity extends Application
       clusterMgr.addCluster(cluster4);
       cluster4.setType(Type.POLYGON);
 
-      cluster4.addRawPoint(new Point3D(5, -1, 0));
-      cluster4.addRawPoint(new Point3D(5, 1, 0));
-      cluster4.addRawPoint(new Point3D(6, 1, 0));
-      cluster4.addRawPoint(new Point3D(6, -1, 0));
+      cluster4.addRawPointInWorld(new Point3D(5, -1, 0));
+      cluster4.addRawPointInWorld(new Point3D(5, 1, 0));
+      cluster4.addRawPointInWorld(new Point3D(6, 1, 0));
+      cluster4.addRawPointInWorld(new Point3D(6, -1, 0));
 
       cluster4.setClusterClosure(true);
 
       clusterMgr.performExtrusions(new Point2D(), extrusionDistance);
       
 
-      for (Point3D point : cluster4.getRawPointsInCluster())
+      for (Point3D point : cluster4.getRawPointsInWorld())
       {
          javaFXMultiColorMeshBuilder.addSphere(0.1f, point, Color.RED);
       }
 
-      for (int i = 1; i < cluster4.getRawPointsInCluster().size(); i++)
+      for (int i = 1; i < cluster4.getRawPointsInLocal().size(); i++)
       {
-         javaFXMultiColorMeshBuilder.addLine(new Point3D(cluster4.getRawPointsInCluster().get(i - 1).getX(), cluster4.getRawPointsInCluster().get(i - 1).getY(),
+         javaFXMultiColorMeshBuilder.addLine(new Point3D(cluster4.getRawPointsInLocal().get(i - 1).getX(), cluster4.getRawPointsInLocal().get(i - 1).getY(),
                                                          0),
-                                             new Point3D(cluster4.getRawPointsInCluster().get(i).getX(), cluster4.getRawPointsInCluster().get(i).getY(), 0),
+                                             new Point3D(cluster4.getRawPointsInLocal().get(i).getX(), cluster4.getRawPointsInLocal().get(i).getY(), 0),
                                              0.005, Color.GREEN);
       }
-      javaFXMultiColorMeshBuilder.addLine(new Point3D(cluster4.getRawPointsInCluster().get(cluster4.getRawPointsInCluster().size() - 1).getX(),
-                                                      cluster4.getRawPointsInCluster().get(cluster4.getRawPointsInCluster().size() - 1).getY(), 0),
-                                          new Point3D(cluster4.getRawPointsInCluster().get(0).getX(), cluster4.getRawPointsInCluster().get(0).getY(), 0), 0.005,
+      javaFXMultiColorMeshBuilder.addLine(new Point3D(cluster4.getRawPointsInLocal().get(cluster4.getRawPointsInLocal().size() - 1).getX(),
+                                                      cluster4.getRawPointsInLocal().get(cluster4.getRawPointsInLocal().size() - 1).getY(), 0),
+                                          new Point3D(cluster4.getRawPointsInLocal().get(0).getX(), cluster4.getRawPointsInLocal().get(0).getY(), 0), 0.005,
                                           Color.GREEN);
 
       for (int i = 1; i < cluster4.getListOfNonNavigableExtrusions().size(); i++)
@@ -164,6 +164,7 @@ public class TestVisibilityGraphs_Connectivity extends Application
 
    }
 
+   @Deprecated
    public ArrayList<Point3D> loadPointCloudFromFile(String fileName)
    {
       ArrayList<Cluster> clusters = new ArrayList<>();
@@ -198,7 +199,7 @@ public class TestVisibilityGraphs_Connectivity extends Application
             {
                if (!pointsTemp.isEmpty())
                {
-                  cluster.addRawPoints(pointsTemp, true);
+                  cluster.addRawPointsInWorld(pointsTemp, true);
                   pointsTemp.clear();
                }
 
@@ -254,14 +255,7 @@ public class TestVisibilityGraphs_Connectivity extends Application
 
          for (Cluster cluster1 : clusters)
          {
-            ArrayList<Point2D> vertices = new ArrayList<>();
-
-            for (Point3D pt : cluster1.getRawPointsInCluster())
-            {
-               vertices.add(new Point2D(pt.getX(), pt.getY()));
-            }
-
-            ConvexPolygon2D convexPolygon = new ConvexPolygon2D(vertices);
+            ConvexPolygon2D convexPolygon = new ConvexPolygon2D(cluster1.getRawPointsInLocal());
 
             PlanarRegion planarRegion = new PlanarRegion(cluster1.getTransformToWorld(), convexPolygon);
 

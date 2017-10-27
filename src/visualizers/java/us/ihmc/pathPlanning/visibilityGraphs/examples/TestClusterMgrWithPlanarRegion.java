@@ -187,8 +187,8 @@ public class TestClusterMgrWithPlanarRegion extends Application
          LinearRegression3D linearRegression = new LinearRegression3D(points);
          linearRegression.calculateRegression();
          Point3D[] extremes = linearRegression.getTheTwoPointsFurthestApart();
-         cluster.addRawPoint(extremes[0]);
-         cluster.addRawPoint(extremes[1]);
+         cluster.addRawPointInWorld(extremes[0]);
+         cluster.addRawPointInWorld(extremes[1]);
 
          javaFXMultiColorMeshBuilder.addLine(extremes[0], extremes[1], 0.005, Color.BLUE);
       }
@@ -222,13 +222,13 @@ public class TestClusterMgrWithPlanarRegion extends Application
             Point3D projectedPoint = new Point3D();
             EuclidGeometryTools.orthogonalProjectionOnPlane3D(pointToProject, point3D, normal, projectedPoint);
             points.add(projectedPoint);
-            cluster.addRawPoint(projectedPoint);
+            cluster.addRawPointInWorld(projectedPoint);
          }
       }
 
       for (Cluster cluster : clusters)
       {
-         System.out.println("Created a cluster of type: " + cluster.getType() + " with " + cluster.getRawPointsInCluster().size() + " points");
+         System.out.println("Created a cluster of type: " + cluster.getType() + " with " + cluster.getRawPointsInLocal().size() + " points");
       }
    }
 
@@ -337,7 +337,7 @@ public class TestClusterMgrWithPlanarRegion extends Application
 
          javaFXMultiColorMeshBuilder.addSphere(0.1f, projectedPoint, Color.YELLOW);
 
-         cluster.addRawPoint(projectedPoint);
+         cluster.addRawPointInWorld(projectedPoint);
       }
    }
 
@@ -420,7 +420,7 @@ public class TestClusterMgrWithPlanarRegion extends Application
             {
                if (!pointsTemp.isEmpty())
                {
-                  cluster.addRawPoints(pointsTemp, true);
+                  cluster.addRawPointsInWorld(pointsTemp, true);
                   pointsTemp.clear();
                }
 
@@ -478,7 +478,7 @@ public class TestClusterMgrWithPlanarRegion extends Application
          {
             ArrayList<Point2D> vertices = new ArrayList<>();
 
-            for (Point3D pt : cluster1.getRawPointsInCluster())
+            for (Point3D pt : cluster1.getRawPointsInWorld())
             {
                vertices.add(new Point2D(pt.getX(), pt.getY()));
             }

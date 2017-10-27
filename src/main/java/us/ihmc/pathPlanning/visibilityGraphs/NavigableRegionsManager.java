@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
@@ -36,7 +37,9 @@ public class NavigableRegionsManager
    private Point3D startPos = new Point3D();
    private Point3D goalPos = new Point3D();
    
-   double connectionthreshold = 0.2;
+   double connectionthreshold = 0.0;
+
+   ArrayList<PointPair> points = new ArrayList<>();
 
    ArrayList<DistancePoint> distancePoints = new ArrayList<>();
 
@@ -90,90 +93,133 @@ public class NavigableRegionsManager
          }
       }
 
+      points.clear();
       connectLocalMaps();
       createGlobalMap();
-      //forceConnectionToGoal(goalPos);
+
+      forceConnectionToPoint(startPos);
+      forceConnectionToPoint(goalPos);
+
+      globalVisMap = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
+
+      for (PointPair pair : points)
+      {
+         Point3D pt1 = pair.point1;
+         Point3D pt2 = pair.point2;
+
+         globalVisMap.addVertex(pt1);
+         globalVisMap.addVertex(pt2);
+         DefaultWeightedEdge edge = new DefaultWeightedEdge();
+         globalVisMap.addEdge(pt1, pt2, edge);
+         globalVisMap.setEdgeWeight(edge, pt1.distance(pt2));
+      }
+
       //
       
       //Visualize
-      for (SimpleWeightedGraph<Point3D, DefaultWeightedEdge> map : visMaps)
-      {
-         for (DefaultWeightedEdge edge : map.edgeSet())
+      //      for (SimpleWeightedGraph<Point3D, DefaultWeightedEdge> map : visMaps)
+      //      {
+      //         for (DefaultWeightedEdge edge : map.edgeSet())
+      //         {
+      //            Point3D pt1 = map.getEdgeSource(edge);
+      //            Point3D pt2 = map.getEdgeTarget(edge);
+      //
+      //            if (javaFXMultiColorMeshBuilder != null)
+      //            {
+      //               javaFXMultiColorMeshBuilder.addLine(pt1, pt2, 0.0052, Color.CYAN);
+      //            }
+      //         }
+      //      }
+
+      for (DefaultWeightedEdge edge : globalVisMap.edgeSet())
          {
-            Point3D pt1 = map.getEdgeSource(edge);
-            Point3D pt2 = map.getEdgeTarget(edge);
+         Point3D pt1 = globalVisMap.getEdgeSource(edge);
+         Point3D pt2 = globalVisMap.getEdgeTarget(edge);
 
             if (javaFXMultiColorMeshBuilder != null)
             {
                javaFXMultiColorMeshBuilder.addLine(pt1, pt2, 0.0052, Color.CYAN);
             }
          }
-      }
       //
 
-      Point3D goalpt = null;
+      Point3D goalPt = getSnappedPointFromMap(goalPos);
+      Point3D startpt = getSnappedPointFromMap(startPos);
 
-      for (DefaultWeightedEdge edge : globalVisMap.edgeSet())
+      if (goalPt != null && startpt != null)
       {
-         Point3D pt1 = globalVisMap.getEdgeSource(edge);
+         ArrayList<DefaultWeightedEdge> edgess = new ArrayList<>();
+         edgess.addAll(globalVisMap.edgeSet());
 
-         if (Math.abs(pt1.getX() - goalPos.getX()) < 0.001)
-         {
-            if (Math.abs(pt1.getY() - goalPos.getY()) < 0.001)
-            {
-               if (Math.abs(pt1.getZ() - goalPos.getZ()) < 0.001)
+         pathLength = 0.0;
+
+         path.clear();
+
+         ArrayList<DefaultWeightedEdge> solution = (ArrayList<DefaultWeightedEdge>) DijkstraShortestPath.findPathBetween(globalVisMap, startpt, goalPt);
+         
+         for (DefaultWeightedEdge edge : solution)
                {
-                  goalpt = globalVisMap.getEdgeSource(edge);
-               }
+            Point3D from = globalVisMap.getEdgeSource(edge);
+            Point3D to = globalVisMap.getEdgeTarget(edge);
+            pathLength = pathLength + from.distance(to);
+
+            if (!path.contains(new Point3D(from)))
+               path.add(from);
+            if (!path.contains(new Point3D(to)))
+               path.add(to);
+
+            //            javaFXMultiColorMeshBuilder.addSphere(0.045f, from, Color.ORANGE);
+            //            javaFXMultiColorMeshBuilder.addSphere(0.045f, to, Color.ORANGE);
+
+            //         javaFXMultiColorMeshBuilder.addLine(new Point3D(from.getX(), from.getY(), from.getZ()), new Point3D(to.getX(), to.getY(), to.getZ()), 0.025,
+            //                                             Color.RED);
             }
+         
+         if(!path.get(0).epsilonEquals(startpt, 1e-5))
+         {
+            Point3D pointOut = path.get(1);
+            path.remove(1);
+            path.add(0, pointOut);
          }
       }
 
-      Point3D startpt = null;
-
-      for (DefaultWeightedEdge edge : globalVisMap.edgeSet())
-      {
-         Point3D pt1 = globalVisMap.getEdgeSource(edge);
-
-         if (Math.abs(pt1.getX() - startPos.getX()) < 0.001)
-         {
-            if (Math.abs(pt1.getY() - startPos.getY()) < 0.001)
-            {
-               if (Math.abs(pt1.getZ() - startPos.getZ()) < 0.001)
-               {
-                  startpt = globalVisMap.getEdgeSource(edge);
-               }
-            }
-         }
-      }
-
-      ArrayList<DefaultWeightedEdge> edgess = new ArrayList<>();
-      edgess.addAll(globalVisMap.edgeSet());
-
-      //      System.out.println(startpt + "   " + goalpt);
-
-      pathLength = 0.0;
-
-      path.clear();
-
-      Point3D lastPoint = null;
-//      ArrayList<DefaultWeightedEdge> solution = (ArrayList<DefaultWeightedEdge>) DijkstraShortestPath.findPathBetween(globalVisMap, startpt, goalpt);
-//      for (DefaultWeightedEdge edge : solution)
-//      {
-//         Point3D from = globalVisMap.getEdgeSource(edge);
-//         Point3D to = globalVisMap.getEdgeTarget(edge);
-//         pathLength = pathLength + from.distance(to);
-//
-//         if (!path.contains(new Point3D(from)))
-//            path.add(from);
-//         if (!path.contains(new Point3D(to)))
-//            path.add(to);
-//
-//         //         javaFXMultiColorMeshBuilder.addLine(new Point3D(from.getX(), from.getY(), from.getZ()), new Point3D(to.getX(), to.getY(), to.getZ()), 0.025,
-//         //                                             Color.RED);
-//      }
+      //      javaFXMultiColorMeshBuilder.addSphere(0.045f, startpt, Color.ORANGE);
 
       return path;
+   }
+
+   public Point3D getSnappedPointFromMap(Point3D position)
+   {
+      for (DefaultWeightedEdge edge : globalVisMap.edgeSet())
+      {
+         Point3D source = globalVisMap.getEdgeSource(edge);
+
+         if (Math.abs(source.getX() - position.getX()) < 0.001)
+         {
+            if (Math.abs(source.getY() - position.getY()) < 0.001)
+            {
+               if (Math.abs(source.getZ() - position.getZ()) < 0.001)
+               {
+                  return source;
+            }
+         }
+      }
+
+         Point3D target = globalVisMap.getEdgeTarget(edge);
+
+         if (Math.abs(target.getX() - position.getX()) < 0.001)
+         {
+            if (Math.abs(target.getY() - position.getY()) < 0.001)
+            {
+               if (Math.abs(target.getZ() - position.getZ()) < 0.001)
+               {
+                  return target;
+               }
+            }
+         }
+      }
+
+      return null;
    }
 
    private void createGlobalMap()
@@ -185,46 +231,71 @@ public class NavigableRegionsManager
             Point3D pt1 = map.getEdgeSource(edge);
             Point3D pt2 = map.getEdgeTarget(edge);
 
-            globalVisMap.addVertex(pt1);
-            globalVisMap.addVertex(pt2);
-            globalVisMap.addEdge(pt1, pt2, edge);
-            globalVisMap.setEdgeWeight(edge, pt1.distance(pt2));
+            points.add(new PointPair(pt1, pt2));
+
+            //            globalVisMap.addVertex(pt1);
+            //            globalVisMap.addVertex(pt2);
+            //            globalVisMap.addEdge(pt1, pt2, edge);
+            //            globalVisMap.setEdgeWeight(edge, pt1.distance(pt2));
          }
       }
    }
 
-   private void forceConnectionToGoal(Point3D goal)
+   private void forceConnectionToPoint(Point3D position)
    {
-      Point3D test = null;
+      Point3D tempPoint = null;
+      distancePoints.clear();
 
-      for (DefaultWeightedEdge edge : globalVisMap.edgeSet())
+      for (PointPair pair : points)
       {
-         Point3D pt1 = globalVisMap.getEdgeSource(edge);
-         DistancePoint point = new DistancePoint(pt1, pt1.distance(goalPos));
-         distancePoints.add(point);
+         DistancePoint point1 = new DistancePoint(pair.point1, pair.point1.distance(position));
+         DistancePoint point2 = new DistancePoint(pair.point2, pair.point2.distance(position));
+
+         distancePoints.add(point1);
+         distancePoints.add(point2);
       }
+
+      //      for (DefaultWeightedEdge edge : globalVisMap.edgeSet())
+      //      {
+      //         Point3D pt1 = globalVisMap.getEdgeSource(edge);
+      //         Point3D pt2 = globalVisMap.getEdgeTarget(edge);
+      //
+      //         DistancePoint point1 = new DistancePoint(pt1, pt1.distance(position));
+      //         DistancePoint point2 = new DistancePoint(pt2, pt2.distance(position));
+      //
+      //         distancePoints.add(point1);
+      //         distancePoints.add(point2);
+      //      }
 
       distancePoints.sort(new DistancePointComparator());
 
       for (int i = 0; i < 5; i++)
       {
          DistancePoint dpt = distancePoints.get(i);
+         tempPoint = dpt.point;
          javaFXMultiColorMeshBuilder.addSphere(0.025f, dpt.point, Color.BLUE);
          
-         globalVisMap.addVertex(dpt.point);
-         globalVisMap.addVertex(goal);
+         points.add(new PointPair(dpt.point, position));
+         //         globalVisMap.addVertex(dpt.point);
+         //         globalVisMap.addVertex(position);
          
          DefaultWeightedEdge edge = new DefaultWeightedEdge();
-         globalVisMap.addEdge(dpt.point, goal, edge);
-         globalVisMap.setEdgeWeight(edge, dpt.point.distance(goal));
          
-         javaFXMultiColorMeshBuilder.addLine(dpt.point, goal, 0.0052, Color.CYAN);
+         //Cannot add an edge where the source is equal to the target!
+         if (!dpt.point.epsilonEquals(position, 1e-5))
+         {
+            points.add(new PointPair(dpt.point, position));
+            //            globalVisMap.addEdge(dpt.point, position, edge);
+            //            globalVisMap.setEdgeWeight(edge, dpt.point.distance(position));
+
+            //            javaFXMultiColorMeshBuilder.addLine(dpt.point, position, 0.0052, Color.YELLOW);
+         }
       }
    }
 
    private void connectLocalMaps()
    {
-      globalVisMap = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
+      //      globalVisMap = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
 
       int mapIndex = 0;
       if (listOfNavigableRegions.size() > 1)
@@ -263,11 +334,13 @@ public class NavigableRegionsManager
 
                         if (pt1.distance(pt2) < connectionthreshold)
                         {
-                           globalVisMap.addVertex(pt1.getPoint());
-                           globalVisMap.addVertex(pt2.getPoint());
-                           DefaultWeightedEdge edge = new DefaultWeightedEdge();
-                           globalVisMap.addEdge(pt1.getPoint(), pt2.getPoint(), edge);
-                           globalVisMap.setEdgeWeight(edge, pt1.distance(pt2));
+                           points.add(new PointPair(pt1.getPoint(), pt2.getPoint()));
+
+                           //                           globalVisMap.addVertex(pt1.getPoint());
+                           //                           globalVisMap.addVertex(pt2.getPoint());
+                           //                           DefaultWeightedEdge edge = new DefaultWeightedEdge();
+                           //                           globalVisMap.addEdge(pt1.getPoint(), pt2.getPoint(), edge);
+                           //                           globalVisMap.setEdgeWeight(edge, pt1.distance(pt2));
 
                            if (javaFXMultiColorMeshBuilder != null)
                            {
@@ -465,6 +538,18 @@ public class NavigableRegionsManager
       public int compare(DistancePoint point1, DistancePoint point2)
       {
          return point1.compareTo(point2);
+      }
+   }
+
+   private class PointPair
+   {
+      Point3D point1;
+      Point3D point2;
+
+      public PointPair(Point3D point1, Point3D point2)
+      {
+         this.point1 = point1;
+         this.point2 = point2;
       }
    }
 }

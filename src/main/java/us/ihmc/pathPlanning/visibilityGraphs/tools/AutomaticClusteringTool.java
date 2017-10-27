@@ -19,11 +19,11 @@ public class AutomaticClusteringTool
 
       for (int i = 0; i < listOfPoints.size() - 1; i++)
       {
-         cluster.addRawPoint(listOfPoints.get(i));
+         cluster.addRawPointInWorld(listOfPoints.get(i));
 
          if (listOfPoints.get(i).distance(listOfPoints.get(i + 1)) > clusteringDistanceThreshold)
          {
-            if (cluster.getRawPointsInCluster().size() > 1)
+            if (cluster.getRawPointsInLocal().size() > 1)
             {
                listOfClusters.add(cluster);
             }
@@ -32,9 +32,9 @@ public class AutomaticClusteringTool
 
          if (i == listOfPoints.size() - 2)
          {
-            cluster.addRawPoint(listOfPoints.get(listOfPoints.size() - 1));
+            cluster.addRawPointInWorld(listOfPoints.get(listOfPoints.size() - 1));
 
-            if (cluster.getRawPointsInCluster().size() > 1)
+            if (cluster.getRawPointsInLocal().size() > 1)
             {
                listOfClusters.add(cluster);
             }
@@ -60,11 +60,11 @@ public class AutomaticClusteringTool
 
       for (int i = 0; i < listOfPoints.size() - 1; i++)
       {
-         cluster.addRawPoint(listOfPoints.get(i));
+         cluster.addRawPointInWorld(listOfPoints.get(i));
 
          if (listOfPoints.get(i).distance(listOfPoints.get(i + 1)) > 1.0)
          {
-            if (cluster.getRawPointsInCluster().size() > 1)
+            if (cluster.getRawPointsInLocal().size() > 1)
             {
                listOfClusters.add(cluster);
             }
@@ -73,9 +73,9 @@ public class AutomaticClusteringTool
 
          if (i == listOfPoints.size() - 2)
          {
-            cluster.addRawPoint(listOfPoints.get(listOfPoints.size() - 1));
+            cluster.addRawPointInWorld(listOfPoints.get(listOfPoints.size() - 1));
 
-            if (cluster.getRawPointsInCluster().size() > 1)
+            if (cluster.getRawPointsInLocal().size() > 1)
             {
                listOfClusters.add(cluster);
             }
