@@ -18,7 +18,6 @@ public class Cluster
    private final List<Point2D> rawPointsLocal = new ArrayList<>();
    private final List<Point2D> normalsInLocal = new ArrayList<>();
    private final List<Point3D> listOfNormalsSafe = new ArrayList<>();
-   private final List<Point3D> listOfCorrectNormals = new ArrayList<>();
    private final List<Point2D> listOfNavigableExtrusions = new ArrayList<>();
    private final List<Point2D> listOfNonNavigableExtrusions = new ArrayList<>();
 
@@ -230,11 +229,6 @@ public class Cluster
       listOfNormalsSafe.add(normal);
    }
 
-   public void addCorrectNormalPoint(Point3D normal)
-   {
-      listOfCorrectNormals.add(normal);
-   }
-
    public void addNavigableExtrusionPoint(Point3D point)
    {
       listOfNavigableExtrusions.add(new Point2D(point));
@@ -273,11 +267,6 @@ public class Cluster
    public List<Point3D> getUpdatedListOfSafeNormals()
    {
       return listOfNormalsSafe.stream().map(Point3D::new).collect(Collectors.toList());
-   }
-
-   public List<Point3D> getListOfCorrectNormals()
-   {
-      return listOfCorrectNormals;
    }
 
    public int getNumberOfNormals()
