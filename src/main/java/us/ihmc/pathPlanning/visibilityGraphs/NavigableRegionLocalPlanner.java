@@ -294,14 +294,13 @@ public class NavigableRegionLocalPlanner
       cluster.setType(Type.POLYGON);
       cluster.setTransformToWorld(localReferenceFrame.getTransformToWorldFrame());
 
-      /* TODO uncomment on ce bamboo is fixed.
       Point2D[] concaveHull = homeRegion.getConcaveHull();
       for (Point2D vertex : concaveHull)
       {
          cluster.addRawPointInLocal(vertex);
          //         javaFXMultiColorMeshBuilder.addSphere(0.05f, new Point3D(pointToProject.getX(), pointToProject.getY(), pointToProject.getZ()), Color.GREEN);
       }
-*/
+
       cluster.setClusterClosure(true);
       cluster.setExtrusionSide(ExtrusionSide.INSIDE);
       cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance - 0.01));

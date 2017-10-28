@@ -52,7 +52,6 @@ public class Example_Concavity extends Application
 
       PlanarRegionsList planarRegionData;
 
-      /* TODO Uncomment once bamboo is fixed.
       if (defaultFile != null)
          planarRegionData = PlanarRegionDataImporter.importPlanRegionData(defaultFile);
       else
@@ -90,6 +89,7 @@ public class Example_Concavity extends Application
       meshView.setMouseTransparent(true);
       view3dFactory.addNodeToView(meshView);
       filteredRegions.stream().map(this::createRegionGraphics).forEach(view3dFactory::addNodeToView);
+
       primaryStage.setScene(view3dFactory.getScene());
       primaryStage.show();
    }
@@ -131,7 +131,6 @@ public class Example_Concavity extends Application
       meshView.setMaterial(meshBuilder.generateMaterial());
       meshView.setMouseTransparent(true);
       return meshView;
-       */
    }
 
    private Node createConvexPolygonGraphics(PlanarRegion data)
