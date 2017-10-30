@@ -79,5 +79,6 @@ public class SimpleVisibilityGraphsUI
       messager.closeMessager();
       planarRegionViewer.stop();
       startGoalEditor.stop();
+      visibilityGraphsRenderer.stop();
    }
 }

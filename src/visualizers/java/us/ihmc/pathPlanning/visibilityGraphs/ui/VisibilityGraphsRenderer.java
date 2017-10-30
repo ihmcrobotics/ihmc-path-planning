@@ -73,6 +73,7 @@ public class VisibilityGraphsRenderer
       bodyPathMeshViewer.stop();
       navigableRegionInnerVizMapMeshViewer.start();
       clusterMeshViewer.stop();
+      executorService.shutdownNow();
    }
 
    private void computePathOnThread()
