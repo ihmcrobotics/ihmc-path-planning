@@ -34,6 +34,7 @@ public class VisibilityGraphsRenderer
    private final BodyPathMeshViewer bodyPathMeshViewer;
    private final NavigableRegionInnerVizMapMeshViewer navigableRegionInnerVizMapMeshViewer;
    private final NavigableRegionsInterConnectionViewer navigableRegionsInterConnectionViewer;
+   private final ClusterMeshViewer clusterMeshViewer;
 
    public VisibilityGraphsRenderer(REAMessager messager)
    {
@@ -49,6 +50,8 @@ public class VisibilityGraphsRenderer
       root.getChildren().add(navigableRegionInnerVizMapMeshViewer.getRoot());
       navigableRegionsInterConnectionViewer = new NavigableRegionsInterConnectionViewer(messager);
       root.getChildren().add(navigableRegionsInterConnectionViewer.getRoot());
+      clusterMeshViewer = new ClusterMeshViewer(messager);
+      root.getChildren().add(clusterMeshViewer.getRoot());
    }
 
    public void clear()
@@ -62,13 +65,14 @@ public class VisibilityGraphsRenderer
    {
       bodyPathMeshViewer.start();
       navigableRegionInnerVizMapMeshViewer.start();
-      
+      clusterMeshViewer.start();
    }
 
    public void stop()
    {
       bodyPathMeshViewer.stop();
       navigableRegionInnerVizMapMeshViewer.start();
+      clusterMeshViewer.stop();
    }
 
    private void computePathOnThread()
@@ -107,6 +111,7 @@ public class VisibilityGraphsRenderer
          bodyPathReference.set(bodyPath);
          bodyPathMeshViewer.processBodyPath(bodyPath);
          navigableRegionInnerVizMapMeshViewer.processNavigableRegions(navigableRegionsManager.getListOfLocalPlanners());
+         clusterMeshViewer.processNavigableRegions(navigableRegionsManager.getListOfLocalPlanners());
       }
       catch (Exception e)
       {

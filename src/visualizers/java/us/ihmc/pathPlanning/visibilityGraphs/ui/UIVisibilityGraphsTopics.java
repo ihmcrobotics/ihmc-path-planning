@@ -13,6 +13,10 @@ public class UIVisibilityGraphsTopics
    private static final CategoryTheme LocalGraphs = apiFactory.createCategoryTheme("LocalGraphs");
    private static final CategoryTheme Connections = apiFactory.createCategoryTheme("Connections");
    private static final CategoryTheme BodyPath = apiFactory.createCategoryTheme("BodyPath");
+   private static final CategoryTheme Cluster = apiFactory.createCategoryTheme("Cluster");
+   private static final CategoryTheme RawPoints = apiFactory.createCategoryTheme("RawPoints");
+   private static final CategoryTheme NavigableExtrusions = apiFactory.createCategoryTheme("NavigableExtrusions");
+   private static final CategoryTheme NonNavigableExtrusions = apiFactory.createCategoryTheme("NonNavigableExtrusions");
    private static final CategoryTheme PlanarRegion = apiFactory.createCategoryTheme("PlanarRegion");
    private static final CategoryTheme Start = apiFactory.createCategoryTheme("Start");
    private static final CategoryTheme Goal = apiFactory.createCategoryTheme("Goal");
@@ -21,6 +25,7 @@ public class UIVisibilityGraphsTopics
    private static final TypedTopicTheme<Boolean> Load = apiFactory.createTypedTopicTheme("Load");
    private static final TypedTopicTheme<Boolean> Enable = apiFactory.createTypedTopicTheme("Enable");
    private static final TypedTopicTheme<Boolean> Show = apiFactory.createTypedTopicTheme("Show");
+   private static final TypedTopicTheme<Boolean> Close = apiFactory.createTypedTopicTheme("Close");
    private static final TypedTopicTheme<Boolean> Reset = apiFactory.createTypedTopicTheme("Reset");
    private static final TypedTopicTheme<Boolean> ComputePath = apiFactory.createTypedTopicTheme("ComputePath");
    private static final TypedTopicTheme<Point3D> Position = apiFactory.createTypedTopicTheme("Position");
@@ -41,6 +46,12 @@ public class UIVisibilityGraphsTopics
    public static final Topic<Boolean> ShowLocalGraphs = Root.child(VisibilityGraphs).child(LocalGraphs).topic(Show);
    public static final Topic<Boolean> ShowInterConnections = Root.child(VisibilityGraphs).child(Connections).topic(Show);
    public static final Topic<Boolean> ShowPlanarRegions = Root.child(PlanarRegion).topic(Show);
+   public static final Topic<Boolean> ShowClusterRawPoints = Root.child(VisibilityGraphs).child(Cluster).child(RawPoints).topic(Show);
+   public static final Topic<Boolean> ShowClusterNavigableExtrusions = Root.child(VisibilityGraphs).child(Cluster).child(NavigableExtrusions).topic(Show);
+   public static final Topic<Boolean> CloseClusterNavigableExtrusions = Root.child(VisibilityGraphs).child(Cluster).child(NavigableExtrusions).topic(Close);
+   public static final Topic<Boolean> ShowClusterNonNavigableExtrusions = Root.child(VisibilityGraphs).child(Cluster).child(NonNavigableExtrusions).topic(Show);
+   public static final Topic<Boolean> CloseClusterNonNavigableExtrusions = Root.child(VisibilityGraphs).child(Cluster).child(NonNavigableExtrusions)
+                                                                               .topic(Close);
 
    public static final Topic<Boolean> GlobalReset = Root.topic(Reset);
 

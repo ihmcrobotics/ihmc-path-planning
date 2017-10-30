@@ -733,4 +733,9 @@ public class NavigableRegionLocalPlanner
       return null;
 
    }
+
+   public List<Cluster> getClusters()
+   {
+      return clusters;
+   }
 }

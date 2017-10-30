@@ -31,6 +31,7 @@ public class NavigableRegionInnerVizMapMeshViewer extends AnimationTimer
 
    private final REAMessager messager;
    private final AtomicReference<Boolean> resetRequested;
+   private final AtomicReference<Boolean> show;
 
    private final double lineWidth = 0.0025;
 
@@ -38,6 +39,7 @@ public class NavigableRegionInnerVizMapMeshViewer extends AnimationTimer
    {
       this.messager = messager;
       resetRequested = messager.createInput(UIVisibilityGraphsTopics.GlobalReset, false);
+      show = messager.createInput(UIVisibilityGraphsTopics.ShowLocalGraphs, false);
       messager.registerTopicListener(UIVisibilityGraphsTopics.ShowLocalGraphs, this::handleShowThreadSafe);
       root.setMouseTransparent(true);
    }
@@ -72,9 +74,13 @@ public class NavigableRegionInnerVizMapMeshViewer extends AnimationTimer
 
       if (regionVisMapToRender != null)
       {
-         root.getChildren().clear();
-         root.getChildren().addAll(regionVisMapToRender.values());
          regionVisMapRendered = regionVisMapToRender;
+
+         if (show.get())
+         {
+            root.getChildren().clear();
+            root.getChildren().addAll(regionVisMapToRender.values());
+         }
       }
    }
 
