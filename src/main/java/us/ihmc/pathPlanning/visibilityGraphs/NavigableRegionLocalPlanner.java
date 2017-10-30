@@ -599,6 +599,11 @@ public class NavigableRegionLocalPlanner
       return null;
    }
 
+   public int getRegionId()
+   {
+      return homeRegion.getRegionId();
+   }
+
    @Deprecated
    public ArrayList<Point3D> loadPointCloudFromFile(String fileName)
    {

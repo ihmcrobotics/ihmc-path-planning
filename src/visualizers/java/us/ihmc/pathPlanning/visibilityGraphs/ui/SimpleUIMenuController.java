@@ -33,8 +33,8 @@ public class SimpleUIMenuController
       {
          if (VERBOSE)
             PrintTools.info(this, "Loaded planar regions, broadcasting data.");
-         messager.submitMessage(UIVisibilityGraphsTopics.PlanarRegionData, loadedPlanarRegions);
          messager.submitMessage(UIVisibilityGraphsTopics.GlobalReset, true);
+         messager.submitMessage(UIVisibilityGraphsTopics.PlanarRegionData, loadedPlanarRegions);
       }
       else
       {

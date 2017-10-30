@@ -18,11 +18,14 @@ public class SimpleVisibilityGraphsUI
 
    private final VizGraphsPlanarRegionViewer planarRegionViewer;
    private final VisibilityGraphStartGoalEditor startGoalEditor;
+   private final VisibilityGraphsRenderer visibilityGraphsRenderer;
 
    @FXML
    private SimpleUIMenuController simpleUIMenuController;
    @FXML
    private StartGoalAnchorPaneController startGoalAnchorPaneController;
+   @FXML
+   private VisibilityGraphsAnchorPaneController visibilityGraphsAnchorPaneController;
 
    public SimpleVisibilityGraphsUI(Stage primaryStage) throws IOException
    {
@@ -34,6 +37,13 @@ public class SimpleVisibilityGraphsUI
       mainPane = loader.load();
 
       messager.startMessager();
+
+      simpleUIMenuController.attachMessager(messager);
+      simpleUIMenuController.setMainWindow(primaryStage);
+      startGoalAnchorPaneController.attachMessager(messager);
+      startGoalAnchorPaneController.bindControls();
+      visibilityGraphsAnchorPaneController.attachMessager(messager);
+      visibilityGraphsAnchorPaneController.bindControls();
 
       View3DFactory view3dFactory = View3DFactory.createSubscene();
       view3dFactory.addCameraController(true);
@@ -47,11 +57,9 @@ public class SimpleVisibilityGraphsUI
       startGoalEditor = new VisibilityGraphStartGoalEditor(messager, subScene);
       view3dFactory.addNodeToView(startGoalEditor.getRoot());
       startGoalEditor.start();
-
-      simpleUIMenuController.attachMessager(messager);
-      simpleUIMenuController.setMainWindow(primaryStage);
-      startGoalAnchorPaneController.attachMessager(messager);
-      startGoalAnchorPaneController.bindControls();
+      visibilityGraphsRenderer = new VisibilityGraphsRenderer(messager);
+      view3dFactory.addNodeToView(visibilityGraphsRenderer.getRoot());
+      visibilityGraphsRenderer.start();
 
       primaryStage.setTitle(getClass().getSimpleName());
       primaryStage.setMaximized(true);
