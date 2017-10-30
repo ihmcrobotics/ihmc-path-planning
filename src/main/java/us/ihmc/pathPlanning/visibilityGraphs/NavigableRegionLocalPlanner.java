@@ -316,6 +316,7 @@ public class NavigableRegionLocalPlanner
             Cluster cluster = new Cluster();
             clusters.add(cluster);
             cluster.setType(Type.LINE);
+            cluster.setTransformToWorld(localReferenceFrame.getTransformToWorldFrame());
 
             if (isRegionTooHighToStep(region, homeRegion))
             {
@@ -353,8 +354,6 @@ public class NavigableRegionLocalPlanner
             Point3D[] extremes = linearRegression.getTheTwoPointsFurthestApart();
             FramePoint3D extreme1Fpt = new FramePoint3D(ReferenceFrame.getWorldFrame(), extremes[0]);
             FramePoint3D extreme2Fpt = new FramePoint3D(ReferenceFrame.getWorldFrame(), extremes[1]);
-            extreme1Fpt.changeFrame(localReferenceFrame);
-            extreme2Fpt.changeFrame(localReferenceFrame);
 
             cluster.addRawPointInWorld(extreme1Fpt.getPoint());
             cluster.addRawPointInWorld(extreme2Fpt.getPoint());
@@ -370,6 +369,7 @@ public class NavigableRegionLocalPlanner
             Cluster cluster = new Cluster();
             clusters.add(cluster);
             cluster.setType(Type.POLYGON);
+            cluster.setTransformToWorld(localReferenceFrame.getTransformToWorldFrame());
 
             Vector3D normal1 = calculateNormal(region);
             if (Math.abs(normal1.getZ()) >= 0.5)
@@ -393,7 +393,6 @@ public class NavigableRegionLocalPlanner
                EuclidGeometryTools.orthogonalProjectionOnPlane3D(pointToProject, point3D, normal, projectedPoint);
 
                FramePoint3D pointFpt = new FramePoint3D(ReferenceFrame.getWorldFrame(), projectedPoint);
-               pointFpt.changeFrame(localReferenceFrame);
 
                cluster.addRawPointInWorld(pointFpt.getPoint());
             }
