@@ -6,20 +6,23 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import us.ihmc.javaFXToolkit.scenes.View3DFactory;
-import us.ihmc.robotEnvironmentAwareness.communication.REAMessagerSharedVariables;
 
 public class SimpleVisibilityGraphsUI
 {
-   private final REAMessagerSharedVariables messager = new REAMessagerSharedVariables(UIVisibilityGraphsTopics.API);
+   private final SimpleUIMessager messager = new SimpleUIMessager(UIVisibilityGraphsTopics.API);
    private final Stage primaryStage;
    private final BorderPane mainPane;
 
    private final VizGraphsPlanarRegionViewer planarRegionViewer;
+   private final VisibilityGraphStartGoalEditor startGoalEditor;
 
    @FXML
    private SimpleUIMenuController simpleUIMenuController;
+   @FXML
+   private StartGoalAnchorPaneController startGoalAnchorPaneController;
 
    public SimpleVisibilityGraphsUI(Stage primaryStage) throws IOException
    {
@@ -32,17 +35,23 @@ public class SimpleVisibilityGraphsUI
 
       messager.startMessager();
 
+      View3DFactory view3dFactory = View3DFactory.createSubscene();
+      view3dFactory.addCameraController(true);
+      view3dFactory.addWorldCoordinateSystem(0.3);
+      Pane subScene = view3dFactory.getSubSceneWrappedInsidePane();
+      mainPane.setCenter(subScene);
+
       planarRegionViewer = new VizGraphsPlanarRegionViewer(messager);
+      view3dFactory.addNodeToView(planarRegionViewer.getRoot());
       planarRegionViewer.start();
+      startGoalEditor = new VisibilityGraphStartGoalEditor(messager, subScene);
+      view3dFactory.addNodeToView(startGoalEditor.getRoot());
+      startGoalEditor.start();
 
       simpleUIMenuController.attachMessager(messager);
       simpleUIMenuController.setMainWindow(primaryStage);
-
-      View3DFactory view3dFactory = View3DFactory.createSubscene();
-      view3dFactory.addNodeToView(planarRegionViewer.getRoot());
-      view3dFactory.addCameraController(true);
-      view3dFactory.addWorldCoordinateSystem(0.3);
-      mainPane.setCenter(view3dFactory.getSubSceneWrappedInsidePane());
+      startGoalAnchorPaneController.attachMessager(messager);
+      startGoalAnchorPaneController.bindControls();
 
       primaryStage.setTitle(getClass().getSimpleName());
       primaryStage.setMaximized(true);
@@ -61,5 +70,6 @@ public class SimpleVisibilityGraphsUI
    {
       messager.closeMessager();
       planarRegionViewer.stop();
+      startGoalEditor.stop();
    }
 }
