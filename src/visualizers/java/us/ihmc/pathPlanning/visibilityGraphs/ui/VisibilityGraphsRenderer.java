@@ -33,6 +33,7 @@ public class VisibilityGraphsRenderer
 
    private final BodyPathMeshViewer bodyPathMeshViewer;
    private final NavigableRegionInnerVizMapMeshViewer navigableRegionInnerVizMapMeshViewer;
+   private final NavigableRegionsInterConnectionViewer navigableRegionsInterConnectionViewer;
 
    public VisibilityGraphsRenderer(REAMessager messager)
    {
@@ -46,6 +47,8 @@ public class VisibilityGraphsRenderer
       root.getChildren().add(bodyPathMeshViewer.getRoot());
       navigableRegionInnerVizMapMeshViewer = new NavigableRegionInnerVizMapMeshViewer(messager);
       root.getChildren().add(navigableRegionInnerVizMapMeshViewer.getRoot());
+      navigableRegionsInterConnectionViewer = new NavigableRegionsInterConnectionViewer(messager);
+      root.getChildren().add(navigableRegionsInterConnectionViewer.getRoot());
    }
 
    public void clear()

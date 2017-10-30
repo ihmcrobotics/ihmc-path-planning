@@ -19,7 +19,7 @@ import us.ihmc.robotics.geometry.PlanarRegion;
 
 public class NavigableRegionsManager
 {
-   private final static boolean debug = false;
+   private final static boolean debug = true;
 
    private List<PlanarRegion> regions;
    private List<PlanarRegion> accesibleRegions = new ArrayList<>();
@@ -37,7 +37,7 @@ public class NavigableRegionsManager
    private Point3D startPos = new Point3D();
    private Point3D goalPos = new Point3D();
 
-   double connectionthreshold = 0.0;
+   double connectionthreshold = 0.1;
 
    ArrayList<PointPair> points = new ArrayList<>();
 
@@ -507,6 +507,16 @@ public class NavigableRegionsManager
       return obstacleRegions;
    }
 
+   public ArrayList<PointPair> getPoints()
+   {
+      return points;
+   }
+
+   public void setPoints(ArrayList<PointPair> points)
+   {
+      this.points = points;
+   }
+
    private class DistancePoint implements Comparable<DistancePoint>
    {
       Point3D point;
@@ -545,7 +555,7 @@ public class NavigableRegionsManager
       }
    }
 
-   private class PointPair
+   public class PointPair
    {
       Point3D point1;
       Point3D point2;
@@ -554,6 +564,16 @@ public class NavigableRegionsManager
       {
          this.point1 = point1;
          this.point2 = point2;
+      }
+
+      public Point3D getPoint1()
+      {
+         return point1;
+      }
+
+      public Point3D getPoint2()
+      {
+         return point2;
       }
    }
 }

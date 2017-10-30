@@ -11,6 +11,7 @@ public class UIVisibilityGraphsTopics
 
    private static final CategoryTheme VisibilityGraphs = apiFactory.createCategoryTheme("VisibilityGraphs");
    private static final CategoryTheme LocalGraphs = apiFactory.createCategoryTheme("LocalGraphs");
+   private static final CategoryTheme Connections = apiFactory.createCategoryTheme("Connections");
    private static final CategoryTheme BodyPath = apiFactory.createCategoryTheme("BodyPath");
    private static final CategoryTheme PlanarRegion = apiFactory.createCategoryTheme("PlanarRegion");
    private static final CategoryTheme Start = apiFactory.createCategoryTheme("Start");
@@ -38,6 +39,8 @@ public class UIVisibilityGraphsTopics
    public static final Topic<Boolean> VisibilityGraphsComputePath = Root.child(VisibilityGraphs).topic(ComputePath);
    public static final Topic<Boolean> ShowBodyPath = Root.child(VisibilityGraphs).child(BodyPath).topic(Show);
    public static final Topic<Boolean> ShowLocalGraphs = Root.child(VisibilityGraphs).child(LocalGraphs).topic(Show);
+   public static final Topic<Boolean> ShowInterConnections = Root.child(VisibilityGraphs).child(Connections).topic(Show);
+   public static final Topic<Boolean> ShowPlanarRegions = Root.child(PlanarRegion).topic(Show);
 
    public static final Topic<Boolean> GlobalReset = Root.topic(Reset);
 

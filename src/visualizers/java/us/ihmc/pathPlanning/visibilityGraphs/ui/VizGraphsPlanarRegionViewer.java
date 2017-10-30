@@ -5,7 +5,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javafx.animation.AnimationTimer;
-import javafx.scene.Group;
+import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Material;
@@ -27,10 +27,10 @@ public class VizGraphsPlanarRegionViewer
    private static final boolean VERBOSE = true;
    private ExecutorService executorService = Executors.newSingleThreadExecutor(ThreadTools.getNamedThreadFactory(getClass().getSimpleName()));
 
-   private final Group root = new Group();
    private final MeshView planarRegionMeshView = new MeshView();
 
    private final AtomicReference<Pair<Mesh, Material>> graphicsToRender = new AtomicReference<>(null);
+   private Pair<Mesh, Material> graphicsRendered = null;
    private final TextureColorPalette2D colorPalette = new TextureColorPalette2D();
 
    private final AnimationTimer renderMeshAnimation;
@@ -38,8 +38,8 @@ public class VizGraphsPlanarRegionViewer
    public VizGraphsPlanarRegionViewer(REAMessager messager)
    {
       colorPalette.setHueBrightnessBased(0.9);
-      root.getChildren().add(planarRegionMeshView);
       messager.registerTopicListener(UIVisibilityGraphsTopics.PlanarRegionData, this::buildMeshAndMaterialOnThread);
+      messager.registerTopicListener(UIVisibilityGraphsTopics.ShowPlanarRegions, this::handleShowThreadSafe);
 
       renderMeshAnimation = new AnimationTimer()
       {
@@ -52,11 +52,33 @@ public class VizGraphsPlanarRegionViewer
             {
                if (VERBOSE)
                   PrintTools.info(this, "Rendering new planar regions.");
+               graphicsRendered = localReference;
                planarRegionMeshView.setMesh(localReference.getKey());
                planarRegionMeshView.setMaterial(localReference.getValue());
             }
          }
       };
+   }
+
+   private void handleShowThreadSafe(boolean show)
+   {
+      if (Platform.isFxApplicationThread())
+         handleShow(show);
+      else
+         Platform.runLater(() -> handleShow(show));
+   }
+
+   private void handleShow(boolean show)
+   {
+      if (!show)
+      {
+         planarRegionMeshView.setMesh(null);
+      }
+      else if (graphicsRendered != null)
+      {
+         planarRegionMeshView.setMesh(graphicsRendered.getKey());
+         planarRegionMeshView.setMaterial(graphicsRendered.getValue());
+      }
    }
 
    public void start()
@@ -117,6 +139,6 @@ public class VizGraphsPlanarRegionViewer
 
    public Node getRoot()
    {
-      return root;
+      return planarRegionMeshView;
    }
 }
