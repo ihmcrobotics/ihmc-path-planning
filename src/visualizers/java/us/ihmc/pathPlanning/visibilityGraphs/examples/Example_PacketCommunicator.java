@@ -51,7 +51,7 @@ import us.ihmc.robotEnvironmentAwareness.simulation.LidarFastSimulation;
 import us.ihmc.robotics.geometry.PlanarRegion;
 import us.ihmc.robotics.geometry.PlanarRegionsList;
 import us.ihmc.tools.processManagement.JavaProcessSpawner;
-import us.ihmc.tools.thread.ThreadTools;
+import us.ihmc.commons.thread.ThreadTools;
 
 /**
  * User: Matt Date: 1/14/13
