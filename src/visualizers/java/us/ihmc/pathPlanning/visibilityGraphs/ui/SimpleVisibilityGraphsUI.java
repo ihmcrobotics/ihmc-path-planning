@@ -34,6 +34,7 @@ public class SimpleVisibilityGraphsUI
       FXMLLoader loader = new FXMLLoader();
       loader.setController(this);
       loader.setLocation(getClass().getResource(getClass().getSimpleName() + ".fxml"));
+
       mainPane = loader.load();
 
       messager.startMessager();
