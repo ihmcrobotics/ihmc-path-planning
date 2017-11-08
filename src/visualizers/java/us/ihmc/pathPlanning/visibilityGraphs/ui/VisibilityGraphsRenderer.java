@@ -9,12 +9,12 @@ import java.util.stream.Collectors;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import us.ihmc.commons.PrintTools;
+import us.ihmc.commons.thread.ThreadTools;
 import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.pathPlanning.visibilityGraphs.NavigableRegionsManager;
 import us.ihmc.robotEnvironmentAwareness.communication.REAMessager;
 import us.ihmc.robotics.geometry.PlanarRegion;
 import us.ihmc.robotics.geometry.PlanarRegionsList;
-import us.ihmc.tools.thread.ThreadTools;
 
 public class VisibilityGraphsRenderer
 {
