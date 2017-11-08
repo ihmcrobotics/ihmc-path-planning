@@ -19,47 +19,58 @@ import us.ihmc.robotics.geometry.PlanarRegionsList;
 
 public class FakeTest
 {
-   private static final File defaultFile = new File("./Data/20171026_PlanarRegion/20171026_133736_PlanarRegion");
-   private static final File defaultFile1 = new File("./Data/20171026_PlanarRegion/");
-   
+   private File fileLocationForPlanarRegions = new File("./Data/20171026_133736_PlanarRegion/20171026_133736_PlanarRegion");
+   private File fileLocationForStartGoalParameters = new File("./Data/20171026_133736_PlanarRegion/");
+
    private Point3D start;
    private Point3D goal;
 
    @Test(timeout = 30000)
    public void testPassing() throws Exception
    {
-      PlanarRegionsList planarRegionData = null;
+      File fileLocationsForAllData = new File("./Data");
 
-      if (defaultFile != null)
-         planarRegionData = PlanarRegionDataImporter.importPlanRegionData(defaultFile);
+      System.out.println("Unit test files found: " + fileLocationsForAllData.listFiles().length);
 
-      if (planarRegionData == null)
-         Platform.exit();
-
-      readStartGoalParameters(defaultFile1.getAbsolutePath() + "/StartGoalParameters.txt");
-      
-      List<PlanarRegion> regions = planarRegionData.getPlanarRegionsAsList();
-      ArrayList<PlanarRegion> filteredRegions = new ArrayList<>();
-
-      for (PlanarRegion region : regions)
+      File[] files = fileLocationsForAllData.listFiles();
+      for (int i = 0; i < files.length; i++)
       {
-         if (region.getConcaveHullSize() > 2)
+         System.out.println("Running file: " + files[i].getName());
+         fileLocationForStartGoalParameters = new File("./Data/" + files[i].getName() + "/");
+         fileLocationForPlanarRegions = new File("./Data/" + files[i].getName() + "/" + files[i].getName() + "/");
+         
+         PlanarRegionsList planarRegionData = null;
+
+         if (fileLocationForPlanarRegions != null)
+            planarRegionData = PlanarRegionDataImporter.importPlanRegionData(fileLocationForPlanarRegions);
+
+         if (planarRegionData == null)
+            Platform.exit();
+
+         readStartGoalParameters(fileLocationForStartGoalParameters.getAbsolutePath() + "/StartGoalParameters.txt");
+
+         List<PlanarRegion> regions = planarRegionData.getPlanarRegionsAsList();
+         ArrayList<PlanarRegion> filteredRegions = new ArrayList<>();
+
+         for (PlanarRegion region : regions)
          {
-            filteredRegions.add(region);
+            if (region.getConcaveHullSize() > 2)
+            {
+               filteredRegions.add(region);
+            }
          }
+
+         NavigableRegionsManager manager = new NavigableRegionsManager(filteredRegions, null);
+
+         Point3D start = new Point3D(-2.419, 0.312, 0.001);
+         Point3D goal = new Point3D(0.792, 0.257, 0.001);
+
+         ArrayList<Point3D> path = (ArrayList<Point3D>) manager.calculateBodyPath(start, goal);
+         
+         System.out.println("Path Size: " + path.size());
+
+         assertTrue(true);
       }
-
-      NavigableRegionsManager manager = new NavigableRegionsManager(filteredRegions, null);
-
-      
-      System.out.println(start + "     " + goal);
-      
-      Point3D start = new Point3D(-2.419, 0.312, 0.001);
-      Point3D goal = new Point3D(0.792, 0.257, 0.001);
-
-      ArrayList<Point3D> path = (ArrayList<Point3D>) manager.calculateBodyPath(start, goal);
-
-      assertTrue(path.size() == 2);
    }
 
    public ArrayList<Point3D> readStartGoalParameters(String fileName)
@@ -79,11 +90,11 @@ public class FakeTest
 
          while ((sCurrentLine = br.readLine()) != null)
          {
-            if(sCurrentLine.contains("Start=") && sCurrentLine.contains("Goal="))
+            if (sCurrentLine.contains("Start=") && sCurrentLine.contains("Goal="))
             {
                String tempStart = sCurrentLine.substring(6, sCurrentLine.indexOf(",Goal="));
                start = getPoint3DFromStringSet(tempStart);
-               
+
                String tempGoal = sCurrentLine.substring(sCurrentLine.indexOf(",Goal=") + 6);
                goal = getPoint3DFromStringSet(tempGoal);
             }
@@ -117,17 +128,16 @@ public class FakeTest
       return null;
 
    }
-   
+
    private Point3D getPoint3DFromStringSet(String set)
    {
-      
+
       double x = Double.parseDouble(set.substring(0, set.indexOf(",")));
       set = set.substring(set.indexOf(",") + 1);
       double y = Double.parseDouble(set.substring(0, set.indexOf(",")));
       set = set.substring(set.indexOf(",") + 1);
-      System.out.println(set);
       double z = Double.parseDouble(set.substring(0));
-      
-      return new Point3D(x,y,z);
+
+      return new Point3D(x, y, z);
    }
 }
