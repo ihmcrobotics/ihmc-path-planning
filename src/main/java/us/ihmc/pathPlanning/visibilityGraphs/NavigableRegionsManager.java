@@ -97,8 +97,8 @@ public class NavigableRegionsManager
       connectLocalMaps();
       createGlobalMap();
 
-      forceConnectionToPoint(startPos);
-      forceConnectionToPoint(goalPos);
+//      forceConnectionToPoint(startPos);
+//      forceConnectionToPoint(goalPos);
 
       globalVisMap = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
 
