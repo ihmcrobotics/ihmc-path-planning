@@ -51,7 +51,7 @@ public class Example_Concavity extends Application
       JavaFXMultiColorMeshBuilder meshBuilder = new JavaFXMultiColorMeshBuilder(colorPalette);
 
       PlanarRegionsList planarRegionData;
-
+      
       if (defaultFile != null)
          planarRegionData = PlanarRegionDataImporter.importPlanRegionData(defaultFile);
       else

@@ -106,12 +106,14 @@ public class NavigableRegionsManager
       {
          Point3D pt1 = pair.point1;
          Point3D pt2 = pair.point2;
-
+ if(!pt1.epsilonEquals(pt2, 1e-5))
+         {
          globalVisMap.addVertex(pt1);
          globalVisMap.addVertex(pt2);
          DefaultWeightedEdge edge = new DefaultWeightedEdge();
          globalVisMap.addEdge(pt1, pt2, edge);
          globalVisMap.setEdgeWeight(edge, pt1.distance(pt2));
+         }
       }
 
       //
