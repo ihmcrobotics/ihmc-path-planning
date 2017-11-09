@@ -12,8 +12,8 @@ import javafx.scene.shape.Mesh;
 import javafx.scene.shape.MeshView;
 import us.ihmc.commons.PrintTools;
 import us.ihmc.javaFXToolkit.shapes.JavaFXMeshBuilder;
+import us.ihmc.pathPlanning.visibilityGraphs.Connection;
 import us.ihmc.pathPlanning.visibilityGraphs.NavigableRegionsManager;
-import us.ihmc.pathPlanning.visibilityGraphs.NavigableRegionsManager.PointPair;
 import us.ihmc.robotEnvironmentAwareness.communication.REAMessager;
 
 public class NavigableRegionsInterConnectionViewer extends AnimationTimer
@@ -58,8 +58,8 @@ public class NavigableRegionsInterConnectionViewer extends AnimationTimer
          PrintTools.info(this, "Building mesh for inter-connections.");
       JavaFXMeshBuilder meshBuilder = new JavaFXMeshBuilder();
 
-      List<PointPair> connections = navigableRegionsManager.getPoints();
-      for (PointPair connection : connections)
+      List<Connection> connections = navigableRegionsManager.getPoints();
+      for (Connection connection : connections)
          meshBuilder.addLine(connection.getPoint1(), connection.getPoint2(), connectionsLineThickness);
       connectionsMeshToRender.set(meshBuilder.generateMesh());
    }

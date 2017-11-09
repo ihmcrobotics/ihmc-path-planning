@@ -1,0 +1,25 @@
+package us.ihmc.pathPlanning.visibilityGraphs;
+
+import us.ihmc.euclid.tuple3D.Point3D;
+
+public class Connection
+{
+   Point3D point1;
+   Point3D point2;
+
+   public Connection(Point3D point1, Point3D point2)
+   {
+      this.point1 = point1;
+      this.point2 = point2;
+   }
+
+   public Point3D getPoint1()
+   {
+      return point1;
+   }
+
+   public Point3D getPoint2()
+   {
+      return point2;
+   }
+}

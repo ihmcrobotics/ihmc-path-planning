@@ -29,17 +29,13 @@ public class NavigableRegionsManager
    private SimpleWeightedGraph<Point3D, DefaultWeightedEdge> globalVisMap = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
 
    private List<Point3D> path = new ArrayList<>();
-
    private JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder;
-
    private double pathLength = 0.0;
-
    private Point3D startPos = new Point3D();
    private Point3D goalPos = new Point3D();
-
    double connectionthreshold = 0.1;
 
-   ArrayList<PointPair> points = new ArrayList<>();
+   ArrayList<Connection> points = new ArrayList<>();
 
    ArrayList<DistancePoint> distancePoints = new ArrayList<>();
 
@@ -102,7 +98,7 @@ public class NavigableRegionsManager
 
       globalVisMap = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
 
-      for (PointPair pair : points)
+      for (Connection pair : points)
       {
          Point3D pt1 = pair.point1;
          Point3D pt2 = pair.point2;
@@ -236,7 +232,7 @@ public class NavigableRegionsManager
             Point3D pt1 = map.getEdgeSource(edge);
             Point3D pt2 = map.getEdgeTarget(edge);
 
-            points.add(new PointPair(pt1, pt2));
+            points.add(new Connection(pt1, pt2));
 
             //            globalVisMap.addVertex(pt1);
             //            globalVisMap.addVertex(pt2);
@@ -251,7 +247,7 @@ public class NavigableRegionsManager
       Point3D tempPoint = null;
       distancePoints.clear();
 
-      for (PointPair pair : points)
+      for (Connection pair : points)
       {
          DistancePoint point1 = new DistancePoint(pair.point1, pair.point1.distance(position));
          DistancePoint point2 = new DistancePoint(pair.point2, pair.point2.distance(position));
@@ -281,7 +277,7 @@ public class NavigableRegionsManager
          if (javaFXMultiColorMeshBuilder != null)
             javaFXMultiColorMeshBuilder.addSphere(0.025f, dpt.point, Color.BLUE);
 
-         points.add(new PointPair(dpt.point, position));
+         points.add(new Connection(dpt.point, position));
          //         globalVisMap.addVertex(dpt.point);
          //         globalVisMap.addVertex(position);
 
@@ -290,7 +286,7 @@ public class NavigableRegionsManager
          //Cannot add an edge where the source is equal to the target!
          if (!dpt.point.epsilonEquals(position, 1e-5))
          {
-            points.add(new PointPair(dpt.point, position));
+            points.add(new Connection(dpt.point, position));
             //            globalVisMap.addEdge(dpt.point, position, edge);
             //            globalVisMap.setEdgeWeight(edge, dpt.point.distance(position));
 
@@ -340,7 +336,7 @@ public class NavigableRegionsManager
 
                         if (pt1.distance(pt2) < connectionthreshold)
                         {
-                           points.add(new PointPair(pt1.getPoint(), pt2.getPoint()));
+                           points.add(new Connection(pt1.getPoint(), pt2.getPoint()));
 
                            //                           globalVisMap.addVertex(pt1.getPoint());
                            //                           globalVisMap.addVertex(pt2.getPoint());
@@ -509,12 +505,12 @@ public class NavigableRegionsManager
       return obstacleRegions;
    }
 
-   public ArrayList<PointPair> getPoints()
+   public ArrayList<Connection> getPoints()
    {
       return points;
    }
 
-   public void setPoints(ArrayList<PointPair> points)
+   public void setPoints(ArrayList<Connection> points)
    {
       this.points = points;
    }
@@ -554,28 +550,6 @@ public class NavigableRegionsManager
       public int compare(DistancePoint point1, DistancePoint point2)
       {
          return point1.compareTo(point2);
-      }
-   }
-
-   public class PointPair
-   {
-      Point3D point1;
-      Point3D point2;
-
-      public PointPair(Point3D point1, Point3D point2)
-      {
-         this.point1 = point1;
-         this.point2 = point2;
-      }
-
-      public Point3D getPoint1()
-      {
-         return point1;
-      }
-
-      public Point3D getPoint2()
-      {
-         return point2;
       }
    }
 }

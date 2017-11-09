@@ -45,6 +45,7 @@ public class NavigableRegionLocalPlanner
    PlanarRegion homeRegion;
 
    SimpleWeightedGraph<Point2D, DefaultWeightedEdge> localVisibilityMap;
+   ArrayList<Connection> connections = new ArrayList<>();
 
    JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder;
 
