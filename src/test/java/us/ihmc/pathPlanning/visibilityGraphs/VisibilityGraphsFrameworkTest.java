@@ -17,7 +17,7 @@ import us.ihmc.robotEnvironmentAwareness.ui.io.PlanarRegionDataImporter;
 import us.ihmc.robotics.geometry.PlanarRegion;
 import us.ihmc.robotics.geometry.PlanarRegionsList;
 
-public class FakeTest
+public class VisibilityGraphsFrameworkTest
 {
    private File fileLocationForPlanarRegions = new File("./Data/20171026_133736_PlanarRegion/20171026_133736_PlanarRegion");
    private File fileLocationForStartGoalParameters = new File("./Data/20171026_133736_PlanarRegion/");
