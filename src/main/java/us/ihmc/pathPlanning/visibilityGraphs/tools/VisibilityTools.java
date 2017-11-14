@@ -1,8 +1,13 @@
 package us.ihmc.pathPlanning.visibilityGraphs.tools;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import javassist.compiler.ast.Symbol;
 import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
 import us.ihmc.euclid.tuple2D.Point2D;
+import us.ihmc.euclid.tuple3D.Point3D;
 
 public class VisibilityTools
 {
@@ -16,8 +21,8 @@ public class VisibilityTools
             Point2D first = new Point2D(listOfPointsInCluster.get(i).getX(), listOfPointsInCluster.get(i).getY());
             Point2D second = new Point2D(listOfPointsInCluster.get(i + 1).getX(), listOfPointsInCluster.get(i + 1).getY());
 
-//            System.out.println(first + "   " + second + "   " + observer + "   " + targetPoint);
-//            System.out.println("Intersects: " + lineSegmentsPhysicallyIntersect(first, second, observer, targetPoint));
+            //            System.out.println(first + "   " + second + "   " + observer + "   " + targetPoint);
+            //            System.out.println("Intersects: " + lineSegmentsPhysicallyIntersect(first, second, observer, targetPoint));
 
             if (EuclidGeometryTools.doLineSegment2DsIntersect(first, second, observer, targetPoint))
             {
@@ -60,5 +65,40 @@ public class VisibilityTools
       {
          return true;
       }
+   }
+
+   public static ArrayList<Point3D> removeDuplicatePoints(ArrayList<Point3D> list)
+   {
+      ArrayList nonDuplicateList = new ArrayList();
+      ArrayList duplicateList = new ArrayList();
+
+      Iterator i1 = list.iterator();
+      //      a1.removeDuplicate
+      while (i1.hasNext())
+      {
+         Point3D point = (Point3D) i1.next();
+         if (nonDuplicateList.contains(point))
+         {
+            duplicateList.add(point);
+            i1.remove();
+         }
+         else
+         {
+            nonDuplicateList.add(point);
+         }
+      }
+
+      return nonDuplicateList;
+   }
+
+   public static void main(String args[])
+   {
+      ArrayList<Point3D> rawPoints = new ArrayList<>();
+      rawPoints.add(new Point3D());
+      rawPoints.add(new Point3D());
+      rawPoints.add(new Point3D(1, 1, 1));
+      rawPoints.add(new Point3D());
+
+      VisibilityTools.removeDuplicatePoints(rawPoints);
    }
 }

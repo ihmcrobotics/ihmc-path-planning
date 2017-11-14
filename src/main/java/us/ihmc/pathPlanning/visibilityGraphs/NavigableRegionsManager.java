@@ -2,6 +2,7 @@ package us.ihmc.pathPlanning.visibilityGraphs;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 import org.jgrapht.alg.DijkstraShortestPath;
@@ -17,6 +18,7 @@ import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
+import us.ihmc.pathPlanning.visibilityGraphs.tools.VisibilityTools;
 import us.ihmc.robotics.geometry.PlanarRegion;
 
 public class NavigableRegionsManager
@@ -37,7 +39,7 @@ public class NavigableRegionsManager
    private Point3D goalPos = new Point3D();
    double connectionthreshold = 0.1;
 
-   ArrayList<Connection> points = new ArrayList<>();
+   ArrayList<Connection> globalMapPoints = new ArrayList<>();
 
    ArrayList<DistancePoint> distancePoints = new ArrayList<>();
 
@@ -64,9 +66,9 @@ public class NavigableRegionsManager
 
    public List<Point3D> calculateBodyPath(Point3D start, Point3D goal)
    {
-//      start = new Point3D(10,10,0);
-//      goal = new Point3D(10,10,0);
-      
+//            start = new Point3D(10,10,0);
+//            goal = new Point3D(10,0,0);
+
       this.startPos = start;
       this.goalPos = goal;
       classifyRegions(regions);
@@ -94,7 +96,7 @@ public class NavigableRegionsManager
          }
       }
 
-      points.clear();
+      globalMapPoints.clear();
       connectLocalMaps();
       createGlobalMap();
 
@@ -110,7 +112,7 @@ public class NavigableRegionsManager
 
       globalVisMap = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
 
-      for (Connection pair : points)
+      for (Connection pair : globalMapPoints)
       {
          Point3D pt1 = pair.point1;
          Point3D pt2 = pair.point2;
@@ -222,7 +224,7 @@ public class NavigableRegionsManager
             Point3D pt1 = map.getEdgeSource(edge);
             Point3D pt2 = map.getEdgeTarget(edge);
 
-            points.add(new Connection(pt1, pt2));
+            globalMapPoints.add(new Connection(pt1, pt2));
 
             //            globalVisMap.addVertex(pt1);
             //            globalVisMap.addVertex(pt2);
@@ -234,15 +236,15 @@ public class NavigableRegionsManager
 
    private void forceConnectionToPoint(Point3D position)
    {
-      if(debug)
+      if (debug)
       {
          System.out.println("Point: " + position + " is not inside a planar region - forcing connection");
       }
-      
+
       Point3D tempPoint = null;
       distancePoints.clear();
 
-      for (Connection pair : points)
+      for (Connection pair : globalMapPoints)
       {
          DistancePoint point1 = new DistancePoint(pair.point1, pair.point1.distance(position));
          DistancePoint point2 = new DistancePoint(pair.point2, pair.point2.distance(position));
@@ -252,22 +254,25 @@ public class NavigableRegionsManager
       }
 
       distancePoints.sort(new DistancePointComparator());
+      
+      ArrayList<Point3D> newList = new ArrayList<>();
+      
+      for(DistancePoint point : distancePoints)
+      {
+         newList.add(point.point);
+      }
+      
+      ArrayList<Point3D> filteredList = VisibilityTools.removeDuplicatePoints(newList);
 
       for (int i = 0; i < 5; i++)
       {
-         DistancePoint dpt = distancePoints.get(i);
-         tempPoint = dpt.point;
-         if (javaFXMultiColorMeshBuilder != null)
-            javaFXMultiColorMeshBuilder.addSphere(0.025f, dpt.point, Color.BLUE);
-
-         points.add(new Connection(dpt.point, position));
-
+         Point3D point = filteredList.get(i);
          DefaultWeightedEdge edge = new DefaultWeightedEdge();
 
          //Cannot add an edge where the source is equal to the target!
-         if (!dpt.point.epsilonEquals(position, 1e-5))
+         if (!point.epsilonEquals(position, 1e-5))
          {
-            points.add(new Connection(dpt.point, position));
+            globalMapPoints.add(new Connection(point, position));
          }
       }
    }
@@ -312,7 +317,7 @@ public class NavigableRegionsManager
 
                         if (pt1.distance(pt2) < connectionthreshold)
                         {
-                           points.add(new Connection(pt1.getPoint(), pt2.getPoint()));
+                           globalMapPoints.add(new Connection(pt1.getPoint(), pt2.getPoint()));
 
                            if (javaFXMultiColorMeshBuilder != null)
                            {
@@ -510,12 +515,12 @@ public class NavigableRegionsManager
 
    public ArrayList<Connection> getPoints()
    {
-      return points;
+      return globalMapPoints;
    }
 
    public void setPoints(ArrayList<Connection> points)
    {
-      this.points = points;
+      this.globalMapPoints = points;
    }
 
    private class DistancePoint implements Comparable<DistancePoint>
