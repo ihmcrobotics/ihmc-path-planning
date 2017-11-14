@@ -21,7 +21,9 @@ public class UIVisibilityGraphsTopics
    private static final CategoryTheme Start = apiFactory.createCategoryTheme("Start");
    private static final CategoryTheme Goal = apiFactory.createCategoryTheme("Goal");
    private static final CategoryTheme EditMode = apiFactory.createCategoryTheme("EditMode");
+   private static final CategoryTheme UnitTest = apiFactory.createCategoryTheme("UnitTest");
 
+   
    private static final TypedTopicTheme<Boolean> Load = apiFactory.createTypedTopicTheme("Load");
    private static final TypedTopicTheme<Boolean> Enable = apiFactory.createTypedTopicTheme("Enable");
    private static final TypedTopicTheme<Boolean> Show = apiFactory.createTypedTopicTheme("Show");
@@ -29,6 +31,9 @@ public class UIVisibilityGraphsTopics
    private static final TypedTopicTheme<Boolean> Reset = apiFactory.createTypedTopicTheme("Reset");
    private static final TypedTopicTheme<Boolean> ComputePath = apiFactory.createTypedTopicTheme("ComputePath");
    private static final TypedTopicTheme<Point3D> Position = apiFactory.createTypedTopicTheme("Position");
+   private static final TypedTopicTheme<Boolean> Export = apiFactory.createTypedTopicTheme("Export");
+   private static final TypedTopicTheme<String> Path = apiFactory.createTypedTopicTheme("Path");
+
    private static final TopicTheme Data = apiFactory.createTopicTheme("Data");
 
    private static final Category Root = apiFactory.getRootCategory(apiFactory.createCategoryTheme("VizGraphs"));
@@ -52,6 +57,8 @@ public class UIVisibilityGraphsTopics
    public static final Topic<Boolean> ShowClusterNonNavigableExtrusions = Root.child(VisibilityGraphs).child(Cluster).child(NonNavigableExtrusions).topic(Show);
    public static final Topic<Boolean> CloseClusterNonNavigableExtrusions = Root.child(VisibilityGraphs).child(Cluster).child(NonNavigableExtrusions)
                                                                                .topic(Close);
+   public static final Topic<Boolean> exportUnitTestDataFile = Root.child(UnitTest).topic(Export);
+   public static final Topic<String> exportUnitTestPath = Root.child(UnitTest).topic(Path);
 
    public static final Topic<Boolean> GlobalReset = Root.topic(Reset);
 

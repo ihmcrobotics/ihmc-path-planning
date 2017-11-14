@@ -19,7 +19,7 @@ import us.ihmc.robotics.geometry.PlanarRegion;
 
 public class NavigableRegionsManager
 {
-   private final static boolean debug = true;
+   private final static boolean debug = false;
 
    private List<PlanarRegion> regions;
    private List<PlanarRegion> accesibleRegions = new ArrayList<>();
@@ -75,7 +75,7 @@ public class NavigableRegionsManager
       {
          if (navigableRegion.isPointInsideTheRegion(startPos))
          {
-            System.out.println("Start point is inside a region");
+//            System.out.println("Start point is inside a region");
             break;
          }
       }
@@ -84,7 +84,7 @@ public class NavigableRegionsManager
       {
          if (navigableRegion.isPointInsideTheRegion(goalPos))
          {
-            System.out.println("Goal point is inside a region");
+//            System.out.println("Goal point is inside a region");
             break;
          }
       }
@@ -302,10 +302,10 @@ public class NavigableRegionsManager
       int mapIndex = 0;
       if (listOfNavigableRegions.size() > 1)
       {
-         System.out.println("# of navigable regions: " + listOfNavigableRegions.size());
+//         System.out.println("# of navigable regions: " + listOfNavigableRegions.size());
          for (NavigableRegionLocalPlanner sourceLocalRegion : listOfNavigableRegions)
          {
-            System.out.println("Map " + mapIndex + " has " + sourceLocalRegion.getLocalVisibilityGraph().edgeSet().size() + " connections");
+//            System.out.println("Map " + mapIndex + " has " + sourceLocalRegion.getLocalVisibilityGraph().edgeSet().size() + " connections");
             mapIndex++;
          }
       }

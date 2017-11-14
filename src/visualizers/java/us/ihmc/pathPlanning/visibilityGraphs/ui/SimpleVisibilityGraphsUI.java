@@ -26,7 +26,10 @@ public class SimpleVisibilityGraphsUI
    private StartGoalAnchorPaneController startGoalAnchorPaneController;
    @FXML
    private VisibilityGraphsAnchorPaneController visibilityGraphsAnchorPaneController;
-
+   
+   @FXML
+   private ExportUnitTestAnchorPaneController exportUnitTestAnchorPaneController;
+   
    public SimpleVisibilityGraphsUI(Stage primaryStage) throws IOException
    {
       this.primaryStage = primaryStage;
@@ -45,6 +48,12 @@ public class SimpleVisibilityGraphsUI
       startGoalAnchorPaneController.bindControls();
       visibilityGraphsAnchorPaneController.attachMessager(messager);
       visibilityGraphsAnchorPaneController.bindControls();
+      
+      exportUnitTestAnchorPaneController.attachMessager(messager);
+      exportUnitTestAnchorPaneController.bindControls();
+      
+      new UnitTestExporter(messager);
+      
 
       View3DFactory view3dFactory = View3DFactory.createSubscene();
       view3dFactory.addCameraController(true);

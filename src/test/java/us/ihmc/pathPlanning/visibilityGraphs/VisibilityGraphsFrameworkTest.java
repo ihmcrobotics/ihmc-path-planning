@@ -33,14 +33,16 @@ public class VisibilityGraphsFrameworkTest
       File fileLocationsForAllData = new File("./Data");
 
       System.out.println("Unit test files found: " + fileLocationsForAllData.listFiles().length);
+      System.out.println("");
 
       File[] files = fileLocationsForAllData.listFiles();
       for (int i = 0; i < files.length; i++)
       {
-         System.out.println("Running file: " + files[i].getName());
+         System.out.println("\n\nProcessing file: " + files[i].getName());
+         String name = files[i].getName().replace("_UnitTest", "");
          fileLocationForStartGoalParameters = new File("./Data/" + files[i].getName() + "/");
-         fileLocationForPlanarRegions = new File("./Data/" + files[i].getName() + "/" + files[i].getName() + "/");
-
+         fileLocationForPlanarRegions = new File("./Data/" + files[i].getName() + "/" + name + "/");
+         
          PlanarRegionsList planarRegionData = null;
 
          if (fileLocationForPlanarRegions != null)
@@ -48,28 +50,39 @@ public class VisibilityGraphsFrameworkTest
 
          if (planarRegionData == null)
             Platform.exit();
-
-         readStartGoalParameters(fileLocationForStartGoalParameters.getAbsolutePath() + "/StartGoalParameters.txt");
-
-         List<PlanarRegion> regions = planarRegionData.getPlanarRegionsAsList();
-         ArrayList<PlanarRegion> filteredRegions = new ArrayList<>();
-
-         for (PlanarRegion region : regions)
+         
+         File fileFolder = new File("./Data/" + files[i].getName() + "/" );
+         File[] files1 = fileFolder.listFiles();
+         
+         for(int j = 0; j < files1.length; j++)
          {
-            if (region.getConcaveHullSize() > 2)
+            if(files1[j].getName().contains("UnitTestParameters"))
             {
-               filteredRegions.add(region);
+               System.out.println("Found test file: " + files1[j].getName());
+               System.out.println("Running test for : " + files1[j].getName());
+
+               readStartGoalParameters(fileLocationForStartGoalParameters.getAbsolutePath() + "/" + files1[j].getName());
+
+               List<PlanarRegion> regions = planarRegionData.getPlanarRegionsAsList();
+               ArrayList<PlanarRegion> filteredRegions = new ArrayList<>();
+
+               for (PlanarRegion region : regions)
+               {
+                  if (region.getConcaveHullSize() > 2)
+                  {
+                     filteredRegions.add(region);
+                  }
+               }
+
+               NavigableRegionsManager manager = new NavigableRegionsManager(filteredRegions, null);
+
+               ArrayList<Point3D> path = (ArrayList<Point3D>) manager.calculateBodyPath(start, goal);
+               
+               assertTrue("Path is null!", path != null);
+               assertTrue("Path does not contain any Wps", path.size() > 0);
+               testPathSize(fileLocationForStartGoalParameters.getAbsolutePath() + "/" + files1[j].getName(), path);
             }
          }
-
-         NavigableRegionsManager manager = new NavigableRegionsManager(filteredRegions, null);
-
-         ArrayList<Point3D> path = (ArrayList<Point3D>) manager.calculateBodyPath(start, goal);
-         
-         assertTrue("Path is null!", path != null);
-         assertTrue("Path does not contain any Wps", path.size() > 0);
-         testPathSize(fileLocationForStartGoalParameters.getAbsolutePath() + "/StartGoalParameters.txt", path);
-
       }
    }
 
@@ -90,11 +103,11 @@ public class VisibilityGraphsFrameworkTest
 
          while ((sCurrentLine = br.readLine()) != null)
          {
-            if (sCurrentLine.contains("<PS,") && sCurrentLine.contains(",PS>"))
+            if (sCurrentLine.contains("<PathSize,") && sCurrentLine.contains(",PathSize>"))
             {
-               double pathSize = Double.parseDouble(sCurrentLine.substring(4, sCurrentLine.indexOf(",PS>")));
+               double pathSize = Double.parseDouble(sCurrentLine.substring(10, sCurrentLine.indexOf(",PathSize>")));
 
-               System.out.println(pathSize + "   " + path.size());
+//               System.out.println(pathSize + "   " + path.size());
                assertTrue("Path size is not equal",path.size() == pathSize);
             }
          }
@@ -143,12 +156,15 @@ public class VisibilityGraphsFrameworkTest
 
          while ((sCurrentLine = br.readLine()) != null)
          {
-            if (sCurrentLine.contains("<SG,") && sCurrentLine.contains("SG>"))
+            if (sCurrentLine.contains("<Start,") && sCurrentLine.contains("Start>"))
             {
-               String tempStart = sCurrentLine.substring(10, sCurrentLine.indexOf(",Goal="));
+               String tempStart = sCurrentLine.substring(7, sCurrentLine.indexOf(",Start>"));
                start = getPoint3DFromStringSet(tempStart);
-
-               String tempGoal = sCurrentLine.substring(sCurrentLine.indexOf(",Goal=") + 6, sCurrentLine.indexOf(",SG>"));
+            }
+            
+            if (sCurrentLine.contains("<Goal,") && sCurrentLine.contains(",Goal>"))
+            {
+               String tempGoal = sCurrentLine.substring(6, sCurrentLine.indexOf(",Goal>"));
                goal = getPoint3DFromStringSet(tempGoal);
             }
          }
