@@ -9,8 +9,10 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
 import javafx.scene.paint.Color;
+import us.ihmc.euclid.geometry.ConvexPolygon2D;
 import us.ihmc.euclid.referenceFrame.FramePoint3D;
 import us.ihmc.euclid.referenceFrame.ReferenceFrame;
+import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.euclid.tuple3D.Vector3D;
@@ -62,6 +64,9 @@ public class NavigableRegionsManager
 
    public List<Point3D> calculateBodyPath(Point3D start, Point3D goal)
    {
+//      start = new Point3D(10,10,0);
+//      goal = new Point3D(10,10,0);
+      
       this.startPos = start;
       this.goalPos = goal;
       classifyRegions(regions);
@@ -75,7 +80,7 @@ public class NavigableRegionsManager
       {
          if (navigableRegion.isPointInsideTheRegion(startPos))
          {
-//            System.out.println("Start point is inside a region");
+            //            System.out.println("Start point is inside a region");
             break;
          }
       }
@@ -84,7 +89,7 @@ public class NavigableRegionsManager
       {
          if (navigableRegion.isPointInsideTheRegion(goalPos))
          {
-//            System.out.println("Goal point is inside a region");
+            //            System.out.println("Goal point is inside a region");
             break;
          }
       }
@@ -93,8 +98,15 @@ public class NavigableRegionsManager
       connectLocalMaps();
       createGlobalMap();
 
-//      forceConnectionToPoint(startPos);
-//      forceConnectionToPoint(goalPos);
+      if (!isPointInsideRegion(accesibleRegions, start))
+      {
+         forceConnectionToPoint(startPos);
+      }
+
+      if (!isPointInsideRegion(accesibleRegions, goal))
+      {
+         forceConnectionToPoint(goalPos);
+      }
 
       globalVisMap = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
 
@@ -102,32 +114,15 @@ public class NavigableRegionsManager
       {
          Point3D pt1 = pair.point1;
          Point3D pt2 = pair.point2;
- if(!pt1.epsilonEquals(pt2, 1e-5))
+         if (!pt1.epsilonEquals(pt2, 1e-5))
          {
-         globalVisMap.addVertex(pt1);
-         globalVisMap.addVertex(pt2);
-         DefaultWeightedEdge edge = new DefaultWeightedEdge();
-         globalVisMap.addEdge(pt1, pt2, edge);
-         globalVisMap.setEdgeWeight(edge, pt1.distance(pt2));
+            globalVisMap.addVertex(pt1);
+            globalVisMap.addVertex(pt2);
+            DefaultWeightedEdge edge = new DefaultWeightedEdge();
+            globalVisMap.addEdge(pt1, pt2, edge);
+            globalVisMap.setEdgeWeight(edge, pt1.distance(pt2));
          }
       }
-
-      //
-
-      //Visualize
-      //      for (SimpleWeightedGraph<Point3D, DefaultWeightedEdge> map : visMaps)
-      //      {
-      //         for (DefaultWeightedEdge edge : map.edgeSet())
-      //         {
-      //            Point3D pt1 = map.getEdgeSource(edge);
-      //            Point3D pt2 = map.getEdgeTarget(edge);
-      //
-      //            if (javaFXMultiColorMeshBuilder != null)
-      //            {
-      //               javaFXMultiColorMeshBuilder.addLine(pt1, pt2, 0.0052, Color.CYAN);
-      //            }
-      //         }
-      //      }
 
       for (DefaultWeightedEdge edge : globalVisMap.edgeSet())
       {
@@ -139,7 +134,6 @@ public class NavigableRegionsManager
             javaFXMultiColorMeshBuilder.addLine(pt1, pt2, 0.0052, Color.CYAN);
          }
       }
-      //
 
       Point3D goalPt = getSnappedPointFromMap(goalPos);
       Point3D startpt = getSnappedPointFromMap(startPos);
@@ -162,19 +156,13 @@ public class NavigableRegionsManager
                Point3D from = globalVisMap.getEdgeSource(edge);
                Point3D to = globalVisMap.getEdgeTarget(edge);
                pathLength = pathLength + from.distance(to);
-               
+
                if (!path.contains(new Point3D(from)))
                   path.add(from);
                if (!path.contains(new Point3D(to)))
                   path.add(to);
-               
-               //            javaFXMultiColorMeshBuilder.addSphere(0.045f, from, Color.ORANGE);
-               //            javaFXMultiColorMeshBuilder.addSphere(0.045f, to, Color.ORANGE);
-               
-               //         javaFXMultiColorMeshBuilder.addLine(new Point3D(from.getX(), from.getY(), from.getZ()), new Point3D(to.getX(), to.getY(), to.getZ()), 0.025,
-               //                                             Color.RED);
             }
-            
+
             if (!path.get(0).epsilonEquals(startpt, 1e-5))
             {
                Point3D pointOut = path.get(1);
@@ -182,9 +170,11 @@ public class NavigableRegionsManager
                path.add(0, pointOut);
             }
          }
+         else
+         {
+            System.out.println("WARNING - NO SOLUTION WAS FOUND!");
+         }
       }
-
-      //      javaFXMultiColorMeshBuilder.addSphere(0.045f, startpt, Color.ORANGE);
 
       return path;
    }
@@ -244,6 +234,11 @@ public class NavigableRegionsManager
 
    private void forceConnectionToPoint(Point3D position)
    {
+      if(debug)
+      {
+         System.out.println("Point: " + position + " is not inside a planar region - forcing connection");
+      }
+      
       Point3D tempPoint = null;
       distancePoints.clear();
 
@@ -256,18 +251,6 @@ public class NavigableRegionsManager
          distancePoints.add(point2);
       }
 
-      //      for (DefaultWeightedEdge edge : globalVisMap.edgeSet())
-      //      {
-      //         Point3D pt1 = globalVisMap.getEdgeSource(edge);
-      //         Point3D pt2 = globalVisMap.getEdgeTarget(edge);
-      //
-      //         DistancePoint point1 = new DistancePoint(pt1, pt1.distance(position));
-      //         DistancePoint point2 = new DistancePoint(pt2, pt2.distance(position));
-      //
-      //         distancePoints.add(point1);
-      //         distancePoints.add(point2);
-      //      }
-
       distancePoints.sort(new DistancePointComparator());
 
       for (int i = 0; i < 5; i++)
@@ -278,8 +261,6 @@ public class NavigableRegionsManager
             javaFXMultiColorMeshBuilder.addSphere(0.025f, dpt.point, Color.BLUE);
 
          points.add(new Connection(dpt.point, position));
-         //         globalVisMap.addVertex(dpt.point);
-         //         globalVisMap.addVertex(position);
 
          DefaultWeightedEdge edge = new DefaultWeightedEdge();
 
@@ -287,25 +268,20 @@ public class NavigableRegionsManager
          if (!dpt.point.epsilonEquals(position, 1e-5))
          {
             points.add(new Connection(dpt.point, position));
-            //            globalVisMap.addEdge(dpt.point, position, edge);
-            //            globalVisMap.setEdgeWeight(edge, dpt.point.distance(position));
-
-            //            javaFXMultiColorMeshBuilder.addLine(dpt.point, position, 0.0052, Color.YELLOW);
          }
       }
    }
 
    private void connectLocalMaps()
    {
-      //      globalVisMap = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
 
       int mapIndex = 0;
       if (listOfNavigableRegions.size() > 1)
       {
-//         System.out.println("# of navigable regions: " + listOfNavigableRegions.size());
+         //         System.out.println("# of navigable regions: " + listOfNavigableRegions.size());
          for (NavigableRegionLocalPlanner sourceLocalRegion : listOfNavigableRegions)
          {
-//            System.out.println("Map " + mapIndex + " has " + sourceLocalRegion.getLocalVisibilityGraph().edgeSet().size() + " connections");
+            //            System.out.println("Map " + mapIndex + " has " + sourceLocalRegion.getLocalVisibilityGraph().edgeSet().size() + " connections");
             mapIndex++;
          }
       }
@@ -337,12 +313,6 @@ public class NavigableRegionsManager
                         if (pt1.distance(pt2) < connectionthreshold)
                         {
                            points.add(new Connection(pt1.getPoint(), pt2.getPoint()));
-
-                           //                           globalVisMap.addVertex(pt1.getPoint());
-                           //                           globalVisMap.addVertex(pt2.getPoint());
-                           //                           DefaultWeightedEdge edge = new DefaultWeightedEdge();
-                           //                           globalVisMap.addEdge(pt1.getPoint(), pt2.getPoint(), edge);
-                           //                           globalVisMap.setEdgeWeight(edge, pt1.distance(pt2));
 
                            if (javaFXMultiColorMeshBuilder != null)
                            {
@@ -389,6 +359,39 @@ public class NavigableRegionsManager
          localRegionVisMapInWorld.setEdgeWeight(edge, pt1.distance(pt2));
 
       }
+   }
+
+   public boolean isPointInsideRegion(List<PlanarRegion> regions, Point3D point)
+   {
+      for (PlanarRegion region : regions)
+      {
+         Point2D[] homePointsArr = new Point2D[region.getConvexHull().getNumberOfVertices()];
+         for (int i = 0; i < region.getConvexHull().getNumberOfVertices(); i++)
+         {
+            Point2D point2D = (Point2D) region.getConvexHull().getVertex(i);
+            Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
+            FramePoint3D fpt = new FramePoint3D();
+            fpt.set(point3D);
+            RigidBodyTransform transToWorld = new RigidBodyTransform();
+            region.getTransformToWorld(transToWorld);
+            fpt.applyTransform(transToWorld);
+            Point3D transformedPt = fpt.getPoint();
+
+            homePointsArr[i] = new Point2D(transformedPt.getX(), transformedPt.getY());
+         }
+
+         ConvexPolygon2D homeConvexPol = new ConvexPolygon2D(homePointsArr);
+         homeConvexPol.update();
+
+         if (homeConvexPol.isPointInside(new Point2D(point.getX(), point.getY())))
+         {
+            System.out.println("POINT" + point + " IS INSIDE A REGION");
+            return true;
+         }
+      }
+      System.out.println("POINT" + point + " IS NOT INSIDE A REGION");
+
+      return false;
    }
 
    private void classifyRegions(List<PlanarRegion> regions)

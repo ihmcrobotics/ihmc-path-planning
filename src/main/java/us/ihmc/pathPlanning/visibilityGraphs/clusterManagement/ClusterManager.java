@@ -300,11 +300,11 @@ public class ClusterManager
             intersectionPoint.setY(normal2.getY() + deltaY);
          }
 
-         Vector2D normalIntersection = new Vector2D(intersectionPoint.getX() - point2.getX(), intersectionPoint.getY() - point2.getY());
-         normalIntersection.normalize();
+         Vector2D directionOfIntersectionExtrusion = new Vector2D(intersectionPoint.getX() - point2.getX(), intersectionPoint.getY() - point2.getY());
+         directionOfIntersectionExtrusion.normalize();
 
-         Point2D adjustedIntersection = new Point2D(point2.getX() + normalIntersection.getX() * (extrusionDistance),
-               point2.getY() + normalIntersection.getY() * (extrusionDistance));
+         Point2D adjustedIntersection = new Point2D(point2.getX() + directionOfIntersectionExtrusion.getX() * (extrusionDistance),
+               point2.getY() + directionOfIntersectionExtrusion.getY() * (extrusionDistance));
 
          double x1 = point1.getX() + ((point2.getX() - point1.getX()) * 0.5);
          double y1 = point1.getY() + ((point2.getY() - point1.getY()) * 0.5);

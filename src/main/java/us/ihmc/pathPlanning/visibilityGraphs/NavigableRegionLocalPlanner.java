@@ -425,7 +425,7 @@ public class NavigableRegionLocalPlanner
 
       return regionsInsideHomeRegion;
    }
-
+   
    private boolean isPartOfTheRegionInside(PlanarRegion regionToCheck, PlanarRegion containingRegion)
    {
       ArrayList<Point3D> pointsToCalculateCentroid = new ArrayList<>();
@@ -487,7 +487,7 @@ public class NavigableRegionLocalPlanner
 
       return false;
    }
-
+   
    private void classifyExtrusion(PlanarRegion regionToProject, PlanarRegion regionToProjectTo)
    {
       Vector3D normal = calculateNormal(regionToProject);
