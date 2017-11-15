@@ -494,7 +494,7 @@ public class NavigableRegionLocalPlanner
 
       if (normal != null && regionToProject != regionToProjectTo)
       {
-         if (Math.abs(normal.getZ()) < VisibilityGraphsParameters.normalZThresholdForPolygonObstacles)
+         if (Math.abs(normal.getZ()) < VisibilityGraphsParameters.NORMAL_Z_THRESHOLD_FOR_POLYGON_OBSTACLES)
          {
             lineObstacleRegions.add(regionToProject);
          }
@@ -527,7 +527,7 @@ public class NavigableRegionLocalPlanner
          Point3D projectedPoint = new Point3D();
          EuclidGeometryTools.orthogonalProjectionOnPlane3D(pointToProject, point3D, normal, projectedPoint);
 
-         if (pointToProject.distance(projectedPoint) >= VisibilityGraphsParameters.tooHighToStepDistance)
+         if (pointToProject.distance(projectedPoint) >= VisibilityGraphsParameters.TOO_HIGH_TO_STEP_DISTANCE)
          {
             return true;
          }

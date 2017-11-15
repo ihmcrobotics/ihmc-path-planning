@@ -282,7 +282,7 @@ public class NavigableRegionsManager
 
       ArrayList<Point3D> filteredList = VisibilityTools.removeDuplicatePoints(newList);
 
-      for (int i = 0; i < VisibilityGraphsParameters.numberOfForcedConnections; i++)
+      for (int i = 0; i < VisibilityGraphsParameters.NUMBER_OF_FORCED_CONNECTIONS; i++)
       {
          Point3D point = filteredList.get(i);
          DefaultWeightedEdge edge = new DefaultWeightedEdge();
@@ -336,7 +336,7 @@ public class NavigableRegionsManager
                         FramePoint3D pt2 = new FramePoint3D(targetLocalRegion.getLocalReferenceFrame(), new Point3D(targetPt.getX(), targetPt.getY(), 0));
                         pt2.changeFrame(ReferenceFrame.getWorldFrame());
 
-                        if (pt1.distance(pt2) < VisibilityGraphsParameters.minConnectionDistanceThresholdForRegions)
+                        if (pt1.distance(pt2) < VisibilityGraphsParameters.MIN_CONNECTION_DISTANCE_FOR_REGIONS)
                         {
                            connectionPoints.add(new Connection(pt1.getPoint(), pt2.getPoint()));
                            globalMapPoints.add(new Connection(pt1.getPoint(), pt2.getPoint()));
@@ -361,7 +361,7 @@ public class NavigableRegionsManager
       }
 
       NavigableRegionLocalPlanner navigableRegionLocalPlanner = new NavigableRegionLocalPlanner(javaFXMultiColorMeshBuilder, regions, region, startPos, goalPos,
-                                                                                                VisibilityGraphsParameters.extrusionDistance);
+                                                                                                VisibilityGraphsParameters.EXTRUSION_DISTANCE);
       navigableRegionLocalPlanner.processRegion();
       listOfLocalPlanners.add(navigableRegionLocalPlanner);
 
@@ -457,7 +457,7 @@ public class NavigableRegionsManager
          if (!region.isEmpty())
          {
             region.getNormal(normal);
-            if (Math.abs(normal.getZ()) < VisibilityGraphsParameters.normalZThresholdForAccessibleRegions)
+            if (Math.abs(normal.getZ()) < VisibilityGraphsParameters.NORMAL_Z_THRESHOLD_FOR_ACCESIBLE_REGIONS)
             {
                obstacleRegions.add(region);
             }
