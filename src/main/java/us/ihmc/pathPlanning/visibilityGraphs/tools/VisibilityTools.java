@@ -66,39 +66,4 @@ public class VisibilityTools
          return true;
       }
    }
-
-   public static ArrayList<Point3D> removeDuplicatePoints(ArrayList<Point3D> list)
-   {
-      ArrayList nonDuplicateList = new ArrayList();
-      ArrayList duplicateList = new ArrayList();
-
-      Iterator i1 = list.iterator();
-      //      a1.removeDuplicate
-      while (i1.hasNext())
-      {
-         Point3D point = (Point3D) i1.next();
-         if (nonDuplicateList.contains(point))
-         {
-            duplicateList.add(point);
-            i1.remove();
-         }
-         else
-         {
-            nonDuplicateList.add(point);
-         }
-      }
-
-      return nonDuplicateList;
-   }
-
-   public static void main(String args[])
-   {
-      ArrayList<Point3D> rawPoints = new ArrayList<>();
-      rawPoints.add(new Point3D());
-      rawPoints.add(new Point3D());
-      rawPoints.add(new Point3D(1, 1, 1));
-      rawPoints.add(new Point3D());
-
-      VisibilityTools.removeDuplicatePoints(rawPoints);
-   }
 }

@@ -3,6 +3,7 @@ package us.ihmc.pathPlanning.visibilityGraphs;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 import org.jgrapht.alg.DijkstraShortestPath;
@@ -100,29 +101,27 @@ public class NavigableRegionsManager
       long startConnectingTime = System.currentTimeMillis();
       connectLocalMaps();
       long endConnectingTime = System.currentTimeMillis();
-      //      System.out.println("HERE - 1 : " + globalMapPoints.size());
-      //      globalMapPoints.add(new Connection(start, goal));
-      //      connectionPoints.add(new Connection(start, goal));
-      //      System.out.println("HERE - 2: " + globalMapPoints.size());
 
       long startForcingPoints = System.currentTimeMillis();
-//      if (!isPointInsideRegion(accesibleRegions, start))
-//      {
-//         forceConnectionToPoint(startPos);
-//      }
-//      else if (isPointInsideNoGoZone(accesibleRegions, start))
-//      {
-//         forceConnectionToPoint(startPos);
-//      }
-//
-//      if (!isPointInsideRegion(accesibleRegions, goal))
-//      {
-//         forceConnectionToPoint(goalPos);
-//      }
-//      else if (isPointInsideNoGoZone(accesibleRegions, goalPos))
-//      {
-//         forceConnectionToPoint(goalPos);
-//      }
+      
+      if (!isPointInsideRegion(accesibleRegions, start))
+      {
+         forceConnectionToPoint(startPos);
+      }
+      else if (isPointInsideNoGoZone(accesibleRegions, start))
+      {
+         forceConnectionToPoint(startPos);
+      }
+
+      if (!isPointInsideRegion(accesibleRegions, goal))
+      {
+         forceConnectionToPoint(goalPos);
+      }
+      else if (isPointInsideNoGoZone(accesibleRegions, goalPos))
+      {
+         forceConnectionToPoint(goalPos);
+      }
+      
       long endForcingPoints = System.currentTimeMillis();
 
       System.out.println("So far global map has size: " + globalMapPoints.size());
@@ -276,18 +275,21 @@ public class NavigableRegionsManager
 
       distancePoints.sort(new DistancePointComparator());
 
-      ArrayList<Point3D> newList = new ArrayList<>();
+      HashSet<Point3D> filteredList = new HashSet<>();
 
       for (DistancePoint point : distancePoints)
       {
-         newList.add(point.point);
+         filteredList.add(point.point);
       }
 
-      ArrayList<Point3D> filteredList = VisibilityTools.removeDuplicatePoints(newList);
-
-      for (int i = 0; i < VisibilityGraphsParameters.NUMBER_OF_FORCED_CONNECTIONS; i++)
+//      ArrayList<Point3D> filteredList = VisibilityTools.removeDuplicatePoints(newList);
+      
+      Iterator it = filteredList.iterator();
+      
+      int index = 0;
+      while(it.hasNext() && index < VisibilityGraphsParameters.NUMBER_OF_FORCED_CONNECTIONS)
       {
-         Point3D point = filteredList.get(i);
+         Point3D point = (Point3D) it.next();
          DefaultWeightedEdge edge = new DefaultWeightedEdge();
 
          //Cannot add an edge where the source is equal to the target!
@@ -296,6 +298,7 @@ public class NavigableRegionsManager
             globalMapPoints.add(new Connection(point, position));
             connectionPoints.add(new Connection(point, position));
             connectionsAdded++;
+            index++;
          }
       }
 
