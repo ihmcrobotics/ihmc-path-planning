@@ -41,9 +41,9 @@ public class NavigableRegionsManager
    private Point3D startPos = new Point3D();
    private Point3D goalPos = new Point3D();
 
-   ArrayList<Connection> connectionPoints = new ArrayList<>();
-   ArrayList<Connection> globalMapPoints = new ArrayList<>();
-   ArrayList<DistancePoint> distancePoints = new ArrayList<>();
+   private ArrayList<Connection> connectionPoints = new ArrayList<>();
+   private ArrayList<Connection> globalMapPoints = new ArrayList<>();
+   private ArrayList<DistancePoint> distancePoints = new ArrayList<>();
 
    public NavigableRegionsManager()
    {

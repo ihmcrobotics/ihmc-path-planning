@@ -316,4 +316,36 @@ public class PlanarRegionTools
       return regionsInsideHomeRegion;
    }
    
+   public static boolean areAllPointsBelowTheRegion(PlanarRegion regionToCheck, PlanarRegion homeRegion)
+   {
+      for (int i = 0; i < homeRegion.getConvexHull().getNumberOfVertices(); i++)
+      {
+         Point2D point2D = (Point2D) homeRegion.getConvexHull().getVertex(i);
+         Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
+         FramePoint3D homeRegionPoint = new FramePoint3D();
+         homeRegionPoint.set(point3D);
+         RigidBodyTransform transToWorld = new RigidBodyTransform();
+         homeRegion.getTransformToWorld(transToWorld);
+         homeRegionPoint.applyTransform(transToWorld);
+
+         for (int j = 0; j < regionToCheck.getConvexHull().getNumberOfVertices(); j++)
+         {
+            Point2D point2D1 = (Point2D) regionToCheck.getConvexHull().getVertex(j);
+            Point3D point3D1 = new Point3D(point2D1.getX(), point2D1.getY(), 0);
+            FramePoint3D otherRegionPoint = new FramePoint3D();
+            otherRegionPoint.set(point3D1);
+            RigidBodyTransform transToWorld1 = new RigidBodyTransform();
+            regionToCheck.getTransformToWorld(transToWorld1);
+            otherRegionPoint.applyTransform(transToWorld1);
+
+            if (homeRegionPoint.getZ() + 0.1 < otherRegionPoint.getZ())
+            {
+               return false;
+            }
+         }
+      }
+
+      return true;
+   }
+   
 }
