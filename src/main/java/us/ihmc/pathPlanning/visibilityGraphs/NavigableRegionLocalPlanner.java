@@ -9,6 +9,8 @@ import java.util.List;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
+import com.esotericsoftware.kryo.NotNull;
+
 import us.ihmc.euclid.geometry.ConvexPolygon2D;
 import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
 import us.ihmc.euclid.referenceFrame.FramePoint3D;
@@ -57,6 +59,11 @@ public class NavigableRegionLocalPlanner
    public NavigableRegionLocalPlanner(JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder, List<PlanarRegion> regions, PlanarRegion homeRegion,
                                       Point3D start, Point3D goal, double extrusionDistance)
    {
+      if(start == null || goal == null)
+      {
+         throw new RuntimeException("Start and goal must be non-null");
+      }
+      
       this.javaFXMultiColorMeshBuilder = javaFXMultiColorMeshBuilder;
       this.regions.addAll(regions);
 
