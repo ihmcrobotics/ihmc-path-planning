@@ -105,7 +105,6 @@ public class VizGraphsPlanarRegionViewer
 
       RigidBodyTransform transformToWorld = new RigidBodyTransform();
 
-      double lineWidth = 0.01;
 
       for (int regionIndex = 0; regionIndex < planarRegionsList.getNumberOfPlanarRegions(); regionIndex++)
       {
@@ -115,7 +114,7 @@ public class VizGraphsPlanarRegionViewer
          Color regionColor = getRegionColor(regionId);
          planarRegion.getTransformToWorld(transformToWorld);
 
-         meshBuilder.addMultiLine(transformToWorld, planarRegion.getConcaveHull(), lineWidth, regionColor, true);
+         meshBuilder.addMultiLine(transformToWorld, planarRegion.getConcaveHull(), VisualizationParameters.CONCAVEHULL_LINE_THICKNESS, regionColor, true);
 
          for (int polygonIndex = 0; polygonIndex < planarRegion.getNumberOfConvexPolygons(); polygonIndex++)
          {

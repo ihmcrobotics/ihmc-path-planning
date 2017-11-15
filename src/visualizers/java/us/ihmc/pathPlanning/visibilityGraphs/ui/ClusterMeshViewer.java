@@ -39,9 +39,6 @@ public class ClusterMeshViewer extends AnimationTimer
    private final AtomicReference<Boolean> showNonNavigableExtrusions;
    private final AtomicReference<Boolean> closeNonNavigableExtrusions;
 
-   private final double rawPointsSize = 0.05;
-   private final double lineWidth = 0.005;
-
    public ClusterMeshViewer(REAMessager messager)
    {
       resetRequested = messager.createInput(UIVisibilityGraphsTopics.GlobalReset, false);
@@ -174,9 +171,11 @@ public class ClusterMeshViewer extends AnimationTimer
          for (Cluster cluster : clusters)
          {
             for (Point3D rawPoint : cluster.getRawPointsInWorld())
-               rawPointsMeshBuilder.addTetrahedron(rawPointsSize, rawPoint);
-            navigableExtrusionsMeshBuilder.addMultiLine(cluster.getNavigableExtrusionsInWorld(), lineWidth, closeNavigableExtrusions.get());
-            nonNavigableExtrusionsMeshBuilder.addMultiLine(cluster.getNonNavigableExtrusionsInWorld(), lineWidth, closeNonNavigableExtrusions.get());
+               rawPointsMeshBuilder.addTetrahedron(VisualizationParameters.CLUSTER_RAWPOINT_SIZE, rawPoint);
+            navigableExtrusionsMeshBuilder.addMultiLine(cluster.getNavigableExtrusionsInWorld(), VisualizationParameters.NAVIGABLECLUSTER_LINE_THICKNESS,
+                                                        closeNavigableExtrusions.get());
+            nonNavigableExtrusionsMeshBuilder.addMultiLine(cluster.getNonNavigableExtrusionsInWorld(), VisualizationParameters.NON_NAVIGABLECLUSTER_LINE_THICKNESS,
+                                                           closeNonNavigableExtrusions.get());
          }
 
          materials.put(regionId, new PhongMaterial(getLineColor(regionId)));

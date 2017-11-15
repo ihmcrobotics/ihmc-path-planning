@@ -20,7 +20,6 @@ public class BodyPathMeshViewer extends AnimationTimer
    private static final boolean VERBOSE = true;
 
    private final MeshView bodyPathMeshView = new MeshView();
-   private final double bodyPathLineThickness = 0.005;
 
    private final AtomicReference<Mesh> bodyPathMeshToRender = new AtomicReference<>(null);
    private Mesh bodyPathMeshRendered = null;
@@ -56,7 +55,7 @@ public class BodyPathMeshViewer extends AnimationTimer
       if (VERBOSE)
          PrintTools.info(this, "Building mesh for body path.");
       JavaFXMeshBuilder meshBuilder = new JavaFXMeshBuilder();
-      meshBuilder.addMultiLine(bodyPath, bodyPathLineThickness, false);
+      meshBuilder.addMultiLine(bodyPath, VisualizationParameters.BODYPATH_LINE_THICKNESS, false);
       bodyPathMeshToRender.set(meshBuilder.generateMesh());
    }
 

@@ -35,8 +35,6 @@ public class NavigableRegionInnerVizMapMeshViewer extends AnimationTimer
    private final AtomicReference<Boolean> resetRequested;
    private final AtomicReference<Boolean> show;
 
-   private final double lineWidth = 0.0025;
-
    public NavigableRegionInnerVizMapMeshViewer(REAMessager messager)
    {
       this.messager = messager;
@@ -108,7 +106,7 @@ public class NavigableRegionInnerVizMapMeshViewer extends AnimationTimer
          {
             Point3D edgeSource = toWorld(localVisibilityGraph.getEdgeSource(edge), transformToWorld);
             Point3D edgeTarget = toWorld(localVisibilityGraph.getEdgeTarget(edge), transformToWorld);
-            meshBuilder.addLine(edgeSource, edgeTarget, lineWidth);
+            meshBuilder.addLine(edgeSource, edgeTarget, VisualizationParameters.VISBILITYMAP_LINE_THICKNESS);
          }
 
          materials.put(regionId, new PhongMaterial(getLineColor(regionId)));
@@ -132,7 +130,7 @@ public class NavigableRegionInnerVizMapMeshViewer extends AnimationTimer
 
       for (Connection connection : navigableRegionsManager.getGlobalMapPoints())
       {
-         meshBuilder.addLine(connection.getPoint1(), connection.getPoint2(), lineWidth);
+         meshBuilder.addLine(connection.getPoint1(), connection.getPoint2(), VisualizationParameters.VISBILITYMAP_LINE_THICKNESS);
       }
       
       HashMap<Integer, MeshView> regionVisMapToRender = new HashMap<>();

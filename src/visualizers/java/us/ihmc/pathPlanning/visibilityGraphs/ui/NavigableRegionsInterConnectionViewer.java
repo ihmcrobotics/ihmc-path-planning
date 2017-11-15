@@ -21,7 +21,6 @@ public class NavigableRegionsInterConnectionViewer extends AnimationTimer
    private static final boolean VERBOSE = true;
 
    private final MeshView connectionsMeshView = new MeshView();
-   private final double connectionsLineThickness = 0.005;
 
    private final AtomicReference<Mesh> connectionsMeshToRender = new AtomicReference<>(null);
    private Mesh connectionsMeshRendered = null;
@@ -63,10 +62,10 @@ public class NavigableRegionsInterConnectionViewer extends AnimationTimer
       if (VERBOSE)
          PrintTools.info(this, "Building mesh for inter-connections.");
       JavaFXMeshBuilder meshBuilder = new JavaFXMeshBuilder();
-      
+
       List<Connection> connections = navigableRegionsManager.getConnectionPoints();
       for (Connection connection : connections)
-         meshBuilder.addLine(connection.getPoint1(), connection.getPoint2(), connectionsLineThickness);
+         meshBuilder.addLine(connection.getPoint1(), connection.getPoint2(), VisualizationParameters.INTER_REGION_CONNECTIVITY_LINE_THICKNESS);
       connectionsMeshToRender.set(meshBuilder.generateMesh());
    }
 
