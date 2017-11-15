@@ -76,6 +76,7 @@ public class NavigableRegionsManager
 
       //      goal = new Point3D(-3, -3, 0);
 
+      long startCreatingMaps = System.currentTimeMillis();
       listOfLocalPlanners.clear();
       visMaps.clear();
       accesibleRegions.clear();
@@ -88,39 +89,23 @@ public class NavigableRegionsManager
       {
          createVisibilityGraphForRegion(region, startPos, goalPos);
       }
-
-      for (NavigableRegionLocalPlanner navigableRegion : getListOfLocalPlanners())
-      {
-         if (navigableRegion.isPointInsideTheRegion(startPos))
-         {
-            //            System.out.println("Start point is inside a region");
-            break;
-         }
-      }
-
-      for (NavigableRegionLocalPlanner navigableRegion : getListOfLocalPlanners())
-      {
-         if (navigableRegion.isPointInsideTheRegion(goalPos))
-         {
-            //            System.out.println("Goal point is inside a region");
-            break;
-         }
-      }
+      
+      long endCreationTime = System.currentTimeMillis();
 
       connectionPoints.clear();
       globalMapPoints.clear();
 
       createGlobalMap();
       
-      long start1 = System.currentTimeMillis();
+      long startConnectingTime = System.currentTimeMillis();
       connectLocalMaps();
-      System.out.println("Connection completed in " + (System.currentTimeMillis() - start1) + "ms");
+      long endConnectingTime = System.currentTimeMillis();
       //      System.out.println("HERE - 1 : " + globalMapPoints.size());
       //      globalMapPoints.add(new Connection(start, goal));
       //      connectionPoints.add(new Connection(start, goal));
       //      System.out.println("HERE - 2: " + globalMapPoints.size());
 
-      long start2 = System.currentTimeMillis();
+      long startForcingPoints = System.currentTimeMillis();
 //      if (!isPointInsideRegion(accesibleRegions, start))
 //      {
 //         forceConnectionToPoint(startPos);
@@ -138,13 +123,12 @@ public class NavigableRegionsManager
 //      {
 //         forceConnectionToPoint(goalPos);
 //      }
-      
-      System.out.println("Forcing points took: " + (System.currentTimeMillis() - start2) + "ms");
+      long endForcingPoints = System.currentTimeMillis();
 
       System.out.println("So far global map has size: " + globalMapPoints.size());
 
       
-      long start3 = System.currentTimeMillis();
+      long startGlobalMapTime = System.currentTimeMillis();
       globalVisMap = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
 
       int actualConnectionsAdded = 0;
@@ -162,8 +146,8 @@ public class NavigableRegionsManager
             actualConnectionsAdded++;
          }
       }
+      long endGlobalMapTime = System.currentTimeMillis();
       
-      System.out.println("Global Map creation took " + (System.currentTimeMillis() - start3) + "ms");
 
 //      System.out.println(globalVisMap.containsVertex(globalMapPoints.get(globalMapPoints.size() - 1).point1));
 //      System.out.println(globalVisMap.containsVertex(globalMapPoints.get(globalMapPoints.size() - 1).point2));
@@ -171,14 +155,12 @@ public class NavigableRegionsManager
 //                                                   globalMapPoints.get(globalMapPoints.size() - 1).point2));
       System.out.println("Actual connections added: " + actualConnectionsAdded);
 
-      long start4 = System.currentTimeMillis();
+      long startSnappingTime = System.currentTimeMillis();
       Point3D goalPt = getSnappedPointFromMap(goalPos);
       Point3D startpt = getSnappedPointFromMap(startPos);
+      long endSnappingTime = System.currentTimeMillis();
 
-      System.out.println("Snapping points took " + (System.currentTimeMillis() - start4) + "ms");
-      
-
-      long start5 = System.currentTimeMillis();
+      long aStarStartTime = System.currentTimeMillis();
       if (goalPt != null && startpt != null)
       {
          pathLength = 0.0;
@@ -213,10 +195,13 @@ public class NavigableRegionsManager
             System.out.println("WARNING - NO SOLUTION WAS FOUND!");
          }
       }
-      
-      System.out.println("A* took " + (System.currentTimeMillis() - start5) + "ms");
-      
-      System.out.println("Solution was found in " + (System.currentTimeMillis() - startBodyPathComputation) + "ms");
+      System.out.println("Map creation completed in " + (endCreationTime - startCreatingMaps) + "ms");
+      System.out.println("Connection completed in " + (endConnectingTime - startConnectingTime) + "ms");
+      System.out.println("Forcing points took: " + (endForcingPoints - startForcingPoints) + "ms");
+      System.out.println("Global Map creation took " + (endGlobalMapTime - startGlobalMapTime) + "ms");
+      System.out.println("Snapping points took: " + (endSnappingTime - startSnappingTime) + "ms");
+      System.out.println("A* took: " + (System.currentTimeMillis() - aStarStartTime) + "ms");
+      System.out.println("Total time to find solution was: " + (System.currentTimeMillis() - startBodyPathComputation) + "ms");
 
       return path;
    }
