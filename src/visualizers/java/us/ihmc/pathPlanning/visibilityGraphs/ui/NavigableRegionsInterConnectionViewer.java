@@ -26,9 +26,11 @@ public class NavigableRegionsInterConnectionViewer extends AnimationTimer
    private final AtomicReference<Mesh> connectionsMeshToRender = new AtomicReference<>(null);
    private Mesh connectionsMeshRendered = null;
    private final AtomicReference<Boolean> resetRequested;
+   private NavigableRegionsManager navigableRegionsManager;
 
-   public NavigableRegionsInterConnectionViewer(REAMessager messager)
+   public NavigableRegionsInterConnectionViewer(REAMessager messager, NavigableRegionsManager navigableRegionsManager)
    {
+      this.navigableRegionsManager = navigableRegionsManager;
       connectionsMeshView.setMouseTransparent(true);
       connectionsMeshView.setMaterial(new PhongMaterial(Color.CRIMSON));
 
@@ -49,16 +51,20 @@ public class NavigableRegionsInterConnectionViewer extends AnimationTimer
       if (!show)
          connectionsMeshView.setMesh(null);
       else
+      {
+         processInterConnections(navigableRegionsManager);
+
          connectionsMeshView.setMesh(connectionsMeshRendered);
+      }
    }
 
-   public void processBodyPath(NavigableRegionsManager navigableRegionsManager)
+   public void processInterConnections(NavigableRegionsManager navigableRegionsManager)
    {
       if (VERBOSE)
          PrintTools.info(this, "Building mesh for inter-connections.");
       JavaFXMeshBuilder meshBuilder = new JavaFXMeshBuilder();
-
-      List<Connection> connections = navigableRegionsManager.getPoints();
+      
+      List<Connection> connections = navigableRegionsManager.getConnectionPoints();
       for (Connection connection : connections)
          meshBuilder.addLine(connection.getPoint1(), connection.getPoint2(), connectionsLineThickness);
       connectionsMeshToRender.set(meshBuilder.generateMesh());

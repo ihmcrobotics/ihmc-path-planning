@@ -20,7 +20,9 @@ import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.javaFXToolkit.shapes.JavaFXMeshBuilder;
+import us.ihmc.pathPlanning.visibilityGraphs.Connection;
 import us.ihmc.pathPlanning.visibilityGraphs.NavigableRegionLocalPlanner;
+import us.ihmc.pathPlanning.visibilityGraphs.NavigableRegionsManager;
 import us.ihmc.robotEnvironmentAwareness.communication.REAMessager;
 
 public class NavigableRegionInnerVizMapMeshViewer extends AnimationTimer
@@ -122,6 +124,23 @@ public class NavigableRegionInnerVizMapMeshViewer extends AnimationTimer
       }
 
       regionVisMapToRenderReference.set(regionVisMapToRender);
+   }
+
+   public void processGlobalMap(NavigableRegionsManager navigableRegionsManager)
+   {
+      JavaFXMeshBuilder meshBuilder = new JavaFXMeshBuilder();
+
+      for (Connection connection : navigableRegionsManager.getGlobalMapPoints())
+      {
+         meshBuilder.addLine(connection.getPoint1(), connection.getPoint2(), lineWidth);
+      }
+      
+      HashMap<Integer, MeshView> regionVisMapToRender = new HashMap<>();
+      MeshView meshView = new MeshView(meshBuilder.generateMesh());
+      meshView.setMaterial(new PhongMaterial(getLineColor(50)));
+      regionVisMapToRender.put(50, meshView);
+      regionVisMapToRenderReference.set(regionVisMapToRender);
+
    }
 
    private Color getLineColor(int regionId)

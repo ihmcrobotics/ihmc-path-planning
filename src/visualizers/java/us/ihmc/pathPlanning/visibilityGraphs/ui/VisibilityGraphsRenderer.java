@@ -35,6 +35,8 @@ public class VisibilityGraphsRenderer
    private final NavigableRegionInnerVizMapMeshViewer navigableRegionInnerVizMapMeshViewer;
    private final NavigableRegionsInterConnectionViewer navigableRegionsInterConnectionViewer;
    private final ClusterMeshViewer clusterMeshViewer;
+   
+   private NavigableRegionsManager navigableRegionsManager;
 
    public VisibilityGraphsRenderer(REAMessager messager)
    {
@@ -44,14 +46,18 @@ public class VisibilityGraphsRenderer
 
       messager.registerTopicListener(UIVisibilityGraphsTopics.VisibilityGraphsComputePath, request -> computePathOnThread());
 
+      navigableRegionsManager = new NavigableRegionsManager();
+      
       bodyPathMeshViewer = new BodyPathMeshViewer(messager);
       root.getChildren().add(bodyPathMeshViewer.getRoot());
       navigableRegionInnerVizMapMeshViewer = new NavigableRegionInnerVizMapMeshViewer(messager);
       root.getChildren().add(navigableRegionInnerVizMapMeshViewer.getRoot());
-      navigableRegionsInterConnectionViewer = new NavigableRegionsInterConnectionViewer(messager);
+      navigableRegionsInterConnectionViewer = new NavigableRegionsInterConnectionViewer(messager, navigableRegionsManager);
       root.getChildren().add(navigableRegionsInterConnectionViewer.getRoot());
       clusterMeshViewer = new ClusterMeshViewer(messager);
       root.getChildren().add(clusterMeshViewer.getRoot());
+      
+      
    }
 
    public void clear()
@@ -66,6 +72,7 @@ public class VisibilityGraphsRenderer
       bodyPathMeshViewer.start();
       navigableRegionInnerVizMapMeshViewer.start();
       clusterMeshViewer.start();
+      navigableRegionsInterConnectionViewer.start();
    }
 
    public void stop()
@@ -73,6 +80,7 @@ public class VisibilityGraphsRenderer
       bodyPathMeshViewer.stop();
       navigableRegionInnerVizMapMeshViewer.start();
       clusterMeshViewer.stop();
+      navigableRegionsInterConnectionViewer.stop();
       executorService.shutdownNow();
    }
 
@@ -105,13 +113,15 @@ public class VisibilityGraphsRenderer
       {
          List<PlanarRegion> planarRegions = planarRegionsList.getPlanarRegionsAsList();
          planarRegions = planarRegions.stream().filter(region -> region.getConcaveHullSize() > 2).collect(Collectors.toList());
-         NavigableRegionsManager navigableRegionsManager = new NavigableRegionsManager(planarRegions);
+//         navigableRegionsManager = new NavigableRegionsManager(planarRegions);
+         navigableRegionsManager.setPlanarRegions(planarRegions);
          navigableRegionsManagerReference.set(navigableRegionsManager);
 
          List<Point3D> bodyPath = navigableRegionsManager.calculateBodyPath(start, goal);
          bodyPathReference.set(bodyPath);
          bodyPathMeshViewer.processBodyPath(bodyPath);
          navigableRegionInnerVizMapMeshViewer.processNavigableRegions(navigableRegionsManager.getListOfLocalPlanners());
+
          clusterMeshViewer.processNavigableRegions(navigableRegionsManager.getListOfLocalPlanners());
       }
       catch (Exception e)

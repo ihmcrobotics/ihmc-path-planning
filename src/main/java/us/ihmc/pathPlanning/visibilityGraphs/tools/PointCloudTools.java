@@ -414,6 +414,7 @@ public class PointCloudTools
             ConvexPolygon2D convexPolygon = new ConvexPolygon2D(cluster1.getRawPointsInLocal());
 
             PlanarRegion planarRegion = new PlanarRegion(cluster1.getTransformToWorld(), convexPolygon);
+            
 
             regions.add(planarRegion);
          }

@@ -25,9 +25,9 @@
          </rowConstraints>
          <children>
             <Button fx:id="computePathButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#computePath" text="Compute path" />
-            <ToggleButton fx:id="showLocalGraphsToggleButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" selected="true" text="Show local graphs" GridPane.rowIndex="1" />
+            <ToggleButton fx:id="showLocalGraphsToggleButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Show local graphs" GridPane.rowIndex="1" />
             <ToggleButton fx:id="showBodyPathToggleButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" selected="true" text="Show body path" GridPane.rowIndex="2" />
-            <ToggleButton fx:id="showInterConnectionsToggleButton" mnemonicParsing="false" selected="true" text="Show inter-connections" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <ToggleButton fx:id="showInterConnectionsToggleButton" mnemonicParsing="false" text="Show inter-connections" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             <ToggleButton fx:id="showPlanarRegionsToggleButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" selected="true" text="Show planar regions" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <ToggleButton fx:id="showClusterRawPointsToggleButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Show cluster raw points" GridPane.columnIndex="2" GridPane.rowIndex="1" />
             <ToggleButton fx:id="showClusterNavigableExtrusionsToggleButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Show navigable extrusions" GridPane.columnIndex="2" GridPane.rowIndex="2" />

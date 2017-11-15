@@ -39,9 +39,13 @@ public class NavigableRegionsManager
    private Point3D goalPos = new Point3D();
    double connectionthreshold = 0.1;
 
+   ArrayList<Connection> connectionPoints = new ArrayList<>();
    ArrayList<Connection> globalMapPoints = new ArrayList<>();
-
    ArrayList<DistancePoint> distancePoints = new ArrayList<>();
+
+   public NavigableRegionsManager()
+   {
+   }
 
    public NavigableRegionsManager(List<PlanarRegion> regions)
    {
@@ -59,15 +63,17 @@ public class NavigableRegionsManager
       this.javaFXMultiColorMeshBuilder = javaFXMultiColorMeshBuilder;
    }
 
-   public void setPlanarRegions(ArrayList<PlanarRegion> regions)
+   public void setPlanarRegions(List<PlanarRegion> regions)
    {
       this.regions = regions;
    }
 
    public List<Point3D> calculateBodyPath(Point3D start, Point3D goal)
    {
-//            start = new Point3D(10,10,0);
-//            goal = new Point3D(10,0,0);
+      //      start = new Point3D(10, 10, 0);
+      goal = new Point3D(10, 10, 0);
+
+      //      goal = new Point3D(-3, -3, 0);
 
       this.startPos = start;
       this.goalPos = goal;
@@ -96,6 +102,7 @@ public class NavigableRegionsManager
          }
       }
 
+      connectionPoints.clear();
       globalMapPoints.clear();
       connectLocalMaps();
       createGlobalMap();
@@ -123,17 +130,6 @@ public class NavigableRegionsManager
             DefaultWeightedEdge edge = new DefaultWeightedEdge();
             globalVisMap.addEdge(pt1, pt2, edge);
             globalVisMap.setEdgeWeight(edge, pt1.distance(pt2));
-         }
-      }
-
-      for (DefaultWeightedEdge edge : globalVisMap.edgeSet())
-      {
-         Point3D pt1 = globalVisMap.getEdgeSource(edge);
-         Point3D pt2 = globalVisMap.getEdgeTarget(edge);
-
-         if (javaFXMultiColorMeshBuilder != null)
-         {
-            javaFXMultiColorMeshBuilder.addLine(pt1, pt2, 0.0052, Color.CYAN);
          }
       }
 
@@ -254,14 +250,14 @@ public class NavigableRegionsManager
       }
 
       distancePoints.sort(new DistancePointComparator());
-      
+
       ArrayList<Point3D> newList = new ArrayList<>();
-      
-      for(DistancePoint point : distancePoints)
+
+      for (DistancePoint point : distancePoints)
       {
          newList.add(point.point);
       }
-      
+
       ArrayList<Point3D> filteredList = VisibilityTools.removeDuplicatePoints(newList);
 
       for (int i = 0; i < 5; i++)
@@ -273,6 +269,7 @@ public class NavigableRegionsManager
          if (!point.epsilonEquals(position, 1e-5))
          {
             globalMapPoints.add(new Connection(point, position));
+            connectionPoints.add(new Connection(point, position));
          }
       }
    }
@@ -317,6 +314,7 @@ public class NavigableRegionsManager
 
                         if (pt1.distance(pt2) < connectionthreshold)
                         {
+                           connectionPoints.add(new Connection(pt1.getPoint(), pt2.getPoint()));
                            globalMapPoints.add(new Connection(pt1.getPoint(), pt2.getPoint()));
 
                            if (javaFXMultiColorMeshBuilder != null)
@@ -513,14 +511,14 @@ public class NavigableRegionsManager
       return obstacleRegions;
    }
 
-   public ArrayList<Connection> getPoints()
+   public ArrayList<Connection> getGlobalMapPoints()
    {
       return globalMapPoints;
    }
-
-   public void setPoints(ArrayList<Connection> points)
+   
+   public ArrayList<Connection> getConnectionPoints()
    {
-      this.globalMapPoints = points;
+      return connectionPoints;
    }
 
    private class DistancePoint implements Comparable<DistancePoint>
