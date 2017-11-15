@@ -111,32 +111,40 @@ public class NavigableRegionsManager
       globalMapPoints.clear();
 
       createGlobalMap();
+      
+      long start1 = System.currentTimeMillis();
       connectLocalMaps();
+      System.out.println("Connection completed in " + (System.currentTimeMillis() - start1) + "ms");
       //      System.out.println("HERE - 1 : " + globalMapPoints.size());
       //      globalMapPoints.add(new Connection(start, goal));
       //      connectionPoints.add(new Connection(start, goal));
       //      System.out.println("HERE - 2: " + globalMapPoints.size());
 
-      if (!isPointInsideRegion(accesibleRegions, start))
-      {
-         forceConnectionToPoint(startPos);
-      }
-      else if (isPointInsideNoGoZone(accesibleRegions, start))
-      {
-         forceConnectionToPoint(startPos);
-      }
-
-      if (!isPointInsideRegion(accesibleRegions, goal))
-      {
-         forceConnectionToPoint(goalPos);
-      }
-      else if (isPointInsideNoGoZone(accesibleRegions, goalPos))
-      {
-         forceConnectionToPoint(goalPos);
-      }
+      long start2 = System.currentTimeMillis();
+//      if (!isPointInsideRegion(accesibleRegions, start))
+//      {
+//         forceConnectionToPoint(startPos);
+//      }
+//      else if (isPointInsideNoGoZone(accesibleRegions, start))
+//      {
+//         forceConnectionToPoint(startPos);
+//      }
+//
+//      if (!isPointInsideRegion(accesibleRegions, goal))
+//      {
+//         forceConnectionToPoint(goalPos);
+//      }
+//      else if (isPointInsideNoGoZone(accesibleRegions, goalPos))
+//      {
+//         forceConnectionToPoint(goalPos);
+//      }
+      
+      System.out.println("Forcing points took: " + (System.currentTimeMillis() - start2) + "ms");
 
       System.out.println("So far global map has size: " + globalMapPoints.size());
 
+      
+      long start3 = System.currentTimeMillis();
       globalVisMap = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
 
       int actualConnectionsAdded = 0;
@@ -154,6 +162,8 @@ public class NavigableRegionsManager
             actualConnectionsAdded++;
          }
       }
+      
+      System.out.println("Global Map creation took " + (System.currentTimeMillis() - start3) + "ms");
 
 //      System.out.println(globalVisMap.containsVertex(globalMapPoints.get(globalMapPoints.size() - 1).point1));
 //      System.out.println(globalVisMap.containsVertex(globalMapPoints.get(globalMapPoints.size() - 1).point2));
@@ -161,9 +171,14 @@ public class NavigableRegionsManager
 //                                                   globalMapPoints.get(globalMapPoints.size() - 1).point2));
       System.out.println("Actual connections added: " + actualConnectionsAdded);
 
+      long start4 = System.currentTimeMillis();
       Point3D goalPt = getSnappedPointFromMap(goalPos);
       Point3D startpt = getSnappedPointFromMap(startPos);
 
+      System.out.println("Snapping points took " + (System.currentTimeMillis() - start4) + "ms");
+      
+
+      long start5 = System.currentTimeMillis();
       if (goalPt != null && startpt != null)
       {
          pathLength = 0.0;
@@ -198,6 +213,8 @@ public class NavigableRegionsManager
             System.out.println("WARNING - NO SOLUTION WAS FOUND!");
          }
       }
+      
+      System.out.println("A* took " + (System.currentTimeMillis() - start5) + "ms");
       
       System.out.println("Solution was found in " + (System.currentTimeMillis() - startBodyPathComputation) + "ms");
 
