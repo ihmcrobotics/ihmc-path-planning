@@ -71,7 +71,6 @@ public class Example_TestExtrusionTypes extends Application
       //      }
 
       ClusterManager clusterMgr = new ClusterManager();
-      clusterMgr.setVis(javaFXMultiColorMeshBuilder);
 
       //      Cluster cluster = new Cluster();
       //      clusterMgr.addCluster(cluster);

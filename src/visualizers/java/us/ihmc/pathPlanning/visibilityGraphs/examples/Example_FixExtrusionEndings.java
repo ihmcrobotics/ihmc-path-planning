@@ -73,7 +73,6 @@ public class Example_FixExtrusionEndings extends Application
       //      }
 
       clusterMgr = new ClusterManager();
-      clusterMgr.setVis(javaFXMultiColorMeshBuilder);
 
       createClosedSquare_InsideExtrusion();
       createClosedSquare_OutsideExtrusion();

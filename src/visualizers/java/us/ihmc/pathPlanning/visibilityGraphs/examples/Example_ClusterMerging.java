@@ -61,7 +61,6 @@ public class Example_ClusterMerging extends Application
       javaFXMultiColorMeshBuilder = new JavaFXMultiColorMeshBuilder(colorPalette);
 
       clusterMgr = new ClusterManager();
-      clusterMgr.setVis(javaFXMultiColorMeshBuilder);
 
       createClosedSquare_OutsideExtrusion();
       createLine_Extrusion();

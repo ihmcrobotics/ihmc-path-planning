@@ -52,7 +52,6 @@ public class TestVisibilityGraphs_Connectivity extends Application
       JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder = new JavaFXMultiColorMeshBuilder(colorPalette);
 
       ClusterManager clusterMgr = new ClusterManager();
-      clusterMgr.setVis(javaFXMultiColorMeshBuilder);
 
       //      Cluster cluster = new Cluster();
       //      clusterMgr.addCluster(cluster);

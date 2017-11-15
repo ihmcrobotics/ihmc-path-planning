@@ -12,6 +12,7 @@ import us.ihmc.javaFXToolkit.shapes.TextureColorAdaptivePalette;
 import us.ihmc.javaFXToolkit.shapes.TextureColorPalette;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterManager;
+import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterTools;
 
 public class TestClusterMgr_FirstVisibleNormal extends Application
 {
@@ -35,8 +36,8 @@ public class TestClusterMgr_FirstVisibleNormal extends Application
       ClusterManager clusterMgr = new ClusterManager();
       clusterMgr.addCluster(cluster);
 
-      clusterMgr.generateNormalsFromRawBoundaryMap(0.25);
-      int i = clusterMgr.determineExtrusionSide(cluster, new Point2D(0, 0));
+      ClusterTools.generateNormalsFromRawBoundaryMap(0.25, clusterMgr.getClusters());
+      int i = ClusterTools.determineExtrusionSide(cluster, new Point2D(0, 0));
 
       javaFXMultiColorMeshBuilder.addSphere(0.1f, new Point3D(), Color.GREEN);
 

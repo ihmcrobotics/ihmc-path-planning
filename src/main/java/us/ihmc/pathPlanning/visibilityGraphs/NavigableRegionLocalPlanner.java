@@ -122,7 +122,6 @@ public class NavigableRegionLocalPlanner
       createClusterForHomeRegion();
 
       clusterMgr = new ClusterManager();
-      clusterMgr.setVis(javaFXMultiColorMeshBuilder);
       for (Cluster cluster : clusters)
       {
          clusterMgr.addCluster(cluster);
@@ -423,16 +422,6 @@ public class NavigableRegionLocalPlanner
          regionToCheck.getTransformToWorld(transToWorld);
          fpt.applyTransform(transToWorld);
 
-         //         javaFXMultiColorMeshBuilder.addSphere(0.05f, new Point3D(fpt.getX(), fpt.getY(), fpt.getZ()), Color.YELLOW);
-
-         //         if (fpt.getPoint().getZ() < centroidOfHomeRegion.getZ())
-         //         {
-         //            return false;
-         //         }
-         //
-         //         if (fpt.getZ() > centroidOfHomeRegion.getZ() && fpt.getZ() < (centroidOfHomeRegion.getZ() + 1.5))
-         //         {
-         //            //            System.out.println("Region is higher that home region and atlas");
          Point3D pointToProject = fpt.getPoint();
          Point3D projectedPointFromOtherRegion = new Point3D();
 
@@ -502,11 +491,6 @@ public class NavigableRegionLocalPlanner
       Vector3D normal = calculateNormal(regionToProjectTo);
       Point2D point2D = (Point2D) regionToProjectTo.getConvexHull().getVertex(0);
       Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
-      //      FramePoint3D fpt = new FramePoint3D();
-      //      fpt.set(point3D);
-      //      RigidBodyTransform transToWorld = new RigidBodyTransform();
-      //      regionToProjectTo.getTransformToWorld(transToWorld);
-      //      fpt.applyTransform(transToWorld);
 
       Point3D projectedPoint = new Point3D();
       if (!EuclidGeometryTools.orthogonalProjectionOnPlane3D(pointToProject, point3D, normal, projectedPoint))
@@ -516,187 +500,16 @@ public class NavigableRegionLocalPlanner
       return projectedPoint;
    }
 
-   //   private void classifyRegions(ArrayList<PlanarRegion> regions)
-   //   {
-   //      for (PlanarRegion region : regions)
-   //      {
-   //         Vector3D normal = calculateNormal(region);
-   //
-   //         if (normal != null)
-   //         {
-   //            if (Math.abs(normal.getZ()) <= 0.98) //0.98
-   //            {
-   //               obstacleRegions.add(region);
-   //            }
-   //            else
-   //            {
-   //               accesibleRegions.add(region);
-   //            }
-   //         }
-   //      }
-   //   }
-
    private Vector3D calculateNormal(PlanarRegion region)
    {
       Vector3D normal = new Vector3D();
       region.getNormal(normal);
       return normal;
-
-//      if (!region.getConvexHull().isEmpty())
-//      {
-//         FramePoint3D fpt1 = new FramePoint3D();
-//         fpt1.set(new Point3D(region.getConvexHull().getVertex(0).getX(), region.getConvexHull().getVertex(0).getY(), 0));
-//         RigidBodyTransform trans = new RigidBodyTransform();
-//         region.getTransformToWorld(trans);
-//         fpt1.applyTransform(trans);
-//
-//         FramePoint3D fpt2 = new FramePoint3D();
-//         fpt2.set(new Point3D(region.getConvexHull().getVertex(1).getX(), region.getConvexHull().getVertex(1).getY(), 0));
-//         fpt2.applyTransform(trans);
-//
-//         FramePoint3D fpt3 = new FramePoint3D();
-//         fpt3.set(new Point3D(region.getConvexHull().getVertex(2).getX(), region.getConvexHull().getVertex(2).getY(), 0));
-//         fpt3.applyTransform(trans);
-//
-//         Vector3D normal = EuclidGeometryTools.normal3DFromThreePoint3Ds(fpt1.getPoint(), fpt2.getPoint(), fpt3.getPoint());
-//         return normal;
-//      }
-//      return null;
    }
 
    public int getRegionId()
    {
       return homeRegion.getRegionId();
-   }
-
-   @Deprecated
-   public ArrayList<Point3D> loadPointCloudFromFile(String fileName)
-   {
-      ArrayList<Cluster> clusters = new ArrayList<>();
-      BufferedReader br = null;
-      FileReader fr = null;
-
-      try
-      {
-
-         //br = new BufferedReader(new FileReader(FILENAME));
-         fr = new FileReader(fileName);
-         br = new BufferedReader(fr);
-
-         String sCurrentLine;
-
-         double averageX = 0.0;
-         double averageY = 0.0;
-         double averageZ = 0.0;
-
-         int index = 0;
-
-         Cluster cluster = new Cluster();
-         int nPacketsRead = 0;
-
-         ArrayList<Point3D> pointsTemp = new ArrayList<>();
-
-         while ((sCurrentLine = br.readLine()) != null)
-         {
-            //            System.out.println(sCurrentLine);
-
-            if (sCurrentLine.contains("PR_"))
-            {
-               if (!pointsTemp.isEmpty())
-               {
-                  cluster.addRawPointsInWorld(pointsTemp, true);
-                  pointsTemp.clear();
-               }
-
-               cluster = new Cluster();
-               clusters.add(cluster);
-               nPacketsRead++;
-               //               System.out.println("New cluster created");
-            }
-
-            else if (sCurrentLine.contains("RBT,"))
-            {
-               //               System.out.println("Transformation read");
-               sCurrentLine = sCurrentLine.substring(sCurrentLine.indexOf(",") + 1, sCurrentLine.length());
-
-               sCurrentLine = sCurrentLine.replace("(", "");
-               sCurrentLine = sCurrentLine.replace(")", "");
-
-               String[] points = sCurrentLine.split(",");
-
-               float x = (float) Double.parseDouble(points[0]);
-               float y = (float) Double.parseDouble(points[1]);
-               float z = (float) Double.parseDouble(points[2]);
-               Vector3D translation = new Vector3D(x, y, z);
-
-               float qx = (float) Double.parseDouble(points[3]);
-               float qy = (float) Double.parseDouble(points[4]);
-               float qz = (float) Double.parseDouble(points[5]);
-               float qs = (float) Double.parseDouble(points[6]);
-               Quaternion quat = new Quaternion(qx, qy, qz, qs);
-
-               RigidBodyTransform rigidBodyTransform = new RigidBodyTransform(quat, translation);
-               cluster.setTransformToWorld(rigidBodyTransform);
-            }
-            else
-            {
-               //               System.out.println("adding point");
-
-               String[] points = sCurrentLine.split(",");
-
-               float x = (float) Double.parseDouble(points[0]);
-               float y = (float) Double.parseDouble(points[1]);
-               float z = (float) Double.parseDouble(points[2]);
-
-               pointsTemp.add(new Point3D(x, y, z));
-
-               averageX = averageX + x;
-               averageY = averageY + y;
-               averageZ = averageZ + z;
-
-               index++;
-            }
-         }
-
-         for (Cluster cluster1 : clusters)
-         {
-            ConvexPolygon2D convexPolygon = new ConvexPolygon2D(cluster1.getRawPointsInLocal());
-
-            PlanarRegion planarRegion = new PlanarRegion(cluster1.getTransformToWorld(), convexPolygon);
-
-            regions.add(planarRegion);
-         }
-
-         System.out.println("Loaded " + regions.size() + " regions");
-      }
-      catch (IOException e)
-      {
-
-         e.printStackTrace();
-
-      } finally
-      {
-
-         try
-         {
-
-            if (br != null)
-               br.close();
-
-            if (fr != null)
-               fr.close();
-
-         }
-         catch (IOException ex)
-         {
-
-            ex.printStackTrace();
-
-         }
-
-      }
-      return null;
-
    }
 
    public List<Cluster> getClusters()

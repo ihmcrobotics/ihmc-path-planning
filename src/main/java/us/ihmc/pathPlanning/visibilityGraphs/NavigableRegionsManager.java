@@ -126,30 +126,13 @@ public class NavigableRegionsManager
       System.out.println("So far global map has size: " + globalMapPoints.size());
 
       long startGlobalMapTime = System.currentTimeMillis();
-      globalVisMap = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
-
-      int actualConnectionsAdded = 0;
-      for (Connection pair : globalMapPoints)
-      {
-         Point3D pt1 = pair.point1;
-         Point3D pt2 = pair.point2;
-         if (!pt1.epsilonEquals(pt2, 1e-5))
-         {
-            globalVisMap.addVertex(pt1);
-            globalVisMap.addVertex(pt2);
-            DefaultWeightedEdge edge = new DefaultWeightedEdge();
-            globalVisMap.addEdge(pt1, pt2, edge);
-            globalVisMap.setEdgeWeight(edge, pt1.distance(pt2));
-            actualConnectionsAdded++;
-         }
-      }
+      createVisibilityGraph();
       long endGlobalMapTime = System.currentTimeMillis();
 
       //      System.out.println(globalVisMap.containsVertex(globalMapPoints.get(globalMapPoints.size() - 1).point1));
       //      System.out.println(globalVisMap.containsVertex(globalMapPoints.get(globalMapPoints.size() - 1).point2));
       //      System.out.println(globalVisMap.containsEdge(globalMapPoints.get(globalMapPoints.size() - 1).point1,
       //                                                   globalMapPoints.get(globalMapPoints.size() - 1).point2));
-      System.out.println("Actual connections added: " + actualConnectionsAdded);
 
       long startSnappingTime = System.currentTimeMillis();
       Point3D goalPt = getSnappedPointFromMap(goalPos);
@@ -202,8 +185,30 @@ public class NavigableRegionsManager
          System.out.println("A* took: " + (System.currentTimeMillis() - aStarStartTime) + "ms");
          System.out.println("Total time to find solution was: " + (System.currentTimeMillis() - startBodyPathComputation) + "ms");
       }
-      
+
       return path;
+   }
+
+   private void createVisibilityGraph()
+   {
+      globalVisMap = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
+
+      int actualConnectionsAdded = 0;
+      for (Connection pair : globalMapPoints)
+      {
+         Point3D pt1 = pair.point1;
+         Point3D pt2 = pair.point2;
+         if (!pt1.epsilonEquals(pt2, 1e-5))
+         {
+            globalVisMap.addVertex(pt1);
+            globalVisMap.addVertex(pt2);
+            DefaultWeightedEdge edge = new DefaultWeightedEdge();
+            globalVisMap.addEdge(pt1, pt2, edge);
+            globalVisMap.setEdgeWeight(edge, pt1.distance(pt2));
+            actualConnectionsAdded++;
+         }
+      }
+      System.out.println("Actual connections added: " + actualConnectionsAdded);
    }
 
    public Point3D getSnappedPointFromMap(Point3D position)

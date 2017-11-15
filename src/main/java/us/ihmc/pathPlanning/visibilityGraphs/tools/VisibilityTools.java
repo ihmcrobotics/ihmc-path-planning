@@ -1,13 +1,9 @@
 package us.ihmc.pathPlanning.visibilityGraphs.tools;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
-import javassist.compiler.ast.Symbol;
 import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
 import us.ihmc.euclid.tuple2D.Point2D;
-import us.ihmc.euclid.tuple3D.Point3D;
 
 public class VisibilityTools
 {
@@ -31,39 +27,5 @@ public class VisibilityTools
          }
       }
       return true;
-   }
-
-   public static boolean lineSegmentsPhysicallyIntersect(Point2D line1StartPoint, Point2D line1EndPoint, Point2D line2StartPoint, Point2D line2EndPoint)
-   {
-      if ((line2StartPoint.distance(line1StartPoint) < 0.001) || (line2StartPoint.distance(line1EndPoint) < 0.001)
-            || (line2EndPoint.distance(line1StartPoint) < 0.001) || (line2EndPoint.distance(line1EndPoint) < 0.001))
-      {
-         System.out.println("State 1");
-         //         System.out.println(line2StartPoint.distance(line1StartPoint) + "   " + line2StartPoint.distance(line1EndPoint) + "   " + line2EndPoint.distance(line1StartPoint) + "   " + (line2EndPoint.distance(line1EndPoint)));
-         return true;
-      }
-
-      //Completely on the left side
-      else if (EuclidGeometryTools.isPoint2DOnLeftSideOfLine2D(line2StartPoint, line1StartPoint, line1EndPoint)
-            && EuclidGeometryTools.isPoint2DOnLeftSideOfLine2D(line2EndPoint, line1StartPoint, line1EndPoint))
-      {
-         System.out.println("State 2");
-
-         return false;
-      }
-
-      //Completely on the right side
-      else if (!EuclidGeometryTools.isPoint2DOnLeftSideOfLine2D(line2StartPoint, line1StartPoint, line1EndPoint)
-            && !EuclidGeometryTools.isPoint2DOnLeftSideOfLine2D(line2EndPoint, line1StartPoint, line1EndPoint))
-      {
-         System.out.println("State 3");
-
-         return false;
-      }
-
-      else
-      {
-         return true;
-      }
    }
 }
