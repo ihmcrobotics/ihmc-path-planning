@@ -20,7 +20,6 @@ import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
-import us.ihmc.pathPlanning.visibilityGraphs.tools.VisibilityTools;
 import us.ihmc.robotics.geometry.PlanarRegion;
 
 public class NavigableRegionsManager
@@ -108,10 +107,10 @@ public class NavigableRegionsManager
       {
          forceConnectionToPoint(startPos);
       }
-      else if (isPointInsideNoGoZone(accesibleRegions, start))
-      {
-         forceConnectionToPoint(startPos);
-      }
+//      else if (isPointInsideNoGoZone(accesibleRegions, start))
+//      {
+//         forceConnectionToPoint(startPos);
+//      }
 
       if (!isPointInsideRegion(accesibleRegions, goal))
       {
