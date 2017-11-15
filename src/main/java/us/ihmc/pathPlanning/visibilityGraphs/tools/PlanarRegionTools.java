@@ -1,8 +1,12 @@
 package us.ihmc.pathPlanning.visibilityGraphs.tools;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import us.ihmc.euclid.geometry.ConvexPolygon2D;
 import us.ihmc.euclid.geometry.Line3D;
 import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
+import us.ihmc.euclid.referenceFrame.FramePoint3D;
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.euclid.tuple3D.Point3D;
@@ -204,4 +208,112 @@ public class PlanarRegionTools
       Point3D closestPoint = closestPointOnPlane(point, region);
       return closestPoint.epsilonEquals(point, epsilon);
    }
+   
+   public static boolean isPointInsideRegion(List<PlanarRegion> regions, Point3D point)
+   {
+      for (PlanarRegion region : regions)
+      {
+         Point2D[] homePointsArr = new Point2D[region.getConvexHull().getNumberOfVertices()];
+         for (int i = 0; i < region.getConvexHull().getNumberOfVertices(); i++)
+         {
+            Point2D point2D = (Point2D) region.getConvexHull().getVertex(i);
+            Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
+            FramePoint3D fpt = new FramePoint3D();
+            fpt.set(point3D);
+            RigidBodyTransform transToWorld = new RigidBodyTransform();
+            region.getTransformToWorld(transToWorld);
+            fpt.applyTransform(transToWorld);
+            Point3D transformedPt = fpt.getPoint();
+
+            homePointsArr[i] = new Point2D(transformedPt.getX(), transformedPt.getY());
+         }
+
+         ConvexPolygon2D homeConvexPol = new ConvexPolygon2D(homePointsArr);
+         homeConvexPol.update();
+
+         if (homeConvexPol.isPointInside(new Point2D(point.getX(), point.getY())))
+         {
+            System.out.println("POINT" + point + " IS INSIDE A REGION");
+            return true;
+         }
+      }
+      System.out.println("POINT" + point + " IS NOT INSIDE A REGION");
+
+      return false;
+   }
+   
+   public static boolean isPartOfTheRegionInside(PlanarRegion regionToCheck, PlanarRegion containingRegion)
+   {
+      ArrayList<Point3D> pointsToCalculateCentroid = new ArrayList<>();
+      Point2D[] homePointsArr = new Point2D[containingRegion.getConvexHull().getNumberOfVertices()];
+      for (int i = 0; i < containingRegion.getConvexHull().getNumberOfVertices(); i++)
+      {
+         Point2D point2D = (Point2D) containingRegion.getConvexHull().getVertex(i);
+         Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
+         FramePoint3D fpt = new FramePoint3D();
+         fpt.set(point3D);
+         RigidBodyTransform transToWorld = new RigidBodyTransform();
+         containingRegion.getTransformToWorld(transToWorld);
+         fpt.applyTransform(transToWorld);
+         Point3D transformedPt = fpt.getPoint();
+
+         homePointsArr[i] = new Point2D(transformedPt.getX(), transformedPt.getY());
+         pointsToCalculateCentroid.add(new Point3D(transformedPt.getX(), transformedPt.getY(), transformedPt.getZ()));
+      }
+
+      ConvexPolygon2D homeConvexPol = new ConvexPolygon2D(homePointsArr);
+      homeConvexPol.update();
+
+      Point3D centroidOfHomeRegion = PointCloudTools.getCentroid(pointsToCalculateCentroid);
+
+      Vector3D normal = calculateNormal(containingRegion);
+
+      for (int i = 0; i < regionToCheck.getConvexHull().getNumberOfVertices(); i++)
+      {
+         Point2D point2D = (Point2D) regionToCheck.getConvexHull().getVertex(i);
+         Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
+         FramePoint3D fpt = new FramePoint3D();
+         fpt.set(point3D);
+         RigidBodyTransform transToWorld = new RigidBodyTransform();
+         regionToCheck.getTransformToWorld(transToWorld);
+         fpt.applyTransform(transToWorld);
+
+         Point3D pointToProject = fpt.getPoint();
+         Point3D projectedPointFromOtherRegion = new Point3D();
+
+         //                     System.out.println(pointToProject + "  " + point3D + "  " + normal + "  " + projectedPointFromOtherRegion);
+         EuclidGeometryTools.orthogonalProjectionOnPlane3D(pointToProject, point3D, normal, projectedPointFromOtherRegion);
+
+         if (homeConvexPol.isPointInside(new Point2D(projectedPointFromOtherRegion.getX(), projectedPointFromOtherRegion.getY())))
+         {
+            return true;
+         }
+         //         }
+      }
+
+      return false;
+   }
+   
+   public static Vector3D calculateNormal(PlanarRegion region)
+   {
+      Vector3D normal = new Vector3D();
+      region.getNormal(normal);
+      return normal;
+   }
+   
+   public static ArrayList<PlanarRegion> determineWhichRegionsAreInside(PlanarRegion containingRegion, List<PlanarRegion> otherRegionsEx)
+   {
+      ArrayList<PlanarRegion> regionsInsideHomeRegion = new ArrayList<>();
+
+      for (PlanarRegion otherRegion : otherRegionsEx)
+      {
+         if (PlanarRegionTools.isPartOfTheRegionInside(otherRegion, containingRegion))
+         {
+            regionsInsideHomeRegion.add(otherRegion);
+         }
+      }
+
+      return regionsInsideHomeRegion;
+   }
+   
 }

@@ -20,6 +20,8 @@ import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
+import us.ihmc.pathPlanning.visibilityGraphs.tools.PlanarRegionTools;
+import us.ihmc.pathPlanning.visibilityGraphs.tools.VisibilityTools;
 import us.ihmc.robotics.geometry.PlanarRegion;
 
 public class NavigableRegionsManager
@@ -103,16 +105,16 @@ public class NavigableRegionsManager
 
       long startForcingPoints = System.currentTimeMillis();
 
-      if (!isPointInsideRegion(accesibleRegions, start))
+      if (!PlanarRegionTools.isPointInsideRegion(accesibleRegions, start))
       {
          forceConnectionToPoint(startPos);
       }
-//      else if (isPointInsideNoGoZone(accesibleRegions, start))
-//      {
-//         forceConnectionToPoint(startPos);
-//      }
+      else if (isPointInsideNoGoZone(accesibleRegions, start))
+      {
+         forceConnectionToPoint(startPos);
+      }
 
-      if (!isPointInsideRegion(accesibleRegions, goal))
+      if (!PlanarRegionTools.isPointInsideRegion(accesibleRegions, goal))
       {
          forceConnectionToPoint(goalPos);
       }
@@ -394,38 +396,7 @@ public class NavigableRegionsManager
       localVisibilityMapInWorld.computeVertices();
    }
 
-   public boolean isPointInsideRegion(List<PlanarRegion> regions, Point3D point)
-   {
-      for (PlanarRegion region : regions)
-      {
-         Point2D[] homePointsArr = new Point2D[region.getConvexHull().getNumberOfVertices()];
-         for (int i = 0; i < region.getConvexHull().getNumberOfVertices(); i++)
-         {
-            Point2D point2D = (Point2D) region.getConvexHull().getVertex(i);
-            Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
-            FramePoint3D fpt = new FramePoint3D();
-            fpt.set(point3D);
-            RigidBodyTransform transToWorld = new RigidBodyTransform();
-            region.getTransformToWorld(transToWorld);
-            fpt.applyTransform(transToWorld);
-            Point3D transformedPt = fpt.getPoint();
 
-            homePointsArr[i] = new Point2D(transformedPt.getX(), transformedPt.getY());
-         }
-
-         ConvexPolygon2D homeConvexPol = new ConvexPolygon2D(homePointsArr);
-         homeConvexPol.update();
-
-         if (homeConvexPol.isPointInside(new Point2D(point.getX(), point.getY())))
-         {
-            System.out.println("POINT" + point + " IS INSIDE A REGION");
-            return true;
-         }
-      }
-      System.out.println("POINT" + point + " IS NOT INSIDE A REGION");
-
-      return false;
-   }
 
    public boolean isPointInsideNoGoZone(List<PlanarRegion> regions, Point3D pointToCheck)
    {

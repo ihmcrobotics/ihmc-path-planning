@@ -21,6 +21,7 @@ import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.Extrusion
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.Type;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterManager;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.LinearRegression3D;
+import us.ihmc.pathPlanning.visibilityGraphs.tools.PlanarRegionTools;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.PointCloudTools;
 import us.ihmc.robotics.geometry.PlanarRegion;
 
@@ -94,14 +95,6 @@ public class NavigableRegionLocalPlanner
       localReferenceFrame.update();
    }
 
-   public boolean isPointInsideTheRegion(Point3D point)
-   {
-      FramePoint3D fpt = new FramePoint3D(ReferenceFrame.getWorldFrame(), point.getX(), point.getY(), point.getZ());
-      fpt.changeFrame(localReferenceFrame);
-
-      return homeRegion.isPointInside(new Point2D(fpt.getX(), fpt.getY()));
-   }
-
    public ReferenceFrame getLocalReferenceFrame()
    {
       return localReferenceFrame;
@@ -109,7 +102,7 @@ public class NavigableRegionLocalPlanner
 
    public void processRegion()
    {
-      regionsInsideHomeRegion = determineWhichRegionsAreInside(homeRegion, regions);
+      regionsInsideHomeRegion = PlanarRegionTools.determineWhichRegionsAreInside(homeRegion, regions);
 
       if (debug)
       {
@@ -290,7 +283,7 @@ public class NavigableRegionLocalPlanner
 
             }
 
-            Vector3D normal = calculateNormal(homeRegion);
+            Vector3D normal = PlanarRegionTools.calculateNormal(homeRegion);
             ArrayList<Point3D> points = new ArrayList<>();
             for (int i = 0; i < region.getConvexHull().getNumberOfVertices(); i++)
             {
@@ -332,13 +325,13 @@ public class NavigableRegionLocalPlanner
             cluster.setType(Type.POLYGON);
             cluster.setTransformToWorld(localReferenceFrame.getTransformToWorldFrame());
 
-            Vector3D normal1 = calculateNormal(region);
+            Vector3D normal1 = PlanarRegionTools.calculateNormal(region);
             if (Math.abs(normal1.getZ()) >= 0.5)
             {
                cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance - 0.01));
             }
 
-            Vector3D normal = calculateNormal(homeRegion);
+            Vector3D normal = PlanarRegionTools.calculateNormal(homeRegion);
             for (int i = 0; i < region.getConvexHull().getNumberOfVertices(); i++)
             {
                Point2D point2D = (Point2D) region.getConvexHull().getVertex(i);
@@ -371,76 +364,9 @@ public class NavigableRegionLocalPlanner
       }
    }
 
-   private ArrayList<PlanarRegion> determineWhichRegionsAreInside(PlanarRegion containingRegion, List<PlanarRegion> otherRegionsEx)
-   {
-      ArrayList<PlanarRegion> regionsInsideHomeRegion = new ArrayList<>();
-
-      for (PlanarRegion otherRegion : otherRegionsEx)
-      {
-         if (isPartOfTheRegionInside(otherRegion, containingRegion))
-         {
-            regionsInsideHomeRegion.add(otherRegion);
-         }
-      }
-
-      return regionsInsideHomeRegion;
-   }
-   
-   private boolean isPartOfTheRegionInside(PlanarRegion regionToCheck, PlanarRegion containingRegion)
-   {
-      ArrayList<Point3D> pointsToCalculateCentroid = new ArrayList<>();
-      Point2D[] homePointsArr = new Point2D[containingRegion.getConvexHull().getNumberOfVertices()];
-      for (int i = 0; i < containingRegion.getConvexHull().getNumberOfVertices(); i++)
-      {
-         Point2D point2D = (Point2D) containingRegion.getConvexHull().getVertex(i);
-         Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
-         FramePoint3D fpt = new FramePoint3D();
-         fpt.set(point3D);
-         RigidBodyTransform transToWorld = new RigidBodyTransform();
-         containingRegion.getTransformToWorld(transToWorld);
-         fpt.applyTransform(transToWorld);
-         Point3D transformedPt = fpt.getPoint();
-
-         homePointsArr[i] = new Point2D(transformedPt.getX(), transformedPt.getY());
-         pointsToCalculateCentroid.add(new Point3D(transformedPt.getX(), transformedPt.getY(), transformedPt.getZ()));
-      }
-
-      ConvexPolygon2D homeConvexPol = new ConvexPolygon2D(homePointsArr);
-      homeConvexPol.update();
-
-      Point3D centroidOfHomeRegion = PointCloudTools.getCentroid(pointsToCalculateCentroid);
-
-      Vector3D normal = calculateNormal(containingRegion);
-
-      for (int i = 0; i < regionToCheck.getConvexHull().getNumberOfVertices(); i++)
-      {
-         Point2D point2D = (Point2D) regionToCheck.getConvexHull().getVertex(i);
-         Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
-         FramePoint3D fpt = new FramePoint3D();
-         fpt.set(point3D);
-         RigidBodyTransform transToWorld = new RigidBodyTransform();
-         regionToCheck.getTransformToWorld(transToWorld);
-         fpt.applyTransform(transToWorld);
-
-         Point3D pointToProject = fpt.getPoint();
-         Point3D projectedPointFromOtherRegion = new Point3D();
-
-         //                     System.out.println(pointToProject + "  " + point3D + "  " + normal + "  " + projectedPointFromOtherRegion);
-         EuclidGeometryTools.orthogonalProjectionOnPlane3D(pointToProject, point3D, normal, projectedPointFromOtherRegion);
-
-         if (homeConvexPol.isPointInside(new Point2D(projectedPointFromOtherRegion.getX(), projectedPointFromOtherRegion.getY())))
-         {
-            return true;
-         }
-         //         }
-      }
-
-      return false;
-   }
-   
    private void classifyExtrusion(PlanarRegion regionToProject, PlanarRegion regionToProjectTo)
    {
-      Vector3D normal = calculateNormal(regionToProject);
+      Vector3D normal = PlanarRegionTools.calculateNormal(regionToProject);
 
       if (normal != null && regionToProject != regionToProjectTo)
       {
@@ -461,7 +387,7 @@ public class NavigableRegionLocalPlanner
 
    private boolean isRegionTooHighToStep(PlanarRegion regionToProject, PlanarRegion regionToProjectTo)
    {
-      Vector3D normal = calculateNormal(regionToProjectTo);
+      Vector3D normal = PlanarRegionTools.calculateNormal(regionToProjectTo);
 
       for (int i = 0; i < regionToProject.getConvexHull().getNumberOfVertices(); i++)
       {
@@ -488,7 +414,7 @@ public class NavigableRegionLocalPlanner
 
    public Point3D projectPointToPlane(Point3D pointToProject, PlanarRegion regionToProjectTo)
    {
-      Vector3D normal = calculateNormal(regionToProjectTo);
+      Vector3D normal = PlanarRegionTools.calculateNormal(regionToProjectTo);
       Point2D point2D = (Point2D) regionToProjectTo.getConvexHull().getVertex(0);
       Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
 
@@ -500,12 +426,6 @@ public class NavigableRegionLocalPlanner
       return projectedPoint;
    }
 
-   private Vector3D calculateNormal(PlanarRegion region)
-   {
-      Vector3D normal = new Vector3D();
-      region.getNormal(normal);
-      return normal;
-   }
 
    public int getRegionId()
    {
