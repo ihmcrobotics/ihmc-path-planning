@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.scene.paint.Color;
+import us.ihmc.commons.PrintTools;
 import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
 import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.euclid.tuple2D.Vector2D;
@@ -290,6 +291,20 @@ public class ClusterManager
          Point2D normal2 = cluster.getSafeNormalInLocal(index + 2);
 
          Point2D intersectionPoint = EuclidGeometryTools.intersectionBetweenTwoLine2Ds(normal1, vec1, normal2, vec2);
+         
+         if(intersectionPoint == null)
+         {
+            PrintTools.error("Failed to extrude non-navigable boundary for region " + index + " \n"
+                  + "point1: " + point1 + "\n"
+                  + "point2: " + point2 + "\n"
+                  + "point3: " + point3 + "\n"
+                  + "vec1: " + vec1 + "\n"
+                  + "vec2: " + vec2 + "\n"
+                  + "normal1: " + normal1 + "\n"
+                  + "normal2: " + normal2 + "\n"
+                  + "extrusionDistance: " + extrusionDistance);
+            continue;
+         }
 
          if (intersectionPoint.distance(normal1) < 1E-6)
          {
@@ -327,7 +342,7 @@ public class ClusterManager
          index = index + 2;
       }
 
-      if (cluster.isObstacleClosed())
+      if (cluster.isObstacleClosed() && !cluster.getNonNavigableExtrusionsInLocal().isEmpty())
       {
          cluster.addNonNavigableExtrusionInLocal(cluster.getNonNavigableExtrusionsInLocal().get(0));
       }
@@ -348,6 +363,20 @@ public class ClusterManager
          Point2D normal2 = cluster.getSafeNormalInLocal(index + 2);
 
          Point2D intersectionPoint = EuclidGeometryTools.intersectionBetweenTwoLine2Ds(normal1, vec1, normal2, vec2);
+         
+         if(intersectionPoint == null)
+         {
+            PrintTools.error("Failed to extrude navigable boundary for region " + index + " \n"
+                  + "point1: " + point1 + "\n"
+                  + "point2: " + point2 + "\n"
+                  + "point3: " + point3 + "\n"
+                  + "vec1: " + vec1 + "\n"
+                  + "vec2: " + vec2 + "\n"
+                  + "normal1: " + normal1 + "\n"
+                  + "normal2: " + normal2 + "\n"
+                  + "extrusionDistance: " + extrusionDistance);
+            continue;
+         }
 
          if (intersectionPoint.distance(normal1) < 1E-6)
          {
@@ -385,7 +414,7 @@ public class ClusterManager
          index = index + 2;
       }
 
-      if (cluster.isObstacleClosed())
+      if (cluster.isObstacleClosed() && !cluster.getNavigableExtrusionsInLocal().isEmpty())
       {
          cluster.addNavigableExtrusionInLocal(cluster.getNavigableExtrusionInLocal(0));
       }
