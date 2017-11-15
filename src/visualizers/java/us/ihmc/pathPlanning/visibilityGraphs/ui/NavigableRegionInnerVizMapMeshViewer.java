@@ -23,6 +23,7 @@ import us.ihmc.javaFXToolkit.shapes.JavaFXMeshBuilder;
 import us.ihmc.pathPlanning.visibilityGraphs.Connection;
 import us.ihmc.pathPlanning.visibilityGraphs.NavigableRegionLocalPlanner;
 import us.ihmc.pathPlanning.visibilityGraphs.NavigableRegionsManager;
+import us.ihmc.pathPlanning.visibilityGraphs.VisibilityMap;
 import us.ihmc.robotEnvironmentAwareness.communication.REAMessager;
 
 public class NavigableRegionInnerVizMapMeshViewer extends AnimationTimer
@@ -100,12 +101,12 @@ public class NavigableRegionInnerVizMapMeshViewer extends AnimationTimer
          }
 
          RigidBodyTransform transformToWorld = navigableRegionLocalPlanner.getLocalReferenceFrame().getTransformToWorldFrame();
-         SimpleWeightedGraph<Point2D, DefaultWeightedEdge> localVisibilityGraph = navigableRegionLocalPlanner.getLocalVisibilityGraph();
+         VisibilityMap localVisibilityGraph = navigableRegionLocalPlanner.getLocalVisibilityGraph();
 
-         for (DefaultWeightedEdge edge : localVisibilityGraph.edgeSet())
+         for (Connection connection : localVisibilityGraph.getConnections())
          {
-            Point3D edgeSource = toWorld(localVisibilityGraph.getEdgeSource(edge), transformToWorld);
-            Point3D edgeTarget = toWorld(localVisibilityGraph.getEdgeTarget(edge), transformToWorld);
+            Point3D edgeSource = toWorld(new Point2D(connection.getPoint1().getX(), connection.getPoint1().getY()), transformToWorld);
+            Point3D edgeTarget = toWorld(new Point2D(connection.getPoint2().getX(), connection.getPoint2().getY()), transformToWorld);
             meshBuilder.addLine(edgeSource, edgeTarget, VisualizationParameters.VISBILITYMAP_LINE_THICKNESS);
          }
 

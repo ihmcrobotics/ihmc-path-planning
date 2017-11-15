@@ -2,6 +2,7 @@ package us.ihmc.pathPlanning.visibilityGraphs;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 
 import org.jgrapht.alg.DijkstraShortestPath;
@@ -29,7 +30,7 @@ public class NavigableRegionsManager
    private List<PlanarRegion> accesibleRegions = new ArrayList<>();
    private List<PlanarRegion> obstacleRegions = new ArrayList<>();
    private List<NavigableRegionLocalPlanner> listOfLocalPlanners = new ArrayList<>();
-   private List<SimpleWeightedGraph<Point3D, DefaultWeightedEdge>> visMaps = new ArrayList<>();
+   private List<VisibilityMap> visMaps = new ArrayList<>();
    private SimpleWeightedGraph<Point3D, DefaultWeightedEdge> globalVisMap = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
 
    private List<Point3D> path = new ArrayList<>();
@@ -69,11 +70,12 @@ public class NavigableRegionsManager
 
    public List<Point3D> calculateBodyPath(Point3D start, Point3D goal)
    {
+      long startBodyPathComputation = System.currentTimeMillis();
       //      start = new Point3D(10, 10, 0);
       //      goal = new Point3D(10, 10, 0);
 
       //      goal = new Point3D(-3, -3, 0);
-      
+
       listOfLocalPlanners.clear();
       visMaps.clear();
       accesibleRegions.clear();
@@ -107,13 +109,13 @@ public class NavigableRegionsManager
 
       connectionPoints.clear();
       globalMapPoints.clear();
-      
+
       createGlobalMap();
       connectLocalMaps();
-//      System.out.println("HERE - 1 : " + globalMapPoints.size());
-//      globalMapPoints.add(new Connection(start, goal));
-//      connectionPoints.add(new Connection(start, goal));
-//      System.out.println("HERE - 2: " + globalMapPoints.size());
+      //      System.out.println("HERE - 1 : " + globalMapPoints.size());
+      //      globalMapPoints.add(new Connection(start, goal));
+      //      connectionPoints.add(new Connection(start, goal));
+      //      System.out.println("HERE - 2: " + globalMapPoints.size());
 
       if (!isPointInsideRegion(accesibleRegions, start))
       {
@@ -132,11 +134,11 @@ public class NavigableRegionsManager
       {
          forceConnectionToPoint(goalPos);
       }
-      
+
       System.out.println("So far global map has size: " + globalMapPoints.size());
 
       globalVisMap = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
- 
+
       int actualConnectionsAdded = 0;
       for (Connection pair : globalMapPoints)
       {
@@ -152,11 +154,11 @@ public class NavigableRegionsManager
             actualConnectionsAdded++;
          }
       }
-      
-      System.out.println("HERE");
-      System.out.println(globalVisMap.containsVertex(globalMapPoints.get(globalMapPoints.size()-1).point1));
-      System.out.println(globalVisMap.containsVertex(globalMapPoints.get(globalMapPoints.size()-1).point2));
-      System.out.println(globalVisMap.containsEdge(globalMapPoints.get(globalMapPoints.size()-1).point1, globalMapPoints.get(globalMapPoints.size()-1).point2));
+
+//      System.out.println(globalVisMap.containsVertex(globalMapPoints.get(globalMapPoints.size() - 1).point1));
+//      System.out.println(globalVisMap.containsVertex(globalMapPoints.get(globalMapPoints.size() - 1).point2));
+//      System.out.println(globalVisMap.containsEdge(globalMapPoints.get(globalMapPoints.size() - 1).point1,
+//                                                   globalMapPoints.get(globalMapPoints.size() - 1).point2));
       System.out.println("Actual connections added: " + actualConnectionsAdded);
 
       Point3D goalPt = getSnappedPointFromMap(goalPos);
@@ -196,6 +198,8 @@ public class NavigableRegionsManager
             System.out.println("WARNING - NO SOLUTION WAS FOUND!");
          }
       }
+      
+      System.out.println("Solution was found in " + (System.currentTimeMillis() - startBodyPathComputation) + "ms");
 
       return path;
    }
@@ -237,14 +241,11 @@ public class NavigableRegionsManager
    private void createGlobalMap()
    {
       int connectionsAdded = 0;
-      for (SimpleWeightedGraph<Point3D, DefaultWeightedEdge> map : visMaps)
+      for (VisibilityMap map : visMaps)
       {
-         for (DefaultWeightedEdge edge : map.edgeSet())
+         for (Connection connection : map.getConnections())
          {
-            Point3D pt1 = map.getEdgeSource(edge);
-            Point3D pt2 = map.getEdgeTarget(edge);
-
-            globalMapPoints.add(new Connection(pt1, pt2));
+            globalMapPoints.add(new Connection(connection.point1, connection.point2));
             connectionsAdded++;
          }
       }
@@ -320,26 +321,24 @@ public class NavigableRegionsManager
 
       if (listOfLocalPlanners.size() > 1)
       {
-         for (NavigableRegionLocalPlanner sourceLocalRegion : listOfLocalPlanners)
+         for (VisibilityMap sourceMap : visMaps)
          {
-            for (Point2D sourcePt : sourceLocalRegion.getLocalVisibilityGraph().vertexSet())
+            HashSet<Point3D> sourcePoints = sourceMap.getVertices();
+
+            for (Point3D sourcePt : sourcePoints)
             {
-               for (NavigableRegionLocalPlanner targetLocalRegion : listOfLocalPlanners)
+               for (VisibilityMap targetMap : visMaps)
                {
-                  if (targetLocalRegion != sourceLocalRegion)
+                  if (sourceMap != targetMap)
                   {
-                     for (Point2D targetPt : targetLocalRegion.getLocalVisibilityGraph().vertexSet())
+                     HashSet<Point3D> targetPoints = targetMap.getVertices();
+
+                     for (Point3D targetPt : targetPoints)
                      {
-                        FramePoint3D pt1 = new FramePoint3D(sourceLocalRegion.getLocalReferenceFrame(), new Point3D(sourcePt.getX(), sourcePt.getY(), 0));
-                        pt1.changeFrame(ReferenceFrame.getWorldFrame());
-
-                        FramePoint3D pt2 = new FramePoint3D(targetLocalRegion.getLocalReferenceFrame(), new Point3D(targetPt.getX(), targetPt.getY(), 0));
-                        pt2.changeFrame(ReferenceFrame.getWorldFrame());
-
-                        if (pt1.distance(pt2) < VisibilityGraphsParameters.MIN_CONNECTION_DISTANCE_FOR_REGIONS)
+                        if (sourcePt.distance(targetPt) < VisibilityGraphsParameters.MIN_CONNECTION_DISTANCE_FOR_REGIONS)
                         {
-                           connectionPoints.add(new Connection(pt1.getPoint(), pt2.getPoint()));
-                           globalMapPoints.add(new Connection(pt1.getPoint(), pt2.getPoint()));
+                           connectionPoints.add(new Connection(sourcePt, targetPt));
+                           globalMapPoints.add(new Connection(sourcePt, targetPt));
                            connectionsAdded++;
                         }
                      }
@@ -365,26 +364,23 @@ public class NavigableRegionsManager
       navigableRegionLocalPlanner.processRegion();
       listOfLocalPlanners.add(navigableRegionLocalPlanner);
 
-      SimpleWeightedGraph<Point3D, DefaultWeightedEdge> localRegionVisMapInWorld = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
-      visMaps.add(localRegionVisMapInWorld);
+      VisibilityMap localVisibilityMapInWorld = new VisibilityMap();
+      visMaps.add(localVisibilityMapInWorld);
 
-      for (DefaultWeightedEdge edge : navigableRegionLocalPlanner.getLocalVisibilityGraph().edgeSet())
+      for (Connection connection : navigableRegionLocalPlanner.getLocalVisibilityGraph().getConnections())
       {
-         Point2D edgeSource = navigableRegionLocalPlanner.getLocalVisibilityGraph().getEdgeSource(edge);
-         Point2D edgeTarget = navigableRegionLocalPlanner.getLocalVisibilityGraph().getEdgeTarget(edge);
+         Point2D edgeSource = new Point2D(connection.getPoint1().getX(), connection.getPoint1().getY());
+         Point2D edgeTarget = new Point2D(connection.getPoint2().getX(), connection.getPoint2().getY());
 
          FramePoint3D pt1 = new FramePoint3D(navigableRegionLocalPlanner.getLocalReferenceFrame(), new Point3D(edgeSource.getX(), edgeSource.getY(), 0));
          pt1.changeFrame(ReferenceFrame.getWorldFrame());
          FramePoint3D pt2 = new FramePoint3D(navigableRegionLocalPlanner.getLocalReferenceFrame(), new Point3D(edgeTarget.getX(), edgeTarget.getY(), 0));
          pt2.changeFrame(ReferenceFrame.getWorldFrame());
 
-         localRegionVisMapInWorld.addVertex(pt1.getPoint());
-         localRegionVisMapInWorld.addVertex(pt2.getPoint());
-         DefaultWeightedEdge tempEdge = new DefaultWeightedEdge();
-         localRegionVisMapInWorld.addEdge(pt1.getPoint(), pt2.getPoint(), tempEdge);
-         localRegionVisMapInWorld.setEdgeWeight(edge, pt1.distance(pt2));
-
+         localVisibilityMapInWorld.addConnection(new Connection(pt1.getPoint(), pt2.getPoint()));
       }
+      
+      localVisibilityMapInWorld.computeVertices();
    }
 
    public boolean isPointInsideRegion(List<PlanarRegion> regions, Point3D point)

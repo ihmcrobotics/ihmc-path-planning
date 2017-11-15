@@ -6,11 +6,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jgrapht.graph.DefaultWeightedEdge;
-import org.jgrapht.graph.SimpleWeightedGraph;
-
-import com.esotericsoftware.kryo.NotNull;
-
 import us.ihmc.euclid.geometry.ConvexPolygon2D;
 import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
 import us.ihmc.euclid.referenceFrame.FramePoint3D;
@@ -46,7 +41,7 @@ public class NavigableRegionLocalPlanner
    double extrusionDistance = 0.80;
    PlanarRegion homeRegion;
 
-   SimpleWeightedGraph<Point2D, DefaultWeightedEdge> localVisibilityMap;
+   VisibilityMap localVisibilityMap;
    ArrayList<Connection> connections = new ArrayList<>();
 
    JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder;
@@ -59,11 +54,6 @@ public class NavigableRegionLocalPlanner
    public NavigableRegionLocalPlanner(JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder, List<PlanarRegion> regions, PlanarRegion homeRegion,
                                       Point3D start, Point3D goal, double extrusionDistance)
    {
-      if(start == null || goal == null)
-      {
-         throw new RuntimeException("Start and goal must be non-null");
-      }
-      
       this.javaFXMultiColorMeshBuilder = javaFXMultiColorMeshBuilder;
       this.regions.addAll(regions);
 
@@ -145,42 +135,6 @@ public class NavigableRegionLocalPlanner
 
       // TODO The use of Double.MAX_VALUE for the observer seems rather risky. I'm actually surprised that it works.
       clusterMgr.performExtrusions(new Point2D(Double.MAX_VALUE, Double.MAX_VALUE), extrusionDistance);
-
-      //Visuals local frame
-      //
-      //      for (Cluster cluster : clusters)
-      //      {
-      //         for (int i = 0; i < cluster.getRawPointsInCluster().size(); i++)
-      //         {
-      //            javaFXMultiColorMeshBuilder.addSphere(0.03f,
-      //                                                  new Point3D(cluster.getRawPointsInCluster().get(i).getX(), cluster.getRawPointsInCluster().get(i).getY(), 0),
-      //                                                  Color.RED);
-      //         }
-      //
-      //         for (int i = 0; i < cluster.getListOfNonNavigableExtrusions().size(); i++)
-      //         {
-      //            javaFXMultiColorMeshBuilder.addSphere(0.03f, new Point3D(cluster.getListOfNonNavigableExtrusions().get(i).getX(),
-      //                                                                     cluster.getListOfNonNavigableExtrusions().get(i).getY(), 0),
-      //                                                  Color.RED);
-      //         }
-      //
-      //         for (int i = 1; i < cluster.getListOfNonNavigableExtrusions().size(); i++)
-      //         {
-      //            javaFXMultiColorMeshBuilder.addLine(new Point3D(cluster.getListOfNonNavigableExtrusions().get(i - 1).getX(),
-      //                                                            cluster.getListOfNonNavigableExtrusions().get(i - 1).getY(), 0),
-      //                                                new Point3D(cluster.getListOfNonNavigableExtrusions().get(i).getX(),
-      //                                                            cluster.getListOfNonNavigableExtrusions().get(i).getY(), 0),
-      //                                                0.005, Color.ORANGE);
-      //         }
-      //         for (int i = 1; i < cluster.getListOfNavigableExtrusions().size(); i++)
-      //         {
-      //            javaFXMultiColorMeshBuilder.addLine(new Point3D(cluster.getListOfNavigableExtrusions().get(i - 1).getX(),
-      //                                                            cluster.getListOfNavigableExtrusions().get(i - 1).getY(), 0),
-      //                                                new Point3D(cluster.getListOfNavigableExtrusions().get(i).getX(),
-      //                                                            cluster.getListOfNavigableExtrusions().get(i).getY(), 0),
-      //                                                0.005, Color.GREEN);
-      //         }
-      //      }
 
       for (Cluster cluster : clusters)
       {
@@ -282,7 +236,7 @@ public class NavigableRegionLocalPlanner
       }
    }
 
-   public SimpleWeightedGraph<Point2D, DefaultWeightedEdge> getLocalVisibilityGraph()
+   public VisibilityMap getLocalVisibilityGraph()
    {
       return localVisibilityMap;
    }

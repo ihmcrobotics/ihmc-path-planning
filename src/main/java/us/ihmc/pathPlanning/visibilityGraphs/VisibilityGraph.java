@@ -1,32 +1,24 @@
 package us.ihmc.pathPlanning.visibilityGraphs;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
-import org.jgrapht.alg.DijkstraShortestPath;
-import org.jgrapht.graph.DefaultWeightedEdge;
-import org.jgrapht.graph.SimpleWeightedGraph;
-
-import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Point2D;
+import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterManager;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.VisibilityTools;
 
 public class VisibilityGraph
 {
-   private boolean DEBUG = false;
+   private boolean DEBUG = true;
    private boolean PRINT_PERFORMANCE_STATS = false;
 
    protected ArrayList<Point2D> listOfObserverPoints = new ArrayList<>();
-   private static double epsilon = 0.00001;
-   protected ArrayList<Point2D> listOfTargetsIncludingDynamicObjects = new ArrayList<>();
 
-   boolean configurationSpaceIsInitialized = false;
-   protected boolean enableObstacleAvoidance = false;
+   private VisibilityMap visibilityMap;
 
-   protected SimpleWeightedGraph<Point2D, DefaultWeightedEdge> staticVisibilityMap;
-
-   ClusterManager clusterMgr;
+   private ClusterManager clusterMgr;
 
    long startTimeConnectionsCreation = System.currentTimeMillis();
    long endTimeConnectionsCreation = System.currentTimeMillis();
@@ -34,84 +26,10 @@ public class VisibilityGraph
    public VisibilityGraph(ClusterManager clusterMgr)
    {
       this.clusterMgr = clusterMgr;
-      staticVisibilityMap = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
+      visibilityMap = new VisibilityMap();
    }
 
-   RigidBodyTransform transform = new RigidBodyTransform();
-
-   public void setTransform(RigidBodyTransform transform)
-   {
-      this.transform = transform;
-   }
-
-   public ArrayList<Point2D> solve(Point2D start, Point2D goal)
-   {
-      if (start.distance(goal) < 1E-1)
-      {
-         ArrayList<Point2D> path = new ArrayList<>();
-         path.add(start);
-
-         return path;
-      }
-
-      try
-      {
-         //       System.out.println("Started calculating route...");
-         long startTimePathCalculation = System.currentTimeMillis();
-         ArrayList<DefaultWeightedEdge> edges = (ArrayList<DefaultWeightedEdge>) DijkstraShortestPath.findPathBetween(staticVisibilityMap, start, goal);
-         ArrayList<Point2D> path = convertEdgesToPath(staticVisibilityMap, edges, start, goal);
-         long endTimePathCalculation = System.currentTimeMillis();
-
-         if (PRINT_PERFORMANCE_STATS)
-         {
-            System.out.println("\n--- Visisibility Graph Performance Stats ---");
-            System.out.println("Creating the map took " + (endTimeConnectionsCreation - startTimeConnectionsCreation) + " ms");
-            System.out.println("Calculating route took " + (endTimePathCalculation - startTimePathCalculation) + " ms");
-         }
-
-         return path;
-      }
-      catch (IllegalArgumentException arg)
-      {
-         return null;
-      }
-   }
-
-   public static ArrayList<Point2D> convertEdgesToPath(SimpleWeightedGraph<Point2D, DefaultWeightedEdge> visibilityMap, ArrayList<DefaultWeightedEdge> edges,
-         Point2D start, Point2D goal)
-   {
-      ArrayList<Point2D> path = new ArrayList<>();
-      Point2D lastNode = start;
-      path.add(lastNode);
-
-      for (DefaultWeightedEdge edge : edges)
-      {
-         Point2D edgeSource = visibilityMap.getEdgeSource(edge);
-         Point2D edgeTarget = visibilityMap.getEdgeTarget(edge);
-
-         if (edgeSource.epsilonEquals(lastNode, epsilon))
-         {
-            path.add(edgeTarget);
-            lastNode = edgeTarget;
-         }
-         else if (edgeTarget.epsilonEquals(lastNode, epsilon))
-         {
-            path.add(edgeSource);
-            lastNode = edgeSource;
-         }
-         else
-         {
-            System.err.println(lastNode + " did not equal source " + edgeSource + " or target " + edgeTarget);
-         }
-      }
-
-      if (!path.get(path.size() - 1).epsilonEquals(new Point2D(goal.getX(), goal.getY()), epsilon))
-      {
-         System.err.println("last node " + path.get(path.size() - 1) + " does not match the goal " + goal);
-      }
-
-      return path;
-   }
+   HashSet<Connection> connections = new HashSet<>();
 
    public void createStaticVisibilityMap(Point2D start, Point2D goal)
    {
@@ -139,6 +57,7 @@ public class VisibilityGraph
             }
          }
       }
+      startTimeConnectionsCreation = System.currentTimeMillis();
 
       int edges = 0;
       // Add new connections
@@ -152,30 +71,23 @@ public class VisibilityGraph
 
                if (targetIsVisible)
                {
-                  staticVisibilityMap.addVertex(observer);
-                  staticVisibilityMap.addVertex(target);
-
-                  DefaultWeightedEdge visibilityEdge = staticVisibilityMap.addEdge(observer, target);
-                  edges++;
-
-                  // These are undirected edges. Therefore we cannot add duplicate or reversed edges. null indicates adding a duplicate
-                  if (visibilityEdge != null)
-                  {
-                     double distanceBetweenVertices = observer.distance(target);
-                     staticVisibilityMap.setEdgeWeight(visibilityEdge, distanceBetweenVertices);
-                  }
+                  connections.add(new Connection(new Point3D(observer.getX(), observer.getY(), 0), new Point3D(target.getX(), target.getY(), 0)));
                }
             }
          }
       }
+      
+      visibilityMap.setConnections(connections);
 
       endTimeConnectionsCreation = System.currentTimeMillis();
 
-      if (DEBUG)
-      {
-         System.out.println("Creating the map took " + (endTimeConnectionsCreation - startTimeConnectionsCreation) + " ms" + " with " + edges + " edges");
-      }
+//      if (DEBUG)
+//      {
+//         System.out.println("Creating the map took " + (endTimeConnectionsCreation - startTimeConnectionsCreation) + " ms" + " with " + edges + " edges"
+//               + " and " + staticVisibilityMap.vertexSet().size() + " vertices");
+//      }
    }
+
 
    public boolean isPointVisibleForStaticMaps(Point2D observer, Point2D targetPoint)
    {
@@ -190,8 +102,8 @@ public class VisibilityGraph
       return true;
    }
 
-   public SimpleWeightedGraph<Point2D, DefaultWeightedEdge> getVisibilityMap()
+   public VisibilityMap getVisibilityMap()
    {
-      return staticVisibilityMap;
+      return visibilityMap;
    }
 }
