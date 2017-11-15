@@ -37,7 +37,6 @@ public class NavigableRegionsManager
    private double pathLength = 0.0;
    private Point3D startPos = new Point3D();
    private Point3D goalPos = new Point3D();
-   double connectionthreshold = 0.1;
 
    ArrayList<Connection> connectionPoints = new ArrayList<>();
    ArrayList<Connection> globalMapPoints = new ArrayList<>();
@@ -260,7 +259,7 @@ public class NavigableRegionsManager
 
       ArrayList<Point3D> filteredList = VisibilityTools.removeDuplicatePoints(newList);
 
-      for (int i = 0; i < 5; i++)
+      for (int i = 0; i < VisibilityGraphsParameters.numberOfForcedConnections; i++)
       {
          Point3D point = filteredList.get(i);
          DefaultWeightedEdge edge = new DefaultWeightedEdge();
@@ -312,7 +311,7 @@ public class NavigableRegionsManager
                         pt2.changeFrame(ReferenceFrame.getWorldFrame());
                         //                        javaFXMultiColorMeshBuilder.addLine(pt1, pt2, 0.0082, Color.RED);
 
-                        if (pt1.distance(pt2) < connectionthreshold)
+                        if (pt1.distance(pt2) < VisibilityGraphsParameters.minConnectionDistanceThresholdForRegions)
                         {
                            connectionPoints.add(new Connection(pt1.getPoint(), pt2.getPoint()));
                            globalMapPoints.add(new Connection(pt1.getPoint(), pt2.getPoint()));
@@ -338,7 +337,7 @@ public class NavigableRegionsManager
       }
 
       NavigableRegionLocalPlanner navigableRegionLocalPlanner = new NavigableRegionLocalPlanner(javaFXMultiColorMeshBuilder, regions, region, startPos, goalPos,
-                                                                                                0.8);
+                                                                                                VisibilityGraphsParameters.extrusionDistance);
       navigableRegionLocalPlanner.processRegion();
       listOfNavigableRegions.add(navigableRegionLocalPlanner);
 
@@ -406,7 +405,7 @@ public class NavigableRegionsManager
          if (!region.isEmpty())
          {
             region.getNormal(normal);
-            if (Math.abs(normal.getZ()) < 0.8)
+            if (Math.abs(normal.getZ()) < VisibilityGraphsParameters.normalZThresholdForAccessibleRegions)
             {
                obstacleRegions.add(region);
             }
@@ -515,7 +514,7 @@ public class NavigableRegionsManager
    {
       return globalMapPoints;
    }
-   
+
    public ArrayList<Connection> getConnectionPoints()
    {
       return connectionPoints;
