@@ -198,8 +198,8 @@ public class NavigableRegionsManager
       int actualConnectionsAdded = 0;
       for (Connection pair : globalMapPoints)
       {
-         Point3D pt1 = pair.point1;
-         Point3D pt2 = pair.point2;
+         Point3D pt1 = pair.getPoint1();
+         Point3D pt2 = pair.getPoint2();
          if (!pt1.epsilonEquals(pt2, 1e-5))
          {
             globalVisMap.addVertex(pt1);
@@ -254,7 +254,7 @@ public class NavigableRegionsManager
       {
          for (Connection connection : map.getConnections())
          {
-            globalMapPoints.add(new Connection(connection.point1, connection.point2));
+            globalMapPoints.add(new Connection(connection.getPoint1(), connection.getPoint2()));
             connectionsAdded++;
          }
       }
@@ -274,8 +274,8 @@ public class NavigableRegionsManager
 
       for (Connection pair : globalMapPoints)
       {
-         DistancePoint point1 = new DistancePoint(pair.point1, pair.point1.distance(position));
-         DistancePoint point2 = new DistancePoint(pair.point2, pair.point2.distance(position));
+         DistancePoint point1 = new DistancePoint(pair.getPoint1(), pair.getPoint1().distance(position));
+         DistancePoint point2 = new DistancePoint(pair.getPoint2(), pair.getPoint2().distance(position));
 
          distancePoints.add(point1);
          distancePoints.add(point2);
@@ -372,7 +372,7 @@ public class NavigableRegionsManager
          System.out.println("-----------Processing new region");
       }
 
-      NavigableRegionLocalPlanner navigableRegionLocalPlanner = new NavigableRegionLocalPlanner(javaFXMultiColorMeshBuilder, regions, region, startPos, goalPos,
+      NavigableRegionLocalPlanner navigableRegionLocalPlanner = new NavigableRegionLocalPlanner(regions, region, startPos, goalPos,
                                                                                                 VisibilityGraphsParameters.EXTRUSION_DISTANCE);
       navigableRegionLocalPlanner.processRegion();
       listOfLocalPlanners.add(navigableRegionLocalPlanner);

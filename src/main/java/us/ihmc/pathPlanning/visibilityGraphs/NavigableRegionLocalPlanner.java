@@ -39,23 +39,21 @@ public class NavigableRegionLocalPlanner
    private final List<PlanarRegion> polygonObstacleRegions = new ArrayList<>();
    private ReferenceFrame localReferenceFrame;
 
-   double extrusionDistance = 0.80;
-   PlanarRegion homeRegion;
+   private double extrusionDistance = 0.80;
+   private PlanarRegion homeRegion;
 
-   VisibilityMap localVisibilityMap;
-   ArrayList<Connection> connections = new ArrayList<>();
+   private VisibilityMap localVisibilityMap;
+   private ArrayList<Connection> connections = new ArrayList<>();
 
-   JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder;
 
-   Point3D startLocationInLocalFrame;
-   Point3D goalLocationInLocalFrame;
+   private Point3D startLocationInLocalFrame;
+   private Point3D goalLocationInLocalFrame;
 
-   ClusterManager clusterMgr;
+   private ClusterManager clusterMgr;
 
-   public NavigableRegionLocalPlanner(JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder, List<PlanarRegion> regions, PlanarRegion homeRegion,
+   public NavigableRegionLocalPlanner(List<PlanarRegion> regions, PlanarRegion homeRegion,
                                       Point3D start, Point3D goal, double extrusionDistance)
    {
-      this.javaFXMultiColorMeshBuilder = javaFXMultiColorMeshBuilder;
       this.regions.addAll(regions);
 
       this.homeRegion = homeRegion;

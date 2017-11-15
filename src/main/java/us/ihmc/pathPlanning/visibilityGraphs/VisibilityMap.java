@@ -34,8 +34,8 @@ public class VisibilityMap
       vertices = new HashSet<>();
       for (Connection connection : connections)
       {
-         vertices.add(connection.point1);
-         vertices.add(connection.point2);
+         vertices.add(connection.getPoint1());
+         vertices.add(connection.getPoint2());
       }
    }
    

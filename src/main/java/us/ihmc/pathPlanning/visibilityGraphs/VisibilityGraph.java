@@ -20,8 +20,8 @@ public class VisibilityGraph
 
    private ClusterManager clusterMgr;
 
-   long startTimeConnectionsCreation = System.currentTimeMillis();
-   long endTimeConnectionsCreation = System.currentTimeMillis();
+   private long startTimeConnectionsCreation = System.currentTimeMillis();
+   private long endTimeConnectionsCreation = System.currentTimeMillis();
 
    public VisibilityGraph(ClusterManager clusterMgr)
    {
@@ -59,8 +59,6 @@ public class VisibilityGraph
       }
       startTimeConnectionsCreation = System.currentTimeMillis();
 
-      int edges = 0;
-      // Add new connections
       for (Point2D observer : listOfObserverPoints)
       {
          for (Point2D target : listOfObserverPoints)

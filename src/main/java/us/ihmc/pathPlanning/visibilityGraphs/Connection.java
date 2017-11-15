@@ -4,8 +4,8 @@ import us.ihmc.euclid.tuple3D.Point3D;
 
 public class Connection
 {
-   Point3D point1;
-   Point3D point2;
+   private Point3D point1;
+   private Point3D point2;
 
    public Connection(Point3D point1, Point3D point2)
    {
