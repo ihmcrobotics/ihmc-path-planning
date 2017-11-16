@@ -10,18 +10,15 @@ import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
-import javafx.scene.paint.Color;
 import us.ihmc.euclid.geometry.ConvexPolygon2D;
 import us.ihmc.euclid.referenceFrame.FramePoint3D;
 import us.ihmc.euclid.referenceFrame.ReferenceFrame;
-import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.PlanarRegionTools;
-import us.ihmc.pathPlanning.visibilityGraphs.tools.VisibilityTools;
 import us.ihmc.robotics.geometry.PlanarRegion;
 
 public class NavigableRegionsManager
@@ -109,19 +106,19 @@ public class NavigableRegionsManager
       {
          forceConnectionToPoint(startPos);
       }
-      else if (isPointInsideNoGoZone(accesibleRegions, start))
-      {
-         forceConnectionToPoint(startPos);
-      }
+//      else if (isPointInsideNoGoZone(accesibleRegions, start))
+//      {
+//         forceConnectionToPoint(startPos);
+//      }
 
       if (!PlanarRegionTools.isPointInsideRegion(accesibleRegions, goal))
       {
          forceConnectionToPoint(goalPos);
       }
-      else if (isPointInsideNoGoZone(accesibleRegions, goalPos))
-      {
-         forceConnectionToPoint(goalPos);
-      }
+//      else if (isPointInsideNoGoZone(accesibleRegions, goalPos))
+//      {
+//         forceConnectionToPoint(goalPos);
+//      }
 
       long endForcingPoints = System.currentTimeMillis();
 
