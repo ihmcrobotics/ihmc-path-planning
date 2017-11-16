@@ -105,8 +105,8 @@ public class NavigableRegionInnerVizMapMeshViewer extends AnimationTimer
 
          for (Connection connection : localVisibilityGraph.getConnections())
          {
-            Point3D edgeSource = toWorld(new Point2D(connection.getPoint1().getX(), connection.getPoint1().getY()), transformToWorld);
-            Point3D edgeTarget = toWorld(new Point2D(connection.getPoint2().getX(), connection.getPoint2().getY()), transformToWorld);
+            Point3D edgeSource = toWorld(new Point2D(connection.getSourcePoint().getX(), connection.getSourcePoint().getY()), transformToWorld);
+            Point3D edgeTarget = toWorld(new Point2D(connection.getTargetPoint().getX(), connection.getTargetPoint().getY()), transformToWorld);
             meshBuilder.addLine(edgeSource, edgeTarget, VisualizationParameters.VISBILITYMAP_LINE_THICKNESS);
          }
 
@@ -131,7 +131,7 @@ public class NavigableRegionInnerVizMapMeshViewer extends AnimationTimer
 
       for (Connection connection : navigableRegionsManager.getGlobalMapPoints())
       {
-         meshBuilder.addLine(connection.getPoint1(), connection.getPoint2(), VisualizationParameters.VISBILITYMAP_LINE_THICKNESS);
+         meshBuilder.addLine(connection.getSourcePoint(), connection.getTargetPoint(), VisualizationParameters.VISBILITYMAP_LINE_THICKNESS);
       }
       
       HashMap<Integer, MeshView> regionVisMapToRender = new HashMap<>();

@@ -10,20 +10,23 @@ import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
+import javafx.scene.paint.Color;
 import us.ihmc.euclid.geometry.ConvexPolygon2D;
 import us.ihmc.euclid.referenceFrame.FramePoint3D;
 import us.ihmc.euclid.referenceFrame.ReferenceFrame;
+import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.PlanarRegionTools;
+import us.ihmc.pathPlanning.visibilityGraphs.tools.VisibilityTools;
 import us.ihmc.robotics.geometry.PlanarRegion;
 
 public class NavigableRegionsManager
 {
-   private final static boolean debug = true;
+   private final static boolean debug = false;
 
    private List<PlanarRegion> regions;
    private List<PlanarRegion> accesibleRegions = new ArrayList<>();
@@ -70,7 +73,7 @@ public class NavigableRegionsManager
    public List<Point3D> calculateBodyPath(Point3D start, Point3D goal)
    {
       long startBodyPathComputation = System.currentTimeMillis();
-      //      start = new Point3D(10, 10, 0);
+      //            start = new Point3D(10, 10, 0);
       //      goal = new Point3D(10, 10, 0);
 
       //      goal = new Point3D(-3, -3, 0);
@@ -100,32 +103,43 @@ public class NavigableRegionsManager
       connectLocalMaps();
       long endConnectingTime = System.currentTimeMillis();
 
+//      System.out.println("Before forcing points global map has size: " + globalMapPoints.size());
+
       long startForcingPoints = System.currentTimeMillis();
 
-      if (!PlanarRegionTools.isPointInsideRegion(accesibleRegions, start))
+      if (PlanarRegionTools.isPointInsideRegion(accesibleRegions, start))
       {
-         forceConnectionToPoint(startPos);
+         if (isPointInsideNoGoZone(accesibleRegions, start))
+         {
+            start = snapConnectionToClosestPoint(start);
+         }
       }
-//      else if (isPointInsideNoGoZone(accesibleRegions, start))
-//      {
-//         forceConnectionToPoint(startPos);
-//      }
+      else
+      {
+         forceConnectionToPoint(start);
+      }
 
-      if (!PlanarRegionTools.isPointInsideRegion(accesibleRegions, goal))
+      if (PlanarRegionTools.isPointInsideRegion(accesibleRegions, goal))
       {
-         forceConnectionToPoint(goalPos);
+         if (isPointInsideNoGoZone(accesibleRegions, goal))
+         {
+            goal = snapConnectionToClosestPoint(goal);
+         }
       }
-//      else if (isPointInsideNoGoZone(accesibleRegions, goalPos))
-//      {
-//         forceConnectionToPoint(goalPos);
-//      }
+      else
+      {
+         forceConnectionToPoint(goal);
+      }
+
+      startPos = start;
+      goalPos = goal;
 
       long endForcingPoints = System.currentTimeMillis();
 
-      System.out.println("So far global map has size: " + globalMapPoints.size());
+//      System.out.println("So far global map has size: " + globalMapPoints.size());
 
       long startGlobalMapTime = System.currentTimeMillis();
-      createVisibilityGraph();
+      createGlobalVisibilityGraph();
       long endGlobalMapTime = System.currentTimeMillis();
 
       //      System.out.println(globalVisMap.containsVertex(globalMapPoints.get(globalMapPoints.size() - 1).point1));
@@ -136,6 +150,10 @@ public class NavigableRegionsManager
       long startSnappingTime = System.currentTimeMillis();
       Point3D goalPt = getSnappedPointFromMap(goalPos);
       Point3D startpt = getSnappedPointFromMap(startPos);
+
+      //      System.out.println("CONTAINS: " + globalVisMap.containsEdge(new Point3D(-1.800, -0.983, -0.173), startpt));
+      //      System.out.println("CONTAINS: " + globalVisMap.containsEdge(new Point3D(-1.800, -0.983, -0.173), startpt));
+
       long endSnappingTime = System.currentTimeMillis();
 
       long aStarStartTime = System.currentTimeMillis();
@@ -176,6 +194,7 @@ public class NavigableRegionsManager
 
       if (debug)
       {
+         System.out.println("\n\n----STATS-----");
          System.out.println("Map creation completed in " + (endCreationTime - startCreatingMaps) + "ms");
          System.out.println("Connection completed in " + (endConnectingTime - startConnectingTime) + "ms");
          System.out.println("Forcing points took: " + (endForcingPoints - startForcingPoints) + "ms");
@@ -188,15 +207,15 @@ public class NavigableRegionsManager
       return path;
    }
 
-   private void createVisibilityGraph()
+   private void createGlobalVisibilityGraph()
    {
       globalVisMap = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
 
       int actualConnectionsAdded = 0;
       for (Connection pair : globalMapPoints)
       {
-         Point3D pt1 = pair.getPoint1();
-         Point3D pt2 = pair.getPoint2();
+         Point3D pt1 = pair.getSourcePoint();
+         Point3D pt2 = pair.getTargetPoint();
          if (!pt1.epsilonEquals(pt2, 1e-5))
          {
             globalVisMap.addVertex(pt1);
@@ -207,7 +226,7 @@ public class NavigableRegionsManager
             actualConnectionsAdded++;
          }
       }
-      System.out.println("Actual connections added: " + actualConnectionsAdded);
+//      System.out.println("Actual connections added: " + actualConnectionsAdded);
    }
 
    public Point3D getSnappedPointFromMap(Point3D position)
@@ -251,12 +270,68 @@ public class NavigableRegionsManager
       {
          for (Connection connection : map.getConnections())
          {
-            globalMapPoints.add(new Connection(connection.getPoint1(), connection.getPoint2()));
+            globalMapPoints.add(new Connection(connection.getSourcePoint(), connection.getTargetPoint()));
             connectionsAdded++;
          }
       }
 
-      System.out.println("Creating global map added " + connectionsAdded + " connections");
+//      System.out.println("Creating global map added " + connectionsAdded + " connections");
+   }
+
+   private Point3D snapConnectionToClosestPoint(Point3D position)
+   {
+      int connectionsAdded = 0;
+      if (debug)
+      {
+         System.out.println("------>>>>  Point: " + position + " is inside a planar region and a No-Go-Zone - snapping connection");
+      }
+
+      distancePoints.clear();
+
+      int index1 = 0;
+      for (Connection pair : globalMapPoints)
+      {
+         DistancePoint point1 = new DistancePoint(pair.getSourcePoint(), pair.getSourcePoint().distance(position));
+         DistancePoint point2 = new DistancePoint(pair.getTargetPoint(), pair.getTargetPoint().distance(position));
+
+         distancePoints.add(point1);
+         distancePoints.add(point2);
+         index1++;
+      }
+
+//      System.out.println("Added raw: " + index1);
+
+      distancePoints.sort(new DistancePointComparator());
+
+      ArrayList<Point3D> filteredList = new ArrayList<>();
+
+      for (DistancePoint point : distancePoints)
+      {
+         //         System.out.println("Adding connection "+ point.point + "  to " + position);
+
+         filteredList.add(point.point);
+      }
+
+//      System.out.println("After filtering: " + filteredList.size());
+
+      Iterator it = filteredList.iterator();
+
+      Point3D pointToSnapTo = null;
+      while (it.hasNext())
+      {
+         Point3D point = (Point3D) it.next();
+
+         //Cannot add an edge where the source is equal to the target!
+         if (!point.epsilonEquals(position, 1e-5))
+         {
+            pointToSnapTo = (Point3D) it.next();
+//            System.out.println("-----> new snapped point: " + pointToSnapTo);
+            connectionPoints.add(new Connection(pointToSnapTo, position));
+            break;
+         }
+      }
+
+      return pointToSnapTo;
    }
 
    private void forceConnectionToPoint(Point3D position)
@@ -264,30 +339,36 @@ public class NavigableRegionsManager
       int connectionsAdded = 0;
       if (debug)
       {
-         System.out.println("Point: " + position + " is not inside a planar region - forcing connection");
+         System.out.println("------>>>>  Point: " + position + " is not inside a planar region - forcing connection to closest points");
       }
 
       distancePoints.clear();
 
+      int index1 = 0;
       for (Connection pair : globalMapPoints)
       {
-         DistancePoint point1 = new DistancePoint(pair.getPoint1(), pair.getPoint1().distance(position));
-         DistancePoint point2 = new DistancePoint(pair.getPoint2(), pair.getPoint2().distance(position));
+         DistancePoint point1 = new DistancePoint(pair.getSourcePoint(), pair.getSourcePoint().distance(position));
+         DistancePoint point2 = new DistancePoint(pair.getTargetPoint(), pair.getTargetPoint().distance(position));
 
          distancePoints.add(point1);
          distancePoints.add(point2);
+         index1++;
       }
+
+//      System.out.println("Added raw: " + index1);
 
       distancePoints.sort(new DistancePointComparator());
 
-      HashSet<Point3D> filteredList = new HashSet<>();
+      ArrayList<Point3D> filteredList = new ArrayList<>();
 
       for (DistancePoint point : distancePoints)
       {
+         //         System.out.println("Adding connection "+ point.point + "  to " + position);
+
          filteredList.add(point.point);
       }
 
-      //      ArrayList<Point3D> filteredList = VisibilityTools.removeDuplicatePoints(newList);
+//      System.out.println("After filtering: " + filteredList.size());
 
       Iterator it = filteredList.iterator();
 
@@ -295,7 +376,6 @@ public class NavigableRegionsManager
       while (it.hasNext() && index < VisibilityGraphsParameters.NUMBER_OF_FORCED_CONNECTIONS)
       {
          Point3D point = (Point3D) it.next();
-         DefaultWeightedEdge edge = new DefaultWeightedEdge();
 
          //Cannot add an edge where the source is equal to the target!
          if (!point.epsilonEquals(position, 1e-5))
@@ -304,10 +384,11 @@ public class NavigableRegionsManager
             connectionPoints.add(new Connection(point, position));
             connectionsAdded++;
             index++;
+            //            System.out.println("Adding connection "+ point + "  to " + position);
          }
       }
 
-      System.out.println("Forcing connections added " + connectionsAdded + " connections");
+//      System.out.println("Forcing connections added " + connectionsAdded + " connections");
    }
 
    private void connectLocalMaps()
@@ -358,7 +439,7 @@ public class NavigableRegionsManager
          }
       }
 
-      System.out.println("Connecting maps added " + connectionsAdded + " connections");
+//      System.out.println("Connecting maps added " + connectionsAdded + " connections");
 
    }
 
@@ -379,8 +460,8 @@ public class NavigableRegionsManager
 
       for (Connection connection : navigableRegionLocalPlanner.getLocalVisibilityGraph().getConnections())
       {
-         Point2D edgeSource = new Point2D(connection.getPoint1().getX(), connection.getPoint1().getY());
-         Point2D edgeTarget = new Point2D(connection.getPoint2().getX(), connection.getPoint2().getY());
+         Point2D edgeSource = new Point2D(connection.getSourcePoint().getX(), connection.getSourcePoint().getY());
+         Point2D edgeTarget = new Point2D(connection.getTargetPoint().getX(), connection.getTargetPoint().getY());
 
          FramePoint3D pt1 = new FramePoint3D(navigableRegionLocalPlanner.getLocalReferenceFrame(), new Point3D(edgeSource.getX(), edgeSource.getY(), 0));
          pt1.changeFrame(ReferenceFrame.getWorldFrame());
@@ -393,10 +474,9 @@ public class NavigableRegionsManager
       localVisibilityMapInWorld.computeVertices();
    }
 
-
-
    public boolean isPointInsideNoGoZone(List<PlanarRegion> regions, Point3D pointToCheck)
    {
+      int index = 0;
       for (NavigableRegionLocalPlanner localPlanner : listOfLocalPlanners)
       {
          for (Cluster cluster : localPlanner.getClusters())
@@ -414,8 +494,13 @@ public class NavigableRegionsManager
 
             if (homeConvexPol.isPointInside(new Point2D(pointToCheck.getX(), pointToCheck.getY())))
             {
-               System.out.println("POINT " + pointToCheck + " is inside a no-go zone!!!");
-               return true;
+               index++;
+
+               if (index > 1)
+               {
+                  System.out.println("POINT " + pointToCheck + " is inside a no-go zone!!!");
+                  return true;
+               }
             }
          }
       }
@@ -443,7 +528,6 @@ public class NavigableRegionsManager
          }
       }
    }
-
 
    public List<NavigableRegionLocalPlanner> getListOfLocalPlanners()
    {
