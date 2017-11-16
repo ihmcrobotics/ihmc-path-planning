@@ -72,10 +72,10 @@ public class NavigableRegionsManager
    public List<Point3D> calculateBodyPath(Point3D start, Point3D goal)
    {
       long startBodyPathComputation = System.currentTimeMillis();
-      //            start = new Point3D(10, 10, 0);
+//                  start = new Point3D(10, 10, 0);
       //      goal = new Point3D(10, 10, 0);
 
-      //      goal = new Point3D(-3, -3, 0);
+//            goal = new Point3D(-3, -3, 0);
 
       long startCreatingMaps = System.currentTimeMillis();
       listOfLocalPlanners.clear();

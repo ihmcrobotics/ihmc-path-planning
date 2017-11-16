@@ -45,14 +45,12 @@ public class NavigableRegionLocalPlanner
    private VisibilityMap localVisibilityMap;
    private ArrayList<Connection> connections = new ArrayList<>();
 
-
    private Point3D startLocationInLocalFrame;
    private Point3D goalLocationInLocalFrame;
 
    private ClusterManager clusterMgr;
 
-   public NavigableRegionLocalPlanner(List<PlanarRegion> regions, PlanarRegion homeRegion,
-                                      Point3D start, Point3D goal, double extrusionDistance)
+   public NavigableRegionLocalPlanner(List<PlanarRegion> regions, PlanarRegion homeRegion, Point3D start, Point3D goal, double extrusionDistance)
    {
       this.regions.addAll(regions);
 
@@ -176,7 +174,6 @@ public class NavigableRegionLocalPlanner
       return filteredList;
    }
 
-
    public void addExtraPointsInsideCluster(Cluster cluster)
    {
       if (debug)
@@ -242,7 +239,6 @@ public class NavigableRegionLocalPlanner
             {
                //               cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance - 0.01));
                cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance * 0.6));
-
             }
 
             Vector3D normal = PlanarRegionTools.calculateNormal(homeRegion);
@@ -290,7 +286,9 @@ public class NavigableRegionLocalPlanner
             Vector3D normal1 = PlanarRegionTools.calculateNormal(region);
             if (Math.abs(normal1.getZ()) >= 0.5)
             {
-               cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance - 0.01));
+               cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance * 0.7));
+
+               //               cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance - 0.01));
             }
 
             Vector3D normal = PlanarRegionTools.calculateNormal(homeRegion);
@@ -387,7 +385,6 @@ public class NavigableRegionLocalPlanner
       }
       return projectedPoint;
    }
-
 
    public int getRegionId()
    {
