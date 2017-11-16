@@ -65,7 +65,7 @@ public class NavigableRegionsInterConnectionViewer extends AnimationTimer
 
       List<Connection> connections = navigableRegionsManager.getConnectionPoints();
       for (Connection connection : connections)
-         meshBuilder.addLine(connection.getPoint1(), connection.getPoint2(), VisualizationParameters.INTER_REGION_CONNECTIVITY_LINE_THICKNESS);
+         meshBuilder.addLine(connection.getSourcePoint(), connection.getTargetPoint(), VisualizationParameters.INTER_REGION_CONNECTIVITY_LINE_THICKNESS);
       connectionsMeshToRender.set(meshBuilder.generateMesh());
    }
 

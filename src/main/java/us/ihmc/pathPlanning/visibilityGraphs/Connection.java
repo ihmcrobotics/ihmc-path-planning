@@ -13,12 +13,12 @@ public class Connection
       this.point2 = point2;
    }
 
-   public Point3D getPoint1()
+   public Point3D getSourcePoint()
    {
       return point1;
    }
 
-   public Point3D getPoint2()
+   public Point3D getTargetPoint()
    {
       return point2;
    }
