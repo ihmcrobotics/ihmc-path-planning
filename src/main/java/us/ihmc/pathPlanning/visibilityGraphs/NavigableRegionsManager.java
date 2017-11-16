@@ -35,7 +35,6 @@ public class NavigableRegionsManager
    private List<VisibilityMap> visMaps = new ArrayList<>();
    private SimpleWeightedGraph<Point3D, DefaultWeightedEdge> globalVisMap = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
 
-   private List<Point3D> path = new ArrayList<>();
    private JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder;
    private double pathLength = 0.0;
    private Point3D startPos = new Point3D();
@@ -103,9 +102,86 @@ public class NavigableRegionsManager
       connectLocalMaps();
       long endConnectingTime = System.currentTimeMillis();
 
-//      System.out.println("Before forcing points global map has size: " + globalMapPoints.size());
-
       long startForcingPoints = System.currentTimeMillis();
+      forceConnectionsOrSnapStartAndGoalIfNeeded(start, goal);
+      long endForcingPoints = System.currentTimeMillis();
+
+      long startGlobalMapTime = System.currentTimeMillis();
+      createGlobalVisibilityGraph();
+      long endGlobalMapTime = System.currentTimeMillis();
+
+      long startSnappingTime = System.currentTimeMillis();
+      Point3D goalPt = getSnappedPointFromMap(goalPos);
+      Point3D startpt = getSnappedPointFromMap(startPos);
+      long endSnappingTime = System.currentTimeMillis();
+
+      long aStarStartTime = System.currentTimeMillis();
+      
+      List<Point3D> path = null;
+      if (goalPt != null && startpt != null)
+      {
+         path = calculatePathOnVisibilityGraph(startpt, goalPt);
+      }
+
+      if (debug)
+      {
+         System.out.println("\n\n----STATS-----");
+         System.out.println("Map creation completed in " + (endCreationTime - startCreatingMaps) + "ms");
+         System.out.println("Connection completed in " + (endConnectingTime - startConnectingTime) + "ms");
+         System.out.println("Forcing points took: " + (endForcingPoints - startForcingPoints) + "ms");
+         System.out.println("Global Map creation took " + (endGlobalMapTime - startGlobalMapTime) + "ms");
+         System.out.println("Snapping points took: " + (endSnappingTime - startSnappingTime) + "ms");
+         System.out.println("A* took: " + (System.currentTimeMillis() - aStarStartTime) + "ms");
+         System.out.println("Total time to find solution was: " + (System.currentTimeMillis() - startBodyPathComputation) + "ms");
+      }
+
+      return path;
+   }
+
+   private List<Point3D> calculatePathOnVisibilityGraph(Point3D start, Point3D goal)
+   {
+      ArrayList<DefaultWeightedEdge> solution = (ArrayList<DefaultWeightedEdge>) DijkstraShortestPath.findPathBetween(globalVisMap, start, goal);
+      return convertVisibilityGraphSolutionToPath(solution, start);
+   }
+   
+   private List<Point3D> convertVisibilityGraphSolutionToPath(ArrayList<DefaultWeightedEdge> solution, Point3D start)
+   {
+      List<Point3D> path = new ArrayList<>();
+      pathLength = 0.0;
+      path.clear();
+      
+      if (solution != null)
+      {
+         for (DefaultWeightedEdge edge : solution)
+         {
+            Point3D from = globalVisMap.getEdgeSource(edge);
+            Point3D to = globalVisMap.getEdgeTarget(edge);
+            pathLength = pathLength + from.distance(to);
+
+            if (!path.contains(new Point3D(from)))
+               path.add(from);
+            if (!path.contains(new Point3D(to)))
+               path.add(to);
+         }
+
+         if (!path.get(0).epsilonEquals(start, 1e-5))
+         {
+            Point3D pointOut = path.get(1);
+            path.remove(1);
+            path.add(0, pointOut);
+         }
+      }
+      else
+      {
+         System.out.println("WARNING - NO SOLUTION WAS FOUND!");
+      }
+      
+      return path;
+   }
+
+   private void forceConnectionsOrSnapStartAndGoalIfNeeded(Point3D start, Point3D goal)
+   {
+      //    System.out.println("Before forcing points global map has size: " + globalMapPoints.size());
 
       if (PlanarRegionTools.isPointInsideRegion(accesibleRegions, start))
       {
@@ -133,78 +209,6 @@ public class NavigableRegionsManager
 
       startPos = start;
       goalPos = goal;
-
-      long endForcingPoints = System.currentTimeMillis();
-
-//      System.out.println("So far global map has size: " + globalMapPoints.size());
-
-      long startGlobalMapTime = System.currentTimeMillis();
-      createGlobalVisibilityGraph();
-      long endGlobalMapTime = System.currentTimeMillis();
-
-      //      System.out.println(globalVisMap.containsVertex(globalMapPoints.get(globalMapPoints.size() - 1).point1));
-      //      System.out.println(globalVisMap.containsVertex(globalMapPoints.get(globalMapPoints.size() - 1).point2));
-      //      System.out.println(globalVisMap.containsEdge(globalMapPoints.get(globalMapPoints.size() - 1).point1,
-      //                                                   globalMapPoints.get(globalMapPoints.size() - 1).point2));
-
-      long startSnappingTime = System.currentTimeMillis();
-      Point3D goalPt = getSnappedPointFromMap(goalPos);
-      Point3D startpt = getSnappedPointFromMap(startPos);
-
-      //      System.out.println("CONTAINS: " + globalVisMap.containsEdge(new Point3D(-1.800, -0.983, -0.173), startpt));
-      //      System.out.println("CONTAINS: " + globalVisMap.containsEdge(new Point3D(-1.800, -0.983, -0.173), startpt));
-
-      long endSnappingTime = System.currentTimeMillis();
-
-      long aStarStartTime = System.currentTimeMillis();
-      if (goalPt != null && startpt != null)
-      {
-         pathLength = 0.0;
-
-         path.clear();
-
-         ArrayList<DefaultWeightedEdge> solution = (ArrayList<DefaultWeightedEdge>) DijkstraShortestPath.findPathBetween(globalVisMap, startpt, goalPt);
-
-         if (solution != null)
-         {
-            for (DefaultWeightedEdge edge : solution)
-            {
-               Point3D from = globalVisMap.getEdgeSource(edge);
-               Point3D to = globalVisMap.getEdgeTarget(edge);
-               pathLength = pathLength + from.distance(to);
-
-               if (!path.contains(new Point3D(from)))
-                  path.add(from);
-               if (!path.contains(new Point3D(to)))
-                  path.add(to);
-            }
-
-            if (!path.get(0).epsilonEquals(startpt, 1e-5))
-            {
-               Point3D pointOut = path.get(1);
-               path.remove(1);
-               path.add(0, pointOut);
-            }
-         }
-         else
-         {
-            System.out.println("WARNING - NO SOLUTION WAS FOUND!");
-         }
-      }
-
-      if (debug)
-      {
-         System.out.println("\n\n----STATS-----");
-         System.out.println("Map creation completed in " + (endCreationTime - startCreatingMaps) + "ms");
-         System.out.println("Connection completed in " + (endConnectingTime - startConnectingTime) + "ms");
-         System.out.println("Forcing points took: " + (endForcingPoints - startForcingPoints) + "ms");
-         System.out.println("Global Map creation took " + (endGlobalMapTime - startGlobalMapTime) + "ms");
-         System.out.println("Snapping points took: " + (endSnappingTime - startSnappingTime) + "ms");
-         System.out.println("A* took: " + (System.currentTimeMillis() - aStarStartTime) + "ms");
-         System.out.println("Total time to find solution was: " + (System.currentTimeMillis() - startBodyPathComputation) + "ms");
-      }
-
-      return path;
    }
 
    private void createGlobalVisibilityGraph()
@@ -226,7 +230,7 @@ public class NavigableRegionsManager
             actualConnectionsAdded++;
          }
       }
-//      System.out.println("Actual connections added: " + actualConnectionsAdded);
+      //      System.out.println("Actual connections added: " + actualConnectionsAdded);
    }
 
    public Point3D getSnappedPointFromMap(Point3D position)
@@ -275,7 +279,7 @@ public class NavigableRegionsManager
          }
       }
 
-//      System.out.println("Creating global map added " + connectionsAdded + " connections");
+      //      System.out.println("Creating global map added " + connectionsAdded + " connections");
    }
 
    private Point3D snapConnectionToClosestPoint(Point3D position)
@@ -299,7 +303,7 @@ public class NavigableRegionsManager
          index1++;
       }
 
-//      System.out.println("Added raw: " + index1);
+      //      System.out.println("Added raw: " + index1);
 
       distancePoints.sort(new DistancePointComparator());
 
@@ -312,7 +316,7 @@ public class NavigableRegionsManager
          filteredList.add(point.point);
       }
 
-//      System.out.println("After filtering: " + filteredList.size());
+      //      System.out.println("After filtering: " + filteredList.size());
 
       Iterator it = filteredList.iterator();
 
@@ -325,7 +329,7 @@ public class NavigableRegionsManager
          if (!point.epsilonEquals(position, 1e-5))
          {
             pointToSnapTo = (Point3D) it.next();
-//            System.out.println("-----> new snapped point: " + pointToSnapTo);
+            //            System.out.println("-----> new snapped point: " + pointToSnapTo);
             connectionPoints.add(new Connection(pointToSnapTo, position));
             break;
          }
@@ -355,7 +359,7 @@ public class NavigableRegionsManager
          index1++;
       }
 
-//      System.out.println("Added raw: " + index1);
+      //      System.out.println("Added raw: " + index1);
 
       distancePoints.sort(new DistancePointComparator());
 
@@ -368,7 +372,7 @@ public class NavigableRegionsManager
          filteredList.add(point.point);
       }
 
-//      System.out.println("After filtering: " + filteredList.size());
+      //      System.out.println("After filtering: " + filteredList.size());
 
       Iterator it = filteredList.iterator();
 
@@ -388,7 +392,7 @@ public class NavigableRegionsManager
          }
       }
 
-//      System.out.println("Forcing connections added " + connectionsAdded + " connections");
+      //      System.out.println("Forcing connections added " + connectionsAdded + " connections");
    }
 
    private void connectLocalMaps()
@@ -439,7 +443,7 @@ public class NavigableRegionsManager
          }
       }
 
-//      System.out.println("Connecting maps added " + connectionsAdded + " connections");
+      //      System.out.println("Connecting maps added " + connectionsAdded + " connections");
 
    }
 
