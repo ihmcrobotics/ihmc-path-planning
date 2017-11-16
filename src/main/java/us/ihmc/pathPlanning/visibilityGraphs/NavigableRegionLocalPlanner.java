@@ -237,8 +237,10 @@ public class NavigableRegionLocalPlanner
             }
             else
             {
+               cluster.setAdditionalExtrusionDistance(VisibilityGraphsParameters.EXTRUSION_DISTANCE_If_NOT_TOO_HIGH_TO_STEP - VisibilityGraphsParameters.EXTRUSION_DISTANCE);
+
                //               cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance - 0.01));
-               cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance * 0.6));
+//               cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance * 0.6));
             }
 
             Vector3D normal = PlanarRegionTools.calculateNormal(homeRegion);
@@ -284,11 +286,15 @@ public class NavigableRegionLocalPlanner
             cluster.setTransformToWorld(localReferenceFrame.getTransformToWorldFrame());
 
             Vector3D normal1 = PlanarRegionTools.calculateNormal(region);
-            if (Math.abs(normal1.getZ()) >= 0.5)
+            if (Math.abs(normal1.getZ()) >= 0.5) //if its closer to being flat you can probably step on it -->> extrude less
             {
-               cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance * 0.7));
-
-               //               cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance - 0.01));
+               cluster.setAdditionalExtrusionDistance(VisibilityGraphsParameters.EXTRUSION_DISTANCE_If_NOT_TOO_HIGH_TO_STEP - VisibilityGraphsParameters.EXTRUSION_DISTANCE);
+//               cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance * 0.7));
+               
+               if (isRegionTooHighToStep(region, homeRegion)) //is flat but too high to step so its an obstacle
+               {
+                  cluster.setAdditionalExtrusionDistance(0);
+               }
             }
 
             Vector3D normal = PlanarRegionTools.calculateNormal(homeRegion);
