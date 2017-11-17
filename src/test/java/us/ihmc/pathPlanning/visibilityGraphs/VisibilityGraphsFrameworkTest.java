@@ -6,6 +6,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,37 +25,46 @@ import us.ihmc.robotics.geometry.PlanarRegionsList;
 
 public class VisibilityGraphsFrameworkTest
 {
-   private File fileLocationForPlanarRegions = new File("./Data/20171026_133736_PlanarRegion/20171026_133736_PlanarRegion");
-   private File fileLocationForStartGoalParameters = new File("./Data/20171026_133736_PlanarRegion/");
-
    private Point3D start;
    private Point3D goal;
 
    private boolean debug = false;
 
    @Before
-   private void setup()
+   public void setup()
    {
       debug = debug && !ContinuousIntegrationTools.isRunningOnContinuousIntegrationServer();
    }
 
    @Test(timeout = 30000)
-   @Ignore
    public void testASolutionExists() throws Exception
    {
-      File fileLocationsForAllData = new File("./Data");
+      Path filePath = Paths.get(getClass().getClassLoader().getResource("Data").getPath());
+      File fileLocationsForAllData = filePath.toFile();
 
       if(debug)
+      {
          PrintTools.info("Unit test files found: " + fileLocationsForAllData.listFiles().length);
+      }
 
       File[] files = fileLocationsForAllData.listFiles();
       for (int i = 0; i < files.length; i++)
       {
-         System.out.println("\n\nProcessing file: " + files[i].getName());
-         String name = files[i].getName().replace("_UnitTest", "");
-         fileLocationForStartGoalParameters = new File("./Data/" + files[i].getName() + "/");
-         fileLocationForPlanarRegions = new File("./Data/" + files[i].getName() + "/" + name + "/");
-         
+         File fileFolder = files[i];
+         String fileName = fileFolder.getName();
+
+         if(debug)
+         {
+            PrintTools.info("Processing file: " + fileName);
+         }
+
+         if(!fileName.contains("UnitTest"))
+            continue;
+
+         String simpleFileName = fileName.replace("_UnitTest", "");
+         File fileLocationForPlanarRegions = new File(fileFolder.getPath(), simpleFileName);
+         File fileLocationForStartGoalParameters = new File(fileFolder.getPath(), "UnitTestParameters.txt");
+
          PlanarRegionsList planarRegionData = null;
 
          if (fileLocationForPlanarRegions != null)
@@ -61,46 +72,36 @@ public class VisibilityGraphsFrameworkTest
 
          if (planarRegionData == null)
             Platform.exit();
-         
-         File fileFolder = new File("./Data/" + files[i].getName() + "/" );
-         File[] files1 = fileFolder.listFiles();
-         
-         for(int j = 0; j < files1.length; j++)
+
+         if (debug)
          {
-            if(files1[j].getName().contains("UnitTestParameters"))
+            PrintTools.info("Running test for : " + fileFolder.getName());
+         }
+;
+         readStartGoalParameters(fileLocationForStartGoalParameters);
+
+         List<PlanarRegion> regions = planarRegionData.getPlanarRegionsAsList();
+         ArrayList<PlanarRegion> filteredRegions = new ArrayList<>();
+
+         for (PlanarRegion region : regions)
+         {
+            if (region.getConcaveHullSize() > 2)
             {
-               if(debug)
-               {
-                  PrintTools.info("Found test file: " + files1[j].getName());
-                  PrintTools.info("Running test for : " + files1[j].getName());
-               }
-
-               readStartGoalParameters(fileLocationForStartGoalParameters.getAbsolutePath() + "/" + files1[j].getName());
-
-               List<PlanarRegion> regions = planarRegionData.getPlanarRegionsAsList();
-               ArrayList<PlanarRegion> filteredRegions = new ArrayList<>();
-
-               for (PlanarRegion region : regions)
-               {
-                  if (region.getConcaveHullSize() > 2)
-                  {
-                     filteredRegions.add(region);
-                  }
-               }
-
-               NavigableRegionsManager manager = new NavigableRegionsManager(filteredRegions, null);
-
-               ArrayList<Point3D> path = (ArrayList<Point3D>) manager.calculateBodyPath(start, goal);
-               
-               assertTrue("Path is null!", path != null);
-               assertTrue("Path does not contain any Wps", path.size() > 0);
-               testPathSize(fileLocationForStartGoalParameters.getAbsolutePath() + "/" + files1[j].getName(), path);
+               filteredRegions.add(region);
             }
          }
+
+         NavigableRegionsManager manager = new NavigableRegionsManager(filteredRegions, null);
+
+         ArrayList<Point3D> path = (ArrayList<Point3D>) manager.calculateBodyPath(start, goal);
+
+         assertTrue("Path is null!", path != null);
+         assertTrue("Path does not contain any waypoints", path.size() > 0);
+         testPathSize(fileLocationForStartGoalParameters, path);
       }
    }
 
-   public void testPathSize(String fileName, ArrayList<Point3D> path)
+   public void testPathSize(File file, ArrayList<Point3D> path)
    {
       BufferedReader br = null;
       FileReader fr = null;
@@ -108,7 +109,7 @@ public class VisibilityGraphsFrameworkTest
       try
       {
 
-         fr = new FileReader(fileName);
+         fr = new FileReader(file);
          br = new BufferedReader(fr);
 
          String sCurrentLine;
@@ -151,7 +152,7 @@ public class VisibilityGraphsFrameworkTest
       }
    }
 
-   public ArrayList<Point3D> readStartGoalParameters(String fileName)
+   public ArrayList<Point3D> readStartGoalParameters(File file)
    {
       BufferedReader br = null;
       FileReader fr = null;
@@ -159,7 +160,7 @@ public class VisibilityGraphsFrameworkTest
       try
       {
 
-         fr = new FileReader(fileName);
+         fr = new FileReader(file);
          br = new BufferedReader(fr);
 
          String sCurrentLine;
