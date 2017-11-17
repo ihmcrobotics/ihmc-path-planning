@@ -13,6 +13,8 @@ import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.Type;
 
 public class ClusterTools
 {
+   private static final boolean debug = false;
+
    public static int determineExtrusionSide(Cluster cluster, Point2D observer)
    {
       int index = 0;
@@ -122,9 +124,10 @@ public class ClusterTools
 
          if (intersectionPoint == null)
          {
-            PrintTools.error("Failed to extrude non-navigable boundary for region " + index + " \n" + "point1: " + point1 + "\n" + "point2: " + point2 + "\n"
-                  + "point3: " + point3 + "\n" + "vec1: " + vec1 + "\n" + "vec2: " + vec2 + "\n" + "normal1: " + normal1 + "\n" + "normal2: " + normal2 + "\n"
-                  + "extrusionDistance: " + extrusionDistance);
+            if(debug)
+               PrintTools.error("Failed to extrude non-navigable boundary for region " + index + " \n" + "point1: " + point1 + "\n" + "point2: " + point2 + "\n"
+                     + "point3: " + point3 + "\n" + "vec1: " + vec1 + "\n" + "vec2: " + vec2 + "\n" + "normal1: " + normal1 + "\n" + "normal2: " + normal2 + "\n"
+                     + "extrusionDistance: " + extrusionDistance);
             continue;
          }
 
@@ -188,9 +191,10 @@ public class ClusterTools
 
          if (intersectionPoint == null)
          {
-            PrintTools.error("Failed to extrude navigable boundary for region " + index + " \n" + "point1: " + point1 + "\n" + "point2: " + point2 + "\n"
-                  + "point3: " + point3 + "\n" + "vec1: " + vec1 + "\n" + "vec2: " + vec2 + "\n" + "normal1: " + normal1 + "\n" + "normal2: " + normal2 + "\n"
-                  + "extrusionDistance: " + extrusionDistance);
+            if(debug)
+               PrintTools.error("Failed to extrude navigable boundary for region " + index + " \n" + "point1: " + point1 + "\n" + "point2: " + point2 + "\n"
+                     + "point3: " + point3 + "\n" + "vec1: " + vec1 + "\n" + "vec2: " + vec2 + "\n" + "normal1: " + normal1 + "\n" + "normal2: " + normal2 + "\n"
+                     + "extrusionDistance: " + extrusionDistance);
             continue;
          }
 

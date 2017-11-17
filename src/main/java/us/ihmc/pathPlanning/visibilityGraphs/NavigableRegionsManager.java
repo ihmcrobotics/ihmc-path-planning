@@ -11,6 +11,7 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
 import javafx.scene.paint.Color;
+import us.ihmc.commons.PrintTools;
 import us.ihmc.euclid.geometry.ConvexPolygon2D;
 import us.ihmc.euclid.referenceFrame.FramePoint3D;
 import us.ihmc.euclid.referenceFrame.ReferenceFrame;
@@ -502,7 +503,8 @@ public class NavigableRegionsManager
 
                if (index > 1)
                {
-                  System.out.println("POINT " + pointToCheck + " is inside a no-go zone!!!");
+                  if(debug)
+                     PrintTools.info("POINT " + pointToCheck + " is inside a no-go zone!!!");
                   return true;
                }
             }

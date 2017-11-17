@@ -3,6 +3,7 @@ package us.ihmc.pathPlanning.visibilityGraphs.tools;
 import java.util.ArrayList;
 import java.util.List;
 
+import us.ihmc.commons.PrintTools;
 import us.ihmc.euclid.geometry.ConvexPolygon2D;
 import us.ihmc.euclid.geometry.Line3D;
 import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
@@ -18,6 +19,8 @@ import us.ihmc.robotics.geometry.PlanarRegionsList;
 
 public class PlanarRegionTools
 {
+   private static final boolean debug = false;
+
    /**
     * Finds and returns the closest point the the provided point on the planar regions.
     */
@@ -233,11 +236,14 @@ public class PlanarRegionTools
 
          if (homeConvexPol.isPointInside(new Point2D(point.getX(), point.getY())))
          {
-            System.out.println("POINT" + point + " IS INSIDE A REGION");
+            if(debug)
+               PrintTools.info("POINT" + point + " IS INSIDE A REGION");
             return true;
          }
       }
-      System.out.println("POINT" + point + " IS NOT INSIDE A REGION");
+
+      if(debug)
+         PrintTools.info("POINT" + point + " IS NOT INSIDE A REGION");
 
       return false;
    }
