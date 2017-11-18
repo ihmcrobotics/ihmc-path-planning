@@ -69,9 +69,10 @@ public class NavigableRegionsManager
    {
 //      ArrayList<PlanarRegion> regions1 = new ArrayList<>();
 //      regions1.add(regions.get(0));
-////      regions1.add(regions.get(1));
-////      regions1.add(regions.get(2));
+//      regions1.add(regions.get(1));
+//      regions1.add(regions.get(2));
 //      regions1.add(regions.get(3));
+//      regions1.add(regions.get(4));
 
       this.regions = regions;
    }

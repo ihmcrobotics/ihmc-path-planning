@@ -180,7 +180,7 @@ public class NavigableRegionLocalPlanner
       {
          System.out.println("Adding extra points");
       }
-      PointCloudTools.doBrakeDownOn2DPoints(cluster.getNavigableExtrusionsInLocal(), 0.25);
+      PointCloudTools.doBrakeDownOn2DPoints(cluster.getNavigableExtrusionsInLocal(), VisibilityGraphsParameters.CLUSTER_RESOLUTION);
       if (debug)
       {
          System.out.println("Finished Adding extra points");
@@ -298,6 +298,10 @@ public class NavigableRegionLocalPlanner
                if (isRegionTooHighToStep(region, homeRegion)) //is flat but too high to step so its an obstacle
                {
                   cluster.setAdditionalExtrusionDistance(0);
+               }
+               else
+               {
+                  
                }
             }
 
