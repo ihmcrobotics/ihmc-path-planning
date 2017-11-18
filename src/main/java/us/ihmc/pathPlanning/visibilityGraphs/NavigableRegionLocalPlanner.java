@@ -225,7 +225,7 @@ public class NavigableRegionLocalPlanner
       {
          if (regions.contains(region))
          {
-            //            System.out.println("Creating a line cluster");
+            //                        System.out.println("Creating a line cluster");
             Cluster cluster = new Cluster();
             clusters.add(cluster);
             cluster.setType(Type.LINE);
@@ -237,10 +237,11 @@ public class NavigableRegionLocalPlanner
             }
             else
             {
-               cluster.setAdditionalExtrusionDistance(VisibilityGraphsParameters.EXTRUSION_DISTANCE_If_NOT_TOO_HIGH_TO_STEP - VisibilityGraphsParameters.EXTRUSION_DISTANCE);
+               cluster.setAdditionalExtrusionDistance(VisibilityGraphsParameters.EXTRUSION_DISTANCE_If_NOT_TOO_HIGH_TO_STEP
+                     - VisibilityGraphsParameters.EXTRUSION_DISTANCE);
 
                //               cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance - 0.01));
-//               cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance * 0.6));
+               //               cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance * 0.6));
             }
 
             Vector3D normal = PlanarRegionTools.calculateNormal(homeRegion);
@@ -280,6 +281,8 @@ public class NavigableRegionLocalPlanner
       {
          if (regions.contains(region))
          {
+            //            System.out.println("Creating a polygon cluster");
+
             Cluster cluster = new Cluster();
             clusters.add(cluster);
             cluster.setType(Type.POLYGON);
@@ -288,9 +291,10 @@ public class NavigableRegionLocalPlanner
             Vector3D normal1 = PlanarRegionTools.calculateNormal(region);
             if (Math.abs(normal1.getZ()) >= 0.5) //if its closer to being flat you can probably step on it -->> extrude less
             {
-               cluster.setAdditionalExtrusionDistance(VisibilityGraphsParameters.EXTRUSION_DISTANCE_If_NOT_TOO_HIGH_TO_STEP - VisibilityGraphsParameters.EXTRUSION_DISTANCE);
-//               cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance * 0.7));
-               
+               cluster.setAdditionalExtrusionDistance(VisibilityGraphsParameters.EXTRUSION_DISTANCE_If_NOT_TOO_HIGH_TO_STEP
+                     - VisibilityGraphsParameters.EXTRUSION_DISTANCE);
+               //               cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance * 0.7));
+
                if (isRegionTooHighToStep(region, homeRegion)) //is flat but too high to step so its an obstacle
                {
                   cluster.setAdditionalExtrusionDistance(0);
@@ -298,9 +302,9 @@ public class NavigableRegionLocalPlanner
             }
 
             Vector3D normal = PlanarRegionTools.calculateNormal(homeRegion);
-            for (int i = 0; i < region.getConvexHull().getNumberOfVertices(); i++)
+            for (int i = 0; i < region.getConcaveHullSize(); i++)
             {
-               Point2D point2D = (Point2D) region.getConvexHull().getVertex(i);
+               Point2D point2D = (Point2D) region.getConcaveHull()[i];
                Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
                FramePoint3D fpt = new FramePoint3D();
                fpt.set(point3D);
@@ -313,6 +317,8 @@ public class NavigableRegionLocalPlanner
                EuclidGeometryTools.orthogonalProjectionOnPlane3D(pointToProject, point3D, normal, projectedPoint);
 
                FramePoint3D pointFpt = new FramePoint3D(ReferenceFrame.getWorldFrame(), projectedPoint);
+               
+//               System.out.println(pointFpt);
 
                cluster.addRawPointInWorld(pointFpt.getPoint());
             }
