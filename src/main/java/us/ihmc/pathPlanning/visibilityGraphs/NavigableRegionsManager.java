@@ -10,24 +10,21 @@ import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
-import javafx.scene.paint.Color;
 import us.ihmc.commons.PrintTools;
 import us.ihmc.euclid.geometry.ConvexPolygon2D;
 import us.ihmc.euclid.referenceFrame.FramePoint3D;
 import us.ihmc.euclid.referenceFrame.ReferenceFrame;
-import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.PlanarRegionTools;
-import us.ihmc.pathPlanning.visibilityGraphs.tools.VisibilityTools;
 import us.ihmc.robotics.geometry.PlanarRegion;
 
 public class NavigableRegionsManager
 {
-   private final static boolean debug = false;
+   private final static boolean debug = true;
 
    private List<PlanarRegion> regions;
    private List<PlanarRegion> accesibleRegions = new ArrayList<>();
@@ -79,6 +76,9 @@ public class NavigableRegionsManager
 
    public List<Point3D> calculateBodyPath(Point3D start, Point3D goal)
    {
+      if(debug)
+         PrintTools.info("Starting to calculate body path");
+      
       long startBodyPathComputation = System.currentTimeMillis();
 //                  start = new Point3D(10, 10, 0);
       //      goal = new Point3D(10, 10, 0);
@@ -133,14 +133,14 @@ public class NavigableRegionsManager
 
       if (debug)
       {
-         System.out.println("\n\n----STATS-----");
-         System.out.println("Map creation completed in " + (endCreationTime - startCreatingMaps) + "ms");
-         System.out.println("Connection completed in " + (endConnectingTime - startConnectingTime) + "ms");
-         System.out.println("Forcing points took: " + (endForcingPoints - startForcingPoints) + "ms");
-         System.out.println("Global Map creation took " + (endGlobalMapTime - startGlobalMapTime) + "ms");
-         System.out.println("Snapping points took: " + (endSnappingTime - startSnappingTime) + "ms");
-         System.out.println("A* took: " + (System.currentTimeMillis() - aStarStartTime) + "ms");
-         System.out.println("Total time to find solution was: " + (System.currentTimeMillis() - startBodyPathComputation) + "ms");
+         PrintTools.info("----Navigable Regions Manager Stats-----");
+         PrintTools.info("Map creation completed in " + (endCreationTime - startCreatingMaps) + "ms");
+         PrintTools.info("Connection completed in " + (endConnectingTime - startConnectingTime) + "ms");
+         PrintTools.info("Forcing points took: " + (endForcingPoints - startForcingPoints) + "ms");
+         PrintTools.info("Global Map creation took " + (endGlobalMapTime - startGlobalMapTime) + "ms");
+         PrintTools.info("Snapping points took: " + (endSnappingTime - startSnappingTime) + "ms");
+         PrintTools.info("A* took: " + (System.currentTimeMillis() - aStarStartTime) + "ms");
+         PrintTools.info("Total time to find solution was: " + (System.currentTimeMillis() - startBodyPathComputation) + "ms");
       }
 
       return path;
@@ -178,10 +178,14 @@ public class NavigableRegionsManager
             path.remove(1);
             path.add(0, pointOut);
          }
+         
+         if(debug)
+            PrintTools.info("Visibility graph successfully found a solution");
       }
       else
       {
-         System.out.println("WARNING - NO SOLUTION WAS FOUND!");
+         if(debug)
+            PrintTools.info("WARNING - Visibility graph found no solution");
       }
       
       return path;
@@ -295,7 +299,7 @@ public class NavigableRegionsManager
       int connectionsAdded = 0;
       if (debug)
       {
-         System.out.println("------>>>>  Point: " + position + " is inside a planar region and a No-Go-Zone - snapping connection");
+         PrintTools.info("------>>>>  Point: " + position + " is inside a planar region and a No-Go-Zone - snapping connection");
       }
 
       distancePoints.clear();
@@ -351,7 +355,7 @@ public class NavigableRegionsManager
       int connectionsAdded = 0;
       if (debug)
       {
-         System.out.println("------>>>>  Point: " + position + " is not inside a planar region - forcing connection to closest points");
+         PrintTools.info("------>>>>  Point: " + position + " is not inside a planar region - forcing connection to closest points");
       }
 
       distancePoints.clear();
@@ -419,7 +423,7 @@ public class NavigableRegionsManager
       int connectionsAdded = 0;
       if (debug)
       {
-         System.out.println("Starting connectivity check");
+         PrintTools.info("Starting connectivity check");
       }
 
       if (listOfLocalPlanners.size() > 1)
@@ -459,7 +463,7 @@ public class NavigableRegionsManager
    {
       if (debug)
       {
-         System.out.println("-----------Processing new region");
+         PrintTools.info("-----------Processing new region");
       }
 
       NavigableRegionLocalPlanner navigableRegionLocalPlanner = new NavigableRegionLocalPlanner(regions, region, startPos, goalPos,
