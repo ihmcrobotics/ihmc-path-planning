@@ -13,6 +13,7 @@ import us.ihmc.commons.thread.ThreadTools;
 import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.pathPlanning.visibilityGraphs.DefaultVisibilityGraphParameters;
 import us.ihmc.pathPlanning.visibilityGraphs.NavigableRegionsManager;
+import us.ihmc.pathPlanning.visibilityGraphs.VisibilityGraphsParameters;
 import us.ihmc.robotEnvironmentAwareness.communication.REAMessager;
 import us.ihmc.robotics.geometry.PlanarRegion;
 import us.ihmc.robotics.geometry.PlanarRegionsList;
@@ -29,14 +30,13 @@ public class VisibilityGraphsRenderer
    private final AtomicReference<Point3D> startPositionReference;
    private final AtomicReference<Point3D> goalPositionReference;
 
-   private final AtomicReference<NavigableRegionsManager> navigableRegionsManagerReference = new AtomicReference<>(null);
-   private final AtomicReference<List<Point3D>> bodyPathReference = new AtomicReference<>(null);
+   private final AtomicReference<VisibilityGraphsParameters> parameters;
 
    private final BodyPathMeshViewer bodyPathMeshViewer;
    private final NavigableRegionInnerVizMapMeshViewer navigableRegionInnerVizMapMeshViewer;
    private final NavigableRegionsInterConnectionViewer navigableRegionsInterConnectionViewer;
    private final ClusterMeshViewer clusterMeshViewer;
-   
+
    private NavigableRegionsManager navigableRegionsManager;
 
    public VisibilityGraphsRenderer(REAMessager messager)
@@ -44,11 +44,10 @@ public class VisibilityGraphsRenderer
       planarRegionsReference = messager.createInput(UIVisibilityGraphsTopics.PlanarRegionData);
       startPositionReference = messager.createInput(UIVisibilityGraphsTopics.StartPosition);
       goalPositionReference = messager.createInput(UIVisibilityGraphsTopics.GoalPosition);
+      parameters = messager.createInput(UIVisibilityGraphsTopics.VisibilityGraphsParameters, new DefaultVisibilityGraphParameters());
 
       messager.registerTopicListener(UIVisibilityGraphsTopics.VisibilityGraphsComputePath, request -> computePathOnThread());
 
-      navigableRegionsManager = new NavigableRegionsManager(new DefaultVisibilityGraphParameters());
-      
       bodyPathMeshViewer = new BodyPathMeshViewer(messager);
       root.getChildren().add(bodyPathMeshViewer.getRoot());
       navigableRegionInnerVizMapMeshViewer = new NavigableRegionInnerVizMapMeshViewer(messager);
@@ -57,8 +56,6 @@ public class VisibilityGraphsRenderer
       root.getChildren().add(navigableRegionsInterConnectionViewer.getRoot());
       clusterMeshViewer = new ClusterMeshViewer(messager);
       root.getChildren().add(clusterMeshViewer.getRoot());
-      
-      
    }
 
    public void clear()
@@ -113,12 +110,13 @@ public class VisibilityGraphsRenderer
       try
       {
          List<PlanarRegion> planarRegions = planarRegionsList.getPlanarRegionsAsList();
+         
          planarRegions = planarRegions.stream().filter(region -> region.getConcaveHullSize() > 2).collect(Collectors.toList());
+
+         navigableRegionsManager = new NavigableRegionsManager(parameters.get());
          navigableRegionsManager.setPlanarRegions(planarRegions);
-         navigableRegionsManagerReference.set(navigableRegionsManager);
 
          List<Point3D> bodyPath = navigableRegionsManager.calculateBodyPath(start, goal);
-         bodyPathReference.set(bodyPath);
          bodyPathMeshViewer.processBodyPath(bodyPath);
          navigableRegionInnerVizMapMeshViewer.processNavigableRegions(navigableRegionsManager.getListOfLocalPlanners());
 

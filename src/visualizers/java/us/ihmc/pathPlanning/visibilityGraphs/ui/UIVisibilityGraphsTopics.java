@@ -1,6 +1,7 @@
 package us.ihmc.pathPlanning.visibilityGraphs.ui;
 
 import us.ihmc.euclid.tuple3D.Point3D;
+import us.ihmc.pathPlanning.visibilityGraphs.VisibilityGraphsParameters;
 import us.ihmc.robotEnvironmentAwareness.communication.APIFactory;
 import us.ihmc.robotEnvironmentAwareness.communication.APIFactory.*;
 import us.ihmc.robotics.geometry.PlanarRegionsList;
@@ -23,7 +24,8 @@ public class UIVisibilityGraphsTopics
    private static final CategoryTheme EditMode = apiFactory.createCategoryTheme("EditMode");
    private static final CategoryTheme UnitTest = apiFactory.createCategoryTheme("UnitTest");
 
-   
+   private static final TopicTheme Parameters = apiFactory.createTopicTheme("Parameters");
+
    private static final TypedTopicTheme<Boolean> Enable = apiFactory.createTypedTopicTheme("Enable");
    private static final TypedTopicTheme<Boolean> Show = apiFactory.createTypedTopicTheme("Show");
    private static final TypedTopicTheme<Boolean> Close = apiFactory.createTypedTopicTheme("Close");
@@ -45,6 +47,7 @@ public class UIVisibilityGraphsTopics
    public static final Topic<Point3D> GoalPosition = Root.child(Goal).topic(Position);
 
    public static final Topic<Boolean> VisibilityGraphsComputePath = Root.child(VisibilityGraphs).topic(ComputePath);
+   public static final Topic<VisibilityGraphsParameters> VisibilityGraphsParameters = Root.child(VisibilityGraphs).topic(Parameters);
    public static final Topic<Boolean> ShowBodyPath = Root.child(VisibilityGraphs).child(BodyPath).topic(Show);
    public static final Topic<Boolean> ShowLocalGraphs = Root.child(VisibilityGraphs).child(LocalGraphs).topic(Show);
    public static final Topic<Boolean> ShowInterConnections = Root.child(VisibilityGraphs).child(Connections).topic(Show);
@@ -53,8 +56,7 @@ public class UIVisibilityGraphsTopics
    public static final Topic<Boolean> ShowClusterNavigableExtrusions = Root.child(VisibilityGraphs).child(Cluster).child(NavigableExtrusions).topic(Show);
    public static final Topic<Boolean> CloseClusterNavigableExtrusions = Root.child(VisibilityGraphs).child(Cluster).child(NavigableExtrusions).topic(Close);
    public static final Topic<Boolean> ShowClusterNonNavigableExtrusions = Root.child(VisibilityGraphs).child(Cluster).child(NonNavigableExtrusions).topic(Show);
-   public static final Topic<Boolean> CloseClusterNonNavigableExtrusions = Root.child(VisibilityGraphs).child(Cluster).child(NonNavigableExtrusions)
-                                                                               .topic(Close);
+   public static final Topic<Boolean> CloseClusterNonNavigableExtrusions = Root.child(VisibilityGraphs).child(Cluster).child(NonNavigableExtrusions).topic(Close);
    public static final Topic<Boolean> exportUnitTestDataFile = Root.child(UnitTest).topic(Export);
    public static final Topic<String> exportUnitTestPath = Root.child(UnitTest).topic(Path);
 
