@@ -24,7 +24,6 @@ public class UIVisibilityGraphsTopics
    private static final CategoryTheme UnitTest = apiFactory.createCategoryTheme("UnitTest");
 
    
-   private static final TypedTopicTheme<Boolean> Load = apiFactory.createTypedTopicTheme("Load");
    private static final TypedTopicTheme<Boolean> Enable = apiFactory.createTypedTopicTheme("Enable");
    private static final TypedTopicTheme<Boolean> Show = apiFactory.createTypedTopicTheme("Show");
    private static final TypedTopicTheme<Boolean> Close = apiFactory.createTypedTopicTheme("Close");
@@ -38,7 +37,6 @@ public class UIVisibilityGraphsTopics
 
    private static final Category Root = apiFactory.getRootCategory(apiFactory.createCategoryTheme("VizGraphs"));
 
-   public static final Topic<Boolean> LoadPlanarRegion = Root.child(PlanarRegion).topic(Load);
    public static final Topic<PlanarRegionsList> PlanarRegionData = Root.child(PlanarRegion).topic(Data);
 
    public static final Topic<Boolean> StartEditModeEnabled = Root.child(Start).child(EditMode).topic(Enable);

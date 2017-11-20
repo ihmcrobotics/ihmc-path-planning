@@ -114,7 +114,6 @@ public class VisibilityGraphsRenderer
       {
          List<PlanarRegion> planarRegions = planarRegionsList.getPlanarRegionsAsList();
          planarRegions = planarRegions.stream().filter(region -> region.getConcaveHullSize() > 2).collect(Collectors.toList());
-//         navigableRegionsManager = new NavigableRegionsManager(planarRegions);
          navigableRegionsManager.setPlanarRegions(planarRegions);
          navigableRegionsManagerReference.set(navigableRegionsManager);
 
