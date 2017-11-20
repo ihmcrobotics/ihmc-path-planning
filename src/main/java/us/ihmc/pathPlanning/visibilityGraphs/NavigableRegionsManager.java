@@ -103,12 +103,8 @@ public class NavigableRegionsManager
          PrintTools.info("Starting to calculate body path");
 
       long startBodyPathComputation = System.currentTimeMillis();
-//      start = new Point3D(-0.9, 1.2, 0);
-      //      goal = new Point3D(10, 10, 0);
-
-      //            goal = new Point3D(-3, -3, 0);
-
       long startCreatingMaps = System.currentTimeMillis();
+
       listOfLocalPlanners.clear();
       visMaps.clear();
       accesibleRegions.clear();
@@ -117,8 +113,9 @@ public class NavigableRegionsManager
       this.goalPos = goal;
       classifyRegions(regions);
 
-      createVisibilityGraphForRegion(regions.get(0), startPos, goalPos);
-
+      PlanarRegion groundPlane = getLargestAreaRegion(regions);
+      createVisibilityGraphForRegion(groundPlane, start, goal);
+      
       //      for (PlanarRegion region : accesibleRegions)
       //      {
       //         createVisibilityGraphForRegion(region, startPos, goalPos);
@@ -145,7 +142,19 @@ public class NavigableRegionsManager
 
       long startSnappingTime = System.currentTimeMillis();
       Point3D goalPt = getSnappedPointFromMap(goalPos);
+      if (debug && goalPt == null)
+      {
+         PrintTools.error("Snapping of goal returned null.");
+      }
       Point3D startpt = getSnappedPointFromMap(startPos);
+      if (debug && startpt == null)
+      {
+         PrintTools.error("Snapping of start returned null.");
+      }
+      if (goalPt == null || startpt == null)
+      {
+         throw new RuntimeException("Snapping failed.");
+      }
       long endSnappingTime = System.currentTimeMillis();
 
       long aStarStartTime = System.currentTimeMillis();
@@ -154,6 +163,11 @@ public class NavigableRegionsManager
       if (goalPt != null && startpt != null)
       {
          path = calculatePathOnVisibilityGraph(startpt, goalPt);
+      }
+      else
+      {
+         if(debug)
+            PrintTools.error("Start or goal pose is null, visibilty graph unable to compute a path!");
       }
 
       if (debug)
@@ -169,6 +183,31 @@ public class NavigableRegionsManager
       }
 
       return path;
+   }
+   
+   private static PlanarRegion getLargestAreaRegion(List<PlanarRegion> planarRegions)
+   {
+      double largestArea = Double.NEGATIVE_INFINITY;
+      int index = -1;
+      
+      for(int i = 0; i < planarRegions.size(); i++)
+      {
+         double area = 0.0;
+         PlanarRegion region = planarRegions.get(i);
+         
+         for(int j = 0; j < planarRegions.get(i).getNumberOfConvexPolygons(); j++)
+         {
+            area += region.getConvexPolygon(j).getArea();
+         }
+         
+         if(area > largestArea)
+         {
+            largestArea = area;
+            index = i;
+         }
+      }
+      
+      return planarRegions.get(index);
    }
 
    private List<Point3D> calculatePathOnVisibilityGraph(Point3D start, Point3D goal)
@@ -246,6 +285,20 @@ public class NavigableRegionsManager
 
       startPos = start;
       goalPos = goal;
+      
+      if(debug)
+      {
+         if(startPos == null)
+            PrintTools.error("Visibility graph unable to force a connection to the start point");
+
+         if(goalPos == null)
+            PrintTools.error("Visibility graph unable to force a connection to the goal point");
+      }
+      
+      if(startPos == null || goalPos == null)
+      {
+         throw new RuntimeException("Visibility graph unable to force a connection to the start and/or goal point");
+      }
    }
 
    private void createGlobalVisibilityGraph()
