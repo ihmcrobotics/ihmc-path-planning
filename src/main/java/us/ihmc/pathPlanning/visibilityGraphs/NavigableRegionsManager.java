@@ -68,12 +68,18 @@ public class NavigableRegionsManager
 
    public void setPlanarRegions(List<PlanarRegion> regions)
    {
-//      ArrayList<PlanarRegion> regions1 = new ArrayList<>();
-//      regions1.add(regions.get(0));
-//      regions1.add(regions.get(1));
+      ArrayList<PlanarRegion> regions1 = new ArrayList<>();
+      regions1.add(regions.get(0));
+      regions1.add(regions.get(1));
 //      regions1.add(regions.get(2));
 //      regions1.add(regions.get(3));
 //      regions1.add(regions.get(4));
+//      regions1.add(regions.get(5));
+//      regions1.add(regions.get(6));
+//    regions1.add(regions.get(20)); //slanted
+//    regions1.add(regions.get(21)); //slanted 2
+//    regions1.add(regions.get(24)); //slanted 3
+
 
       this.regions = regions;
    }
@@ -97,6 +103,9 @@ public class NavigableRegionsManager
       this.startPos = start;
       this.goalPos = goal;
       classifyRegions(regions);
+      
+//      createVisibilityGraphForRegion(regions.get(0), startPos, goalPos);
+
 
       for (PlanarRegion region : accesibleRegions)
       {

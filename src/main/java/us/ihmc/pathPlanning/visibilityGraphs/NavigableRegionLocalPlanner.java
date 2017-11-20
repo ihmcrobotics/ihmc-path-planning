@@ -38,8 +38,8 @@ public class NavigableRegionLocalPlanner
    private final List<PlanarRegion> lineObstacleRegions = new ArrayList<>();
    private final List<PlanarRegion> polygonObstacleRegions = new ArrayList<>();
    private ReferenceFrame localReferenceFrame;
-   private final VisibilityGraphsParameters parameters;
 
+   private double extrusionDistance = 0.80;
    private PlanarRegion homeRegion;
 
    private VisibilityMap localVisibilityMap;
@@ -50,11 +50,13 @@ public class NavigableRegionLocalPlanner
 
    private ClusterManager clusterMgr;
 
-   public NavigableRegionLocalPlanner(List<PlanarRegion> regions, PlanarRegion homeRegion, Point3D start, Point3D goal, VisibilityGraphsParameters parameters)
+   public NavigableRegionLocalPlanner(List<PlanarRegion> regions, PlanarRegion homeRegion, Point3D start, Point3D goal, double extrusionDistance)
    {
       this.regions.addAll(regions);
+
       this.homeRegion = homeRegion;
-      this.parameters = parameters;
+
+      this.extrusionDistance = extrusionDistance;
 
       createLocalReferenceFrame();
 
@@ -98,13 +100,18 @@ public class NavigableRegionLocalPlanner
    {
       regionsInsideHomeRegion = PlanarRegionTools.determineWhichRegionsAreInside(homeRegion, regions);
 
+//      System.out.println("Regions that are inside: " + regionsInsideHomeRegion.size());
+
       if (debug)
       {
          System.out.println(regionsInsideHomeRegion.size());
       }
 
       classifyExtrusions(homeRegion);
-      regionsInsideHomeRegion = filterRegionsThatAreBelow(regionsInsideHomeRegion, homeRegion);
+      regionsInsideHomeRegion = filterRegionsThatAreAboveHomeRegion(regionsInsideHomeRegion, homeRegion);
+
+//      System.out.println("Regions that are inside2: " + regionsInsideHomeRegion.size());
+
       createClustersFromRegions(homeRegion, regionsInsideHomeRegion);
       createClusterForHomeRegion();
 
@@ -120,7 +127,7 @@ public class NavigableRegionLocalPlanner
       }
 
       // TODO The use of Double.MAX_VALUE for the observer seems rather risky. I'm actually surprised that it works.
-      clusterMgr.performExtrusions(new Point2D(Double.MAX_VALUE, Double.MAX_VALUE), parameters.getExtrusionDistance());
+      clusterMgr.performExtrusions(new Point2D(Double.MAX_VALUE, Double.MAX_VALUE), extrusionDistance);
 
       for (Cluster cluster : clusters)
       {
@@ -158,12 +165,12 @@ public class NavigableRegionLocalPlanner
       localVisibilityMap = localVisibilityGraph.getVisibilityMap();
    }
 
-   private List<PlanarRegion> filterRegionsThatAreBelow(List<PlanarRegion> regionsToCheck, PlanarRegion homeRegion)
+   private List<PlanarRegion> filterRegionsThatAreAboveHomeRegion(List<PlanarRegion> regionsToCheck, PlanarRegion homeRegion)
    {
       List<PlanarRegion> filteredList = new ArrayList<>();
       for (PlanarRegion region : regionsToCheck)
       {
-         if (!PlanarRegionTools.areAllPointsBelowTheRegion(region, homeRegion))
+         if (isRegionAboveHomeRegion(region, homeRegion))
          {
             filteredList.add(region);
          }
@@ -172,13 +179,79 @@ public class NavigableRegionLocalPlanner
       return filteredList;
    }
 
+   public static boolean isRegionAboveHomeRegion(PlanarRegion regionToCheck, PlanarRegion homeRegion)
+   {
+      for (int i = 0; i < homeRegion.getConcaveHull().length; i++)
+      {
+         Point2D point2D = (Point2D) homeRegion.getConcaveHull()[i];
+         Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
+         FramePoint3D homeRegionPoint = new FramePoint3D();
+         homeRegionPoint.set(point3D);
+         RigidBodyTransform transToWorld = new RigidBodyTransform();
+         homeRegion.getTransformToWorld(transToWorld);
+         homeRegionPoint.applyTransform(transToWorld);
+
+         for (int j = 0; j < regionToCheck.getConcaveHull().length; j++)
+         {
+            Point2D point2D1 = (Point2D) regionToCheck.getConcaveHull()[j];
+            Point3D point3D1 = new Point3D(point2D1.getX(), point2D1.getY(), 0);
+            FramePoint3D otherRegionPoint = new FramePoint3D();
+            otherRegionPoint.set(point3D1);
+            RigidBodyTransform transToWorld1 = new RigidBodyTransform();
+            regionToCheck.getTransformToWorld(transToWorld1);
+            otherRegionPoint.applyTransform(transToWorld1);
+
+            if (homeRegionPoint.getZ() > otherRegionPoint.getZ())
+            {
+//               System.out.println("Region is below home");
+               return false;
+            }
+         }
+      }
+//      System.out.println("Region is above home");
+      return true;
+   }
+
+   public static boolean areAllPointsBelowTheRegion(PlanarRegion regionToCheck, PlanarRegion homeRegion)
+   {
+      for (int i = 0; i < homeRegion.getConcaveHull().length; i++)
+      {
+         Point2D point2D = (Point2D) homeRegion.getConcaveHull()[i];
+         Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
+         FramePoint3D homeRegionPoint = new FramePoint3D();
+         homeRegionPoint.set(point3D);
+         RigidBodyTransform transToWorld = new RigidBodyTransform();
+         homeRegion.getTransformToWorld(transToWorld);
+         homeRegionPoint.applyTransform(transToWorld);
+
+         for (int j = 0; j < regionToCheck.getConcaveHull().length; j++)
+         {
+            Point2D point2D1 = (Point2D) regionToCheck.getConcaveHull()[j];
+            Point3D point3D1 = new Point3D(point2D1.getX(), point2D1.getY(), 0);
+            FramePoint3D otherRegionPoint = new FramePoint3D();
+            otherRegionPoint.set(point3D1);
+            RigidBodyTransform transToWorld1 = new RigidBodyTransform();
+            regionToCheck.getTransformToWorld(transToWorld1);
+            otherRegionPoint.applyTransform(transToWorld1);
+
+            //            System.out.println(homeRegionPoint.getZ() + "   " + otherRegionPoint.getZ());
+            if (homeRegionPoint.getZ() + 0.1 < otherRegionPoint.getZ())
+            {
+               return false;
+            }
+         }
+      }
+
+      return true;
+   }
+
    public void addExtraPointsInsideCluster(Cluster cluster)
    {
       if (debug)
       {
          System.out.println("Adding extra points");
       }
-      PointCloudTools.doBrakeDownOn2DPoints(cluster.getNavigableExtrusionsInLocal(), parameters.getClusterResolution());
+      PointCloudTools.doBrakeDownOn2DPoints(cluster.getNavigableExtrusionsInLocal(), VisibilityGraphsParameters.CLUSTER_RESOLUTION);
       if (debug)
       {
          System.out.println("Finished Adding extra points");
@@ -214,7 +287,7 @@ public class NavigableRegionLocalPlanner
 
       cluster.setClusterClosure(true);
       cluster.setExtrusionSide(ExtrusionSide.INSIDE);
-      cluster.setAdditionalExtrusionDistance(-1.0 * (parameters.getExtrusionDistance() - 0.01));
+      cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance - 0.01));
    }
 
    private void createClustersFromRegions(PlanarRegion homeRegion, List<PlanarRegion> regions)
@@ -235,8 +308,8 @@ public class NavigableRegionLocalPlanner
             }
             else
             {
-               cluster.setAdditionalExtrusionDistance(parameters.getExtrusionDistanceIfNotTooHighToStep()
-                     - parameters.getExtrusionDistance());
+               cluster.setAdditionalExtrusionDistance(VisibilityGraphsParameters.EXTRUSION_DISTANCE_If_NOT_TOO_HIGH_TO_STEP
+                     - VisibilityGraphsParameters.EXTRUSION_DISTANCE);
 
                //               cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance - 0.01));
                //               cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance * 0.6));
@@ -275,11 +348,13 @@ public class NavigableRegionLocalPlanner
          }
       }
 
+//      System.out.println(polygonObstacleRegions.size());
+
       for (PlanarRegion region : polygonObstacleRegions)
       {
          if (regions.contains(region))
          {
-            //            System.out.println("Creating a polygon cluster");
+//            System.out.println("Creating a polygon cluster");
 
             Cluster cluster = new Cluster();
             clusters.add(cluster);
@@ -289,8 +364,8 @@ public class NavigableRegionLocalPlanner
             Vector3D normal1 = PlanarRegionTools.calculateNormal(region);
             if (Math.abs(normal1.getZ()) >= 0.5) //if its closer to being flat you can probably step on it -->> extrude less
             {
-               cluster.setAdditionalExtrusionDistance(parameters.getExtrusionDistanceIfNotTooHighToStep()
-                     - parameters.getExtrusionDistance());
+               cluster.setAdditionalExtrusionDistance(VisibilityGraphsParameters.EXTRUSION_DISTANCE_If_NOT_TOO_HIGH_TO_STEP
+                     - VisibilityGraphsParameters.EXTRUSION_DISTANCE);
                //               cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance * 0.7));
 
                if (isRegionTooHighToStep(region, homeRegion)) //is flat but too high to step so its an obstacle
@@ -299,7 +374,7 @@ public class NavigableRegionLocalPlanner
                }
                else
                {
-                  
+
                }
             }
 
@@ -319,8 +394,8 @@ public class NavigableRegionLocalPlanner
                EuclidGeometryTools.orthogonalProjectionOnPlane3D(pointToProject, point3D, normal, projectedPoint);
 
                FramePoint3D pointFpt = new FramePoint3D(ReferenceFrame.getWorldFrame(), projectedPoint);
-               
-//               System.out.println(pointFpt);
+
+               //               System.out.println(pointFpt);
 
                cluster.addRawPointInWorld(pointFpt.getPoint());
             }
@@ -344,12 +419,16 @@ public class NavigableRegionLocalPlanner
 
       if (normal != null && regionToProject != regionToProjectTo)
       {
-         if (Math.abs(normal.getZ()) < parameters.getNormalZThresholdForPolygonObstacles())
+//         System.out.println(Math.abs(normal.getZ()) + "   " + VisibilityGraphsParameters.NORMAL_Z_THRESHOLD_FOR_POLYGON_OBSTACLES);
+
+         if (Math.abs(normal.getZ()) < VisibilityGraphsParameters.NORMAL_Z_THRESHOLD_FOR_POLYGON_OBSTACLES)
          {
+//            System.out.println("Adding a line obstacle");
             lineObstacleRegions.add(regionToProject);
          }
          else
          {
+//            System.out.println("Adding a polygon obstacle");
             polygonObstacleRegions.add(regionToProject);
          }
       }
@@ -377,7 +456,7 @@ public class NavigableRegionLocalPlanner
          Point3D projectedPoint = new Point3D();
          EuclidGeometryTools.orthogonalProjectionOnPlane3D(pointToProject, point3D, normal, projectedPoint);
 
-         if (pointToProject.distance(projectedPoint) >= parameters.getTooHighToStepDistance())
+         if (pointToProject.distance(projectedPoint) >= VisibilityGraphsParameters.TOO_HIGH_TO_STEP_DISTANCE)
          {
             return true;
          }
