@@ -45,25 +45,39 @@ public class NavigableRegionsManager
 
    public NavigableRegionsManager(VisibilityGraphsParameters parameters)
    {
-      this.parameters = parameters;
+      this(parameters, null, null);
+   }
+   
+   public NavigableRegionsManager(List<PlanarRegion> regions)
+   {
+      this(regions, null);
    }
 
    public NavigableRegionsManager(VisibilityGraphsParameters parameters, List<PlanarRegion> regions)
    {
       this(parameters, regions, null);
    }
+   
+   public NavigableRegionsManager(JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder)
+   {
+      this(null, null, javaFXMultiColorMeshBuilder);
+   }
 
    public NavigableRegionsManager(VisibilityGraphsParameters parameters, JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder)
    {
-      this.parameters = parameters;
-      this.javaFXMultiColorMeshBuilder = javaFXMultiColorMeshBuilder;
+      this(parameters, null, javaFXMultiColorMeshBuilder);
+   }
+
+   public NavigableRegionsManager(List<PlanarRegion> regions, JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder)
+   {
+      this(null, regions, javaFXMultiColorMeshBuilder);
    }
 
    public NavigableRegionsManager(VisibilityGraphsParameters parameters, List<PlanarRegion> regions, JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder)
    {
       this.regions = regions;
       this.javaFXMultiColorMeshBuilder = javaFXMultiColorMeshBuilder;
-      this.parameters = parameters;
+      this.parameters = parameters == null ? new DefaultVisibilityGraphParameters() : parameters;
    }
 
    public void setPlanarRegions(List<PlanarRegion> regions)
