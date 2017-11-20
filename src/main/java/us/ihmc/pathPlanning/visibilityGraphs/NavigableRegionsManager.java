@@ -103,7 +103,7 @@ public class NavigableRegionsManager
          PrintTools.info("Starting to calculate body path");
 
       long startBodyPathComputation = System.currentTimeMillis();
-      start = new Point3D(-0.9, 1.2, 0);
+//      start = new Point3D(-0.9, 1.2, 0);
       //      goal = new Point3D(10, 10, 0);
 
       //            goal = new Point3D(-3, -3, 0);
