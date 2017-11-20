@@ -1,10 +1,13 @@
 package us.ihmc.pathPlanning.visibilityGraphs.tools;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import us.ihmc.euclid.geometry.ConvexPolygon2D;
 import us.ihmc.euclid.geometry.Line3D;
+import us.ihmc.euclid.geometry.LineSegment3D;
 import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
 import us.ihmc.euclid.referenceFrame.FramePoint3D;
 import us.ihmc.euclid.transform.RigidBodyTransform;
@@ -470,4 +473,59 @@ public class PlanarRegionTools
       return true;
    }
 
+   public static List<PlanarRegion> filterPlanarRegionsByHullSize(int minNumberOfVertices, List<PlanarRegion> planarRegions)
+   {
+      if (minNumberOfVertices <= 0)
+         return planarRegions;
+
+      return planarRegions.stream().filter(region -> region.getConcaveHull().length >= minNumberOfVertices).collect(Collectors.toList());
+   }
+
+   public static List<PlanarRegion> filterPlanarRegionsByArea(double minArea, List<PlanarRegion> planarRegions)
+   {
+      if (!Double.isFinite(minArea) || minArea <= 0.0)
+         return planarRegions;
+
+      return planarRegions.stream().filter(region -> computePlanarRegionArea(region) >= minArea).collect(Collectors.toList());
+   }
+
+   public static List<PlanarRegion> filterPlanarRegionsWithBoundingCapsule(Point3D capsuleStart, Point3D capsuleEnd, double capsuleRadius, List<PlanarRegion> planarRegions)
+   {
+      return filterPlanarRegionsWithBoundingCapsule(new LineSegment3D(capsuleStart, capsuleEnd), capsuleRadius, planarRegions);
+   }
+
+   public static List<PlanarRegion> filterPlanarRegionsWithBoundingCapsule(LineSegment3D capsuleSegment, double capsuleRadius, List<PlanarRegion> planarRegions)
+   {
+      if (!Double.isFinite(capsuleRadius) || capsuleRadius < 0.0)
+         return planarRegions;
+
+      return planarRegions.stream().filter(region -> isPlanarRegionIntersectingWithCapsule(capsuleSegment, capsuleRadius, region)).collect(Collectors.toList());
+   }
+
+   public static double computePlanarRegionArea(PlanarRegion planarRegion)
+   {
+      double area = 0.0;
+      for (int i = 0; i < planarRegion.getNumberOfConvexPolygons(); i++)
+      {
+         area += planarRegion.getConvexPolygon(i).getArea();
+      }
+      return area;
+   }
+
+   public static boolean isPlanarRegionIntersectingWithCapsule(LineSegment3D capsuleSegment, double capsuleRadius, PlanarRegion query)
+   {
+      RigidBodyTransform transformToWorld = new RigidBodyTransform();
+      query.getTransformToWorld(transformToWorld);
+
+      return Arrays.stream(query.getConcaveHull())
+                   .map(vertex -> applyTransform(transformToWorld, vertex))
+                   .anyMatch(vertex -> capsuleSegment.distance(vertex) <= capsuleRadius);
+   }
+
+   private static Point3D applyTransform(RigidBodyTransform transform, Point2D point2D)
+   {
+      Point3D point3D = new Point3D(point2D);
+      transform.transform(point3D);
+      return point3D;
+   }
 }

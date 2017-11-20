@@ -95,6 +95,9 @@ public class NavigableRegionsManager
       //    regions1.add(regions.get(21)); //slanted 2
       //    regions1.add(regions.get(24)); //slanted 3
 
+      regions = PlanarRegionTools.filterPlanarRegionsByArea(parameters.getPlanarRegionMinArea(), regions);
+      regions = PlanarRegionTools.filterPlanarRegionsByHullSize(parameters.getPlanarRegionMinSize(), regions);
+
       this.regions = regions;
    }
 
@@ -112,6 +115,8 @@ public class NavigableRegionsManager
 
       if (debug)
          PrintTools.info("Starting to calculate body path");
+
+      regions = PlanarRegionTools.filterPlanarRegionsWithBoundingCapsule(start, goal, parameters.getExplorationDistanceFromStartGoal(), regions);
 
       long startBodyPathComputation = System.currentTimeMillis();
 
