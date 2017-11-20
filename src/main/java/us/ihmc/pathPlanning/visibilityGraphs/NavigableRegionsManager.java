@@ -85,29 +85,28 @@ public class NavigableRegionsManager
       ArrayList<PlanarRegion> regions1 = new ArrayList<>();
       regions1.add(regions.get(0));
       regions1.add(regions.get(1));
-//      regions1.add(regions.get(2));
-//      regions1.add(regions.get(3));
-//      regions1.add(regions.get(4));
-//      regions1.add(regions.get(5));
-//      regions1.add(regions.get(6));
-//    regions1.add(regions.get(20)); //slanted
-//    regions1.add(regions.get(21)); //slanted 2
-//    regions1.add(regions.get(24)); //slanted 3
-
+      //      regions1.add(regions.get(2));
+      //      regions1.add(regions.get(3));
+      //      regions1.add(regions.get(4));
+      //      regions1.add(regions.get(5));
+      //      regions1.add(regions.get(6));
+      //    regions1.add(regions.get(20)); //slanted
+      //    regions1.add(regions.get(21)); //slanted 2
+      //    regions1.add(regions.get(24)); //slanted 3
 
       this.regions = regions;
    }
 
    public List<Point3D> calculateBodyPath(Point3D start, Point3D goal)
    {
-      if(debug)
+      if (debug)
          PrintTools.info("Starting to calculate body path");
-      
+
       long startBodyPathComputation = System.currentTimeMillis();
-//                  start = new Point3D(10, 10, 0);
+      start = new Point3D(-0.9, 1.2, 0);
       //      goal = new Point3D(10, 10, 0);
 
-//            goal = new Point3D(-3, -3, 0);
+      //            goal = new Point3D(-3, -3, 0);
 
       long startCreatingMaps = System.currentTimeMillis();
       listOfLocalPlanners.clear();
@@ -117,14 +116,13 @@ public class NavigableRegionsManager
       this.startPos = start;
       this.goalPos = goal;
       classifyRegions(regions);
-      
-//      createVisibilityGraphForRegion(regions.get(0), startPos, goalPos);
 
+      createVisibilityGraphForRegion(regions.get(0), startPos, goalPos);
 
-      for (PlanarRegion region : accesibleRegions)
-      {
-         createVisibilityGraphForRegion(region, startPos, goalPos);
-      }
+      //      for (PlanarRegion region : accesibleRegions)
+      //      {
+      //         createVisibilityGraphForRegion(region, startPos, goalPos);
+      //      }
 
       long endCreationTime = System.currentTimeMillis();
 
@@ -151,7 +149,7 @@ public class NavigableRegionsManager
       long endSnappingTime = System.currentTimeMillis();
 
       long aStarStartTime = System.currentTimeMillis();
-      
+
       List<Point3D> path = null;
       if (goalPt != null && startpt != null)
       {
@@ -178,13 +176,13 @@ public class NavigableRegionsManager
       ArrayList<DefaultWeightedEdge> solution = (ArrayList<DefaultWeightedEdge>) DijkstraShortestPath.findPathBetween(globalVisMap, start, goal);
       return convertVisibilityGraphSolutionToPath(solution, start);
    }
-   
+
    private List<Point3D> convertVisibilityGraphSolutionToPath(ArrayList<DefaultWeightedEdge> solution, Point3D start)
    {
       List<Point3D> path = new ArrayList<>();
       pathLength = 0.0;
       path.clear();
-      
+
       if (solution != null)
       {
          for (DefaultWeightedEdge edge : solution)
@@ -205,16 +203,16 @@ public class NavigableRegionsManager
             path.remove(1);
             path.add(0, pointOut);
          }
-         
-         if(debug)
+
+         if (debug)
             PrintTools.info("Visibility graph successfully found a solution");
       }
       else
       {
-         if(debug)
+         if (debug)
             PrintTools.info("WARNING - Visibility graph found no solution");
       }
-      
+
       return path;
    }
 
@@ -540,7 +538,7 @@ public class NavigableRegionsManager
 
                if (index > 1)
                {
-                  if(debug)
+                  if (debug)
                      PrintTools.info("POINT " + pointToCheck + " is inside a no-go zone!!!");
                   return true;
                }
