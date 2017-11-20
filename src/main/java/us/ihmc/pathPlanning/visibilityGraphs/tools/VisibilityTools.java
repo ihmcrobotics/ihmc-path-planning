@@ -1,9 +1,12 @@
 package us.ihmc.pathPlanning.visibilityGraphs.tools;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
 import us.ihmc.euclid.tuple2D.Point2D;
+import us.ihmc.pathPlanning.visibilityGraphs.Connection;
+import us.ihmc.robotics.geometry.PlanarRegion;
 
 public class VisibilityTools
 {
@@ -29,7 +32,7 @@ public class VisibilityTools
       return true;
    }
 
-   public static boolean isPointInsideConcavePolygon(Point2D[] polygon, Point2D start, Point2D end)
+   public static boolean arePointsInsideConcavePolygon(Point2D[] polygon, Point2D start, Point2D end)
    {
       int index = 0;
 
@@ -44,7 +47,7 @@ public class VisibilityTools
          }
       }
 
-//      System.out.println("INDEX: " + index);
+      //      System.out.println("INDEX: " + index);
 
       if (index % 2 == 0)
       {
@@ -56,4 +59,22 @@ public class VisibilityTools
       }
    }
 
+   public static ArrayList<Connection> filterConnectionsThatAreOutsideRegions(ArrayList<Connection> connections, List<PlanarRegion> accesibleRegions)
+   {
+      ArrayList<Connection> filteredConnections = new ArrayList<>();
+      
+      for (PlanarRegion region : accesibleRegions)
+      {
+         for (Connection connection : connections)
+         {
+            if (arePointsInsideConcavePolygon(region.getConcaveHull(), new Point2D(connection.getSourcePoint().getX(), connection.getSourcePoint().getY()),
+                                            new Point2D(connection.getTargetPoint().getX(), connection.getTargetPoint().getY())))
+            {
+               filteredConnections.add(connection);
+            }
+         }
+      }
+      
+      return filteredConnections;
+   }
 }

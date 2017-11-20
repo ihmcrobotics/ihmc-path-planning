@@ -72,7 +72,7 @@ public class Example_IsPointInsideConcavePolygon extends Application
       
       Point2D endPoint = new Point2D(pointToCheck.getX() + directionToCentroid.getX(), pointToCheck.getY() + directionToCentroid.getY());
 
-      if (VisibilityTools.isPointInsideConcavePolygon(points, pointToCheck, endPoint))
+      if (VisibilityTools.arePointsInsideConcavePolygon(points, pointToCheck, endPoint))
       {
          System.out.println("Is inside the polygon");
       }

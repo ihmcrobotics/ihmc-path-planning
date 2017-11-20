@@ -106,7 +106,7 @@ public class NavigableRegionsManager
          PrintTools.info("Starting to calculate body path");
 
       long startBodyPathComputation = System.currentTimeMillis();
-      //      start = new Point3D(-0.9, 1.2, 0);
+//            start = new Point3D(-0.3, 1.410, 0);
       //      goal = new Point3D(10, 10, 0);
 
       //            goal = new Point3D(-3, -3, 0);
@@ -133,6 +133,12 @@ public class NavigableRegionsManager
       globalMapPoints.clear();
 
       createGlobalMap();
+      
+      System.out.println("Before Filtered connections: " + globalMapPoints.size());
+
+//      globalMapPoints = VisibilityTools.filterConnectionsThatAreOutsideRegions(globalMapPoints, accesibleRegions);
+      
+      System.out.println("Filtered connections: " + globalMapPoints.size());
 
       long startConnectingTime = System.currentTimeMillis();
       connectLocalMaps();
@@ -542,7 +548,7 @@ public class NavigableRegionsManager
             
             Point2D endPoint = new Point2D(pointToCheck.getX() + directionToCentroid.getX(), pointToCheck.getY() + directionToCentroid.getY());
             
-            if(VisibilityTools.isPointInsideConcavePolygon(homePointsArr, new Point2D(pointToCheck.getX(), pointToCheck.getY()), endPoint))
+            if(VisibilityTools.arePointsInsideConcavePolygon(homePointsArr, new Point2D(pointToCheck.getX(), pointToCheck.getY()), endPoint))
             {
                index++;
 
