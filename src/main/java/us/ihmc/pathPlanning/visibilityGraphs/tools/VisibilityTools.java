@@ -28,4 +28,32 @@ public class VisibilityTools
       }
       return true;
    }
+
+   public static boolean isPointInsideConcavePolygon(Point2D[] polygon, Point2D start, Point2D end)
+   {
+      int index = 0;
+
+      for (int i = 1; i < polygon.length; i++)
+      {
+         Point2D point1 = polygon[i - 1];
+         Point2D point2 = polygon[i];
+
+         if (EuclidGeometryTools.doLineSegment2DsIntersect(point1, point2, start, end))
+         {
+            index++;
+         }
+      }
+
+//      System.out.println("INDEX: " + index);
+
+      if (index % 2 == 0)
+      {
+         return false;
+      }
+      else
+      {
+         return true;
+      }
+   }
+
 }
