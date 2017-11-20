@@ -1,13 +1,20 @@
 package us.ihmc.pathPlanning.visibilityGraphs;
 
-public class VisibilityGraphsParameters
+public interface VisibilityGraphsParameters
 {
-   public static final double NUMBER_OF_FORCED_CONNECTIONS = 5;
-   public static final double MIN_CONNECTION_DISTANCE_FOR_REGIONS = 0.1;//in meters
-   public static final double NORMAL_Z_THRESHOLD_FOR_ACCESIBLE_REGIONS = 0.8;
-   public static final double NORMAL_Z_THRESHOLD_FOR_POLYGON_OBSTACLES = 0.8;
-   public static final double EXTRUSION_DISTANCE = 0.8;//in meters
-   public static final double EXTRUSION_DISTANCE_If_NOT_TOO_HIGH_TO_STEP = 0.25;//in meters
-   public static final double TOO_HIGH_TO_STEP_DISTANCE = 0.5; //in meters
-   public static final double CLUSTER_RESOLUTION = 0.5; //in meters
+   public int getNumberOfForcedConnections();
+
+   public double getMinimumConnectionDistanceForRegions();
+
+   public double getNormalZThresholdForAccessibleRegions();
+
+   public double getNormalZThresholdForPolygonObstacles();
+
+   public double getExtrusionDistance();
+
+   public double getExtrusionDistanceIfNotTooHighToStep();
+
+   public double getTooHighToStepDistance();
+
+   public double getClusterResolution();
 }

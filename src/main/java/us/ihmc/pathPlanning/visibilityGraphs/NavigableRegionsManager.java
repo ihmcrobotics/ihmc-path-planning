@@ -37,29 +37,33 @@ public class NavigableRegionsManager
    private double pathLength = 0.0;
    private Point3D startPos = new Point3D();
    private Point3D goalPos = new Point3D();
+   private final VisibilityGraphsParameters parameters;
 
    private ArrayList<Connection> connectionPoints = new ArrayList<>();
    private ArrayList<Connection> globalMapPoints = new ArrayList<>();
    private ArrayList<DistancePoint> distancePoints = new ArrayList<>();
 
-   public NavigableRegionsManager()
+   public NavigableRegionsManager(VisibilityGraphsParameters parameters)
    {
+      this.parameters = parameters;
    }
 
-   public NavigableRegionsManager(List<PlanarRegion> regions)
+   public NavigableRegionsManager(VisibilityGraphsParameters parameters, List<PlanarRegion> regions)
    {
-      this(regions, null);
+      this(parameters, regions, null);
    }
 
-   public NavigableRegionsManager(JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder)
+   public NavigableRegionsManager(VisibilityGraphsParameters parameters, JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder)
    {
+      this.parameters = parameters;
       this.javaFXMultiColorMeshBuilder = javaFXMultiColorMeshBuilder;
    }
 
-   public NavigableRegionsManager(List<PlanarRegion> regions, JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder)
+   public NavigableRegionsManager(VisibilityGraphsParameters parameters, List<PlanarRegion> regions, JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder)
    {
       this.regions = regions;
       this.javaFXMultiColorMeshBuilder = javaFXMultiColorMeshBuilder;
+      this.parameters = parameters;
    }
 
    public void setPlanarRegions(List<PlanarRegion> regions)
@@ -389,7 +393,7 @@ public class NavigableRegionsManager
       Iterator it = filteredList.iterator();
 
       int index = 0;
-      while (it.hasNext() && index < VisibilityGraphsParameters.NUMBER_OF_FORCED_CONNECTIONS)
+      while (it.hasNext() && index < parameters.getNumberOfForcedConnections())
       {
          Point3D point = (Point3D) it.next();
 
@@ -442,7 +446,7 @@ public class NavigableRegionsManager
 
                      for (Point3D targetPt : targetPoints)
                      {
-                        if (sourcePt.distance(targetPt) < VisibilityGraphsParameters.MIN_CONNECTION_DISTANCE_FOR_REGIONS)
+                        if (sourcePt.distance(targetPt) < parameters.getMinimumConnectionDistanceForRegions())
                         {
                            connectionPoints.add(new Connection(sourcePt, targetPt));
                            globalMapPoints.add(new Connection(sourcePt, targetPt));
@@ -466,8 +470,7 @@ public class NavigableRegionsManager
          PrintTools.info("-----------Processing new region");
       }
 
-      NavigableRegionLocalPlanner navigableRegionLocalPlanner = new NavigableRegionLocalPlanner(regions, region, startPos, goalPos,
-                                                                                                VisibilityGraphsParameters.EXTRUSION_DISTANCE);
+      NavigableRegionLocalPlanner navigableRegionLocalPlanner = new NavigableRegionLocalPlanner(regions, region, startPos, goalPos, parameters);
       navigableRegionLocalPlanner.processRegion();
       listOfLocalPlanners.add(navigableRegionLocalPlanner);
 
@@ -534,7 +537,7 @@ public class NavigableRegionsManager
          if (!region.isEmpty())
          {
             region.getNormal(normal);
-            if (Math.abs(normal.getZ()) < VisibilityGraphsParameters.NORMAL_Z_THRESHOLD_FOR_ACCESIBLE_REGIONS)
+            if (Math.abs(normal.getZ()) < parameters.getNormalZThresholdForAccessibleRegions())
             {
                obstacleRegions.add(region);
             }

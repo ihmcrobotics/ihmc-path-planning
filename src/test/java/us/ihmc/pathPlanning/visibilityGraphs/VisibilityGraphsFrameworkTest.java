@@ -91,7 +91,7 @@ public class VisibilityGraphsFrameworkTest
             }
          }
 
-         NavigableRegionsManager manager = new NavigableRegionsManager(filteredRegions, null);
+         NavigableRegionsManager manager = new NavigableRegionsManager(new DefaultVisibilityGraphParameters(), filteredRegions, null);
 
          ArrayList<Point3D> path = (ArrayList<Point3D>) manager.calculateBodyPath(start, goal);
 

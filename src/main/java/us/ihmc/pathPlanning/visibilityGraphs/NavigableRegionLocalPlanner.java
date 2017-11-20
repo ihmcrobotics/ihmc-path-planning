@@ -38,8 +38,8 @@ public class NavigableRegionLocalPlanner
    private final List<PlanarRegion> lineObstacleRegions = new ArrayList<>();
    private final List<PlanarRegion> polygonObstacleRegions = new ArrayList<>();
    private ReferenceFrame localReferenceFrame;
+   private final VisibilityGraphsParameters parameters;
 
-   private double extrusionDistance = 0.80;
    private PlanarRegion homeRegion;
 
    private VisibilityMap localVisibilityMap;
@@ -50,13 +50,11 @@ public class NavigableRegionLocalPlanner
 
    private ClusterManager clusterMgr;
 
-   public NavigableRegionLocalPlanner(List<PlanarRegion> regions, PlanarRegion homeRegion, Point3D start, Point3D goal, double extrusionDistance)
+   public NavigableRegionLocalPlanner(List<PlanarRegion> regions, PlanarRegion homeRegion, Point3D start, Point3D goal, VisibilityGraphsParameters parameters)
    {
       this.regions.addAll(regions);
-
       this.homeRegion = homeRegion;
-
-      this.extrusionDistance = extrusionDistance;
+      this.parameters = parameters;
 
       createLocalReferenceFrame();
 
@@ -122,7 +120,7 @@ public class NavigableRegionLocalPlanner
       }
 
       // TODO The use of Double.MAX_VALUE for the observer seems rather risky. I'm actually surprised that it works.
-      clusterMgr.performExtrusions(new Point2D(Double.MAX_VALUE, Double.MAX_VALUE), extrusionDistance);
+      clusterMgr.performExtrusions(new Point2D(Double.MAX_VALUE, Double.MAX_VALUE), parameters.getExtrusionDistance());
 
       for (Cluster cluster : clusters)
       {
@@ -180,7 +178,7 @@ public class NavigableRegionLocalPlanner
       {
          System.out.println("Adding extra points");
       }
-      PointCloudTools.doBrakeDownOn2DPoints(cluster.getNavigableExtrusionsInLocal(), VisibilityGraphsParameters.CLUSTER_RESOLUTION);
+      PointCloudTools.doBrakeDownOn2DPoints(cluster.getNavigableExtrusionsInLocal(), parameters.getClusterResolution());
       if (debug)
       {
          System.out.println("Finished Adding extra points");
@@ -216,7 +214,7 @@ public class NavigableRegionLocalPlanner
 
       cluster.setClusterClosure(true);
       cluster.setExtrusionSide(ExtrusionSide.INSIDE);
-      cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance - 0.01));
+      cluster.setAdditionalExtrusionDistance(-1.0 * (parameters.getExtrusionDistance() - 0.01));
    }
 
    private void createClustersFromRegions(PlanarRegion homeRegion, List<PlanarRegion> regions)
@@ -237,8 +235,8 @@ public class NavigableRegionLocalPlanner
             }
             else
             {
-               cluster.setAdditionalExtrusionDistance(VisibilityGraphsParameters.EXTRUSION_DISTANCE_If_NOT_TOO_HIGH_TO_STEP
-                     - VisibilityGraphsParameters.EXTRUSION_DISTANCE);
+               cluster.setAdditionalExtrusionDistance(parameters.getExtrusionDistanceIfNotTooHighToStep()
+                     - parameters.getExtrusionDistance());
 
                //               cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance - 0.01));
                //               cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance * 0.6));
@@ -291,8 +289,8 @@ public class NavigableRegionLocalPlanner
             Vector3D normal1 = PlanarRegionTools.calculateNormal(region);
             if (Math.abs(normal1.getZ()) >= 0.5) //if its closer to being flat you can probably step on it -->> extrude less
             {
-               cluster.setAdditionalExtrusionDistance(VisibilityGraphsParameters.EXTRUSION_DISTANCE_If_NOT_TOO_HIGH_TO_STEP
-                     - VisibilityGraphsParameters.EXTRUSION_DISTANCE);
+               cluster.setAdditionalExtrusionDistance(parameters.getExtrusionDistanceIfNotTooHighToStep()
+                     - parameters.getExtrusionDistance());
                //               cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance * 0.7));
 
                if (isRegionTooHighToStep(region, homeRegion)) //is flat but too high to step so its an obstacle
@@ -346,7 +344,7 @@ public class NavigableRegionLocalPlanner
 
       if (normal != null && regionToProject != regionToProjectTo)
       {
-         if (Math.abs(normal.getZ()) < VisibilityGraphsParameters.NORMAL_Z_THRESHOLD_FOR_POLYGON_OBSTACLES)
+         if (Math.abs(normal.getZ()) < parameters.getNormalZThresholdForPolygonObstacles())
          {
             lineObstacleRegions.add(regionToProject);
          }
@@ -379,7 +377,7 @@ public class NavigableRegionLocalPlanner
          Point3D projectedPoint = new Point3D();
          EuclidGeometryTools.orthogonalProjectionOnPlane3D(pointToProject, point3D, normal, projectedPoint);
 
-         if (pointToProject.distance(projectedPoint) >= VisibilityGraphsParameters.TOO_HIGH_TO_STEP_DISTANCE)
+         if (pointToProject.distance(projectedPoint) >= parameters.getTooHighToStepDistance())
          {
             return true;
          }

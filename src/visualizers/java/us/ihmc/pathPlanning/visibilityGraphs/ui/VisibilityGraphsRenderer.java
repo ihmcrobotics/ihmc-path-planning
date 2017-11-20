@@ -11,6 +11,7 @@ import javafx.scene.Node;
 import us.ihmc.commons.PrintTools;
 import us.ihmc.commons.thread.ThreadTools;
 import us.ihmc.euclid.tuple3D.Point3D;
+import us.ihmc.pathPlanning.visibilityGraphs.DefaultVisibilityGraphParameters;
 import us.ihmc.pathPlanning.visibilityGraphs.NavigableRegionsManager;
 import us.ihmc.robotEnvironmentAwareness.communication.REAMessager;
 import us.ihmc.robotics.geometry.PlanarRegion;
@@ -46,7 +47,7 @@ public class VisibilityGraphsRenderer
 
       messager.registerTopicListener(UIVisibilityGraphsTopics.VisibilityGraphsComputePath, request -> computePathOnThread());
 
-      navigableRegionsManager = new NavigableRegionsManager();
+      navigableRegionsManager = new NavigableRegionsManager(new DefaultVisibilityGraphParameters());
       
       bodyPathMeshViewer = new BodyPathMeshViewer(messager);
       root.getChildren().add(bodyPathMeshViewer.getRoot());
