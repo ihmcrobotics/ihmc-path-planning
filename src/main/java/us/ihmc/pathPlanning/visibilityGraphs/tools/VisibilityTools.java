@@ -36,11 +36,19 @@ public class VisibilityTools
    public static boolean isPointInsideConcavePolygon(Point2D[] polygon, Point2D pointToCheck, Point2D lineEnd)
    {
       int index = 0;
-
-      for (int i = 1; i < polygon.length; i++)
+      
+      Point2D[] points = new Point2D[polygon.length + 1];
+      
+      for(int i = 0; i < polygon.length; i++)
       {
-         Point2D point1 = polygon[i - 1];
-         Point2D point2 = polygon[i];
+         points[i]= polygon[i];
+      }
+      points[points.length-1] = points[0];
+
+      for (int i = 1; i < points.length; i++)
+      {
+         Point2D point1 = points[i - 1];
+         Point2D point2 = points[i];
 
          if (EuclidGeometryTools.doLineSegment2DsIntersect(point1, point2, pointToCheck, lineEnd))
          {
@@ -134,9 +142,9 @@ public class VisibilityTools
       return false;
    }
    
-   public static boolean areBothPointsInside(Point2D point1, Point2D point2, List<Point2D> points)
+   public static boolean areBothPointsInside(Point2D point1, Point2D point2, List<Point2D> pointsInPolygon)
    {
-      Point2D centroid = EuclidGeometryTools.averagePoint2Ds(points);
+      Point2D centroid = EuclidGeometryTools.averagePoint2Ds(pointsInPolygon);
       
       Vector2D directionToCentroid = new Vector2D(centroid.getX() - point1.getX(), centroid.getY() - point1.getY());
       directionToCentroid.normalize();
@@ -144,7 +152,7 @@ public class VisibilityTools
 
       Point2D endPoint = new Point2D(point1.getX() + directionToCentroid.getX(), point1.getY() + directionToCentroid.getY());
 
-      Point2D[] pointsArr = points.toArray(new Point2D[points.size()]);
+      Point2D[] pointsArr = pointsInPolygon.toArray(new Point2D[pointsInPolygon.size()]);
       boolean startIsInside = VisibilityTools.isPointInsideConcavePolygon(pointsArr, point1, endPoint);
 
       directionToCentroid = new Vector2D(centroid.getX() - point2.getX(), centroid.getY() - point2.getY());

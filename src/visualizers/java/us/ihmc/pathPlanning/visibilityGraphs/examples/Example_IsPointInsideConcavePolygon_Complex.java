@@ -47,50 +47,87 @@ public class Example_IsPointInsideConcavePolygon_Complex extends Application
       TextureColorPalette colorPalette = new TextureColorAdaptivePalette();
       JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder = new JavaFXMultiColorMeshBuilder(colorPalette);
       
-      File file = new File("C:\\Users\\WOPR-M\\repository\\ihmc-path-planning\\src\\visualizers\\Data\\20171120_130523_PlanarRegion");
+      File file = new File("C:\\Users\\WOPR-M\\repository\\ihmc-path-planning\\src\\visualizers\\resources\\Data\\20171121_103600_PlanarRegion");
       
       PlanarRegionsList planarRegionData = null;
       planarRegionData = PlanarRegionDataImporter.importPlanRegionData(file);
       
-      PlanarRegion ground = planarRegionData.getPlanarRegion(0);
+//      PlanarRegion region = planarRegionData.getPlanarRegion(3);
       
-      for (int i = 1; i < ground.getConcaveHullSize(); i++)
+      for(PlanarRegion region : planarRegionData.getPlanarRegionsAsList())
       {
-         javaFXMultiColorMeshBuilder.addLine(new Point3D(ground.getConcaveHull()[i-1].getX(), ground.getConcaveHull()[i-1].getY(), 0),
-                                             new Point3D(ground.getConcaveHull()[i].getX(), ground.getConcaveHull()[i].getY(), 0), 0.005, Color.BLACK);
-      }
-      
-      Point2D pointToCheck = new Point2D(5,5);
-      
-      ArrayList<Point2D> points = new ArrayList<>();
-      for (int i = 1; i < ground.getConcaveHullSize(); i++)
-      {
-         Point2D point = ground.getConcaveHull()[i];
-         points.add(point);
-      }
-      
-      Point2D centroid = EuclidGeometryTools.averagePoint2Ds(points);
+         Point2D pointToCheck = new Point2D(-2,-0.4);
+         
+         ArrayList<Point2D> points = new ArrayList<>();
+         for (int i = 1; i < region.getConcaveHullSize(); i++)
+         {
+            Point2D point = region.getConcaveHull()[i];
+            points.add(point);
+         }
+         points.add(points.get(0));
 
-      Vector2D directionToCentroid = new Vector2D(centroid.getX() - pointToCheck.getX(), centroid.getY() - pointToCheck.getY());
-      directionToCentroid.normalize();
-      directionToCentroid.scale(10);
+         
+         for (int i = 1; i < points.size(); i++)
+         {
+            javaFXMultiColorMeshBuilder.addLine(new Point3D(points.get(i-1).getX(), points.get(i-1).getY(), 0),
+                                                new Point3D(points.get(i).getX(), points.get(i).getY(), 0), 0.005, Color.BLACK);
+         }
+         
+         Point2D centroid = EuclidGeometryTools.averagePoint2Ds(points);
+
+         Vector2D directionToCentroid = new Vector2D(centroid.getX() - pointToCheck.getX(), centroid.getY() - pointToCheck.getY());
+         directionToCentroid.normalize();
+         directionToCentroid.scale(10);
+         
+         Point2D endPoint = new Point2D(pointToCheck.getX() + directionToCentroid.getX(), pointToCheck.getY() + directionToCentroid.getY());
+
+         if(VisibilityTools.isPointInsideConcavePolygon(region.getConcaveHull(), pointToCheck, endPoint))
+         {
+            System.out.println("Point is inside");
+         }
+         else
+         {
+            System.out.println("Point is outside");
+         }
+
+         javaFXMultiColorMeshBuilder.addLine(new Point3D(pointToCheck.getX(), pointToCheck.getY(), 0),
+                                             new Point3D(endPoint.getX(), endPoint.getY(), 0), 0.005, Color.RED);
+      }
       
-      Point2D endPoint = new Point2D(pointToCheck.getX() + directionToCentroid.getX(), pointToCheck.getY() + directionToCentroid.getY());
-
-      if(VisibilityTools.isPointInsideConcavePolygon(ground.getConcaveHull(), pointToCheck, endPoint))
-      {
-         System.out.println("Point is inside");
-      }
-      else
-      {
-         System.out.println("Point is outside");
-      }
-
-      javaFXMultiColorMeshBuilder.addLine(new Point3D(pointToCheck.getX(), pointToCheck.getY(), 0),
-                                          new Point3D(endPoint.getX(), endPoint.getY(), 0), 0.005, Color.RED);
+//      for (int i = 1; i < ground.getConcaveHullSize(); i++)
+//      {
+//         javaFXMultiColorMeshBuilder.addLine(new Point3D(ground.getConcaveHull()[i-1].getX(), ground.getConcaveHull()[i-1].getY(), 0),
+//                                             new Point3D(ground.getConcaveHull()[i].getX(), ground.getConcaveHull()[i].getY(), 0), 0.005, Color.BLACK);
+//      }
 //      
-//      javaFXMultiColorMeshBuilder.addSphere(0.1f, new Point3D(pointToCheck.getX(), pointToCheck.getY(), 0), Color.AQUAMARINE);
+//      Point2D pointToCheck = new Point2D(-2,-0.4);
+//      
+//      ArrayList<Point2D> points = new ArrayList<>();
+//      for (int i = 1; i < ground.getConcaveHullSize(); i++)
+//      {
+//         Point2D point = ground.getConcaveHull()[i];
+//         points.add(point);
+//      }
+//      
+//      Point2D centroid = EuclidGeometryTools.averagePoint2Ds(points);
 //
+//      Vector2D directionToCentroid = new Vector2D(centroid.getX() - pointToCheck.getX(), centroid.getY() - pointToCheck.getY());
+//      directionToCentroid.normalize();
+//      directionToCentroid.scale(10);
+//      
+//      Point2D endPoint = new Point2D(pointToCheck.getX() + directionToCentroid.getX(), pointToCheck.getY() + directionToCentroid.getY());
+//
+//      if(VisibilityTools.isPointInsideConcavePolygon(ground.getConcaveHull(), pointToCheck, endPoint))
+//      {
+//         System.out.println("Point is inside");
+//      }
+//      else
+//      {
+//         System.out.println("Point is outside");
+//      }
+//
+//      javaFXMultiColorMeshBuilder.addLine(new Point3D(pointToCheck.getX(), pointToCheck.getY(), 0),
+//                                          new Point3D(endPoint.getX(), endPoint.getY(), 0), 0.005, Color.RED);
 
 
       MeshView meshView = new MeshView(javaFXMultiColorMeshBuilder.generateMesh());

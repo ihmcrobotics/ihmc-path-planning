@@ -10,6 +10,7 @@ import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
 import us.ihmc.euclid.referenceFrame.FramePoint3D;
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Point2D;
+import us.ihmc.euclid.tuple2D.Vector2D;
 import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.euclid.tuple3D.interfaces.Point3DReadOnly;
@@ -24,25 +25,25 @@ public class PlanarRegionTools
    /**
     * Finds and returns the closest point the the provided point on the planar regions.
     */
-  public static Point3D projectPointToPlanes(Point3DReadOnly point, PlanarRegionsList regions)
-  {
-     double smallestDistance = Double.POSITIVE_INFINITY;
-     Point3D closestPoint = null;
+   public static Point3D projectPointToPlanes(Point3DReadOnly point, PlanarRegionsList regions)
+   {
+      double smallestDistance = Double.POSITIVE_INFINITY;
+      Point3D closestPoint = null;
 
-     for (PlanarRegion region : regions.getPlanarRegionsAsList())
-     {
-        Point3D intersection = closestPointOnPlane(point, region);
-        double distance = intersection.distance(point);
+      for (PlanarRegion region : regions.getPlanarRegionsAsList())
+      {
+         Point3D intersection = closestPointOnPlane(point, region);
+         double distance = intersection.distance(point);
 
-        if (closestPoint == null || distance < smallestDistance)
-        {
-           smallestDistance = distance;
-           closestPoint = intersection;
-        }
-     }
+         if (closestPoint == null || distance < smallestDistance)
+         {
+            smallestDistance = distance;
+            closestPoint = intersection;
+         }
+      }
 
-     return closestPoint;
-  }
+      return closestPoint;
+   }
 
    /**
     * Projects the given point onto the planar region, returning the closest point on
@@ -211,43 +212,55 @@ public class PlanarRegionTools
       Point3D closestPoint = closestPointOnPlane(point, region);
       return closestPoint.epsilonEquals(point, epsilon);
    }
-   
-   public static boolean isPointInsideRegion(List<PlanarRegion> regions, Point3D point)
+
+   public static boolean isPointInsideAnyRegion(List<PlanarRegion> regions, Point3D pointToCheck)
    {
       for (PlanarRegion region : regions)
       {
-         Point2D[] homePointsArr = new Point2D[region.getConvexHull().getNumberOfVertices()];
-         for (int i = 0; i < region.getConvexHull().getNumberOfVertices(); i++)
+         if (isPointInsideARegion(region, pointToCheck))
          {
-            Point2D point2D = (Point2D) region.getConvexHull().getVertex(i);
-            Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
-            FramePoint3D fpt = new FramePoint3D();
-            fpt.set(point3D);
-            RigidBodyTransform transToWorld = new RigidBodyTransform();
-            region.getTransformToWorld(transToWorld);
-            fpt.applyTransform(transToWorld);
-            Point3D transformedPt = fpt.getPoint();
-
-            homePointsArr[i] = new Point2D(transformedPt.getX(), transformedPt.getY());
-         }
-
-         ConvexPolygon2D homeConvexPol = new ConvexPolygon2D(homePointsArr);
-         homeConvexPol.update();
-
-         if (homeConvexPol.isPointInside(new Point2D(point.getX(), point.getY())))
-         {
-            if(debug)
-               PrintTools.info("POINT" + point + " IS INSIDE A REGION");
             return true;
          }
       }
 
-      if(debug)
-         PrintTools.info("POINT" + point + " IS NOT INSIDE A REGION");
+      return false;
+   }
+
+   public static boolean isPointInsideARegion(PlanarRegion region, Point3D pointToCheck)
+   {
+      ArrayList<Point2D> pointsInConcaveHull = new ArrayList<>();
+      for (int i = 1; i < region.getConcaveHullSize(); i++)
+      {
+         Point2D point2D = (Point2D) region.getConcaveHull()[i];
+         Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
+         FramePoint3D fpt = new FramePoint3D();
+         fpt.set(point3D);
+         RigidBodyTransform transToWorld = new RigidBodyTransform();
+         region.getTransformToWorld(transToWorld);
+         fpt.applyTransform(transToWorld);
+
+         pointsInConcaveHull.add(new Point2D(fpt.getX(), fpt.getY()));
+      }
+
+      Point2D centroid = EuclidGeometryTools.averagePoint2Ds(pointsInConcaveHull);
+
+      Vector2D directionToCentroid = new Vector2D(centroid.getX() - pointToCheck.getX(), centroid.getY() - pointToCheck.getY());
+      directionToCentroid.normalize();
+      directionToCentroid.scale(10);
+
+      Point2D endPoint = new Point2D(pointToCheck.getX() + directionToCentroid.getX(), pointToCheck.getY() + directionToCentroid.getY());
+
+      boolean pointIsInside = VisibilityTools.isPointInsideConcavePolygon(pointsInConcaveHull.toArray(new Point2D[pointsInConcaveHull.size()]),
+                                                                          new Point2D(pointToCheck.getX(), pointToCheck.getY()), endPoint);
+
+      if (pointIsInside)
+      {
+         return true;
+      }
 
       return false;
    }
-   
+
    public static boolean isPartOfTheRegionInside(PlanarRegion regionToCheck, PlanarRegion containingRegion)
    {
       ArrayList<Point3D> pointsToCalculateCentroid = new ArrayList<>();
@@ -299,14 +312,14 @@ public class PlanarRegionTools
 
       return false;
    }
-   
+
    public static Vector3D calculateNormal(PlanarRegion region)
    {
       Vector3D normal = new Vector3D();
       region.getNormal(normal);
       return normal;
    }
-   
+
    public static ArrayList<PlanarRegion> determineWhichRegionsAreInside(PlanarRegion containingRegion, List<PlanarRegion> otherRegionsEx)
    {
       ArrayList<PlanarRegion> regionsInsideHomeRegion = new ArrayList<>();
@@ -321,7 +334,7 @@ public class PlanarRegionTools
 
       return regionsInsideHomeRegion;
    }
-   
+
    public static boolean areAllPointsBelowTheRegion(PlanarRegion regionToCheck, PlanarRegion homeRegion)
    {
       for (int i = 0; i < homeRegion.getConcaveHull().length; i++)
@@ -354,5 +367,5 @@ public class PlanarRegionTools
 
       return true;
    }
-   
+
 }
