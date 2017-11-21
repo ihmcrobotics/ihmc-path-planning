@@ -11,7 +11,6 @@ import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
 import us.ihmc.commons.PrintTools;
-import us.ihmc.euclid.geometry.ConvexPolygon2D;
 import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
 import us.ihmc.euclid.referenceFrame.FramePoint3D;
 import us.ihmc.euclid.referenceFrame.ReferenceFrame;
@@ -19,6 +18,7 @@ import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.euclid.tuple2D.Vector2D;
 import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.euclid.tuple3D.Vector3D;
+import us.ihmc.euclid.tuple3D.interfaces.Point3DReadOnly;
 import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.PlanarRegionTools;
@@ -116,7 +116,7 @@ public class NavigableRegionsManager
          PrintTools.info("Starting to calculate body path");
 
       long startBodyPathComputation = System.currentTimeMillis();
-                        start = new Point3D(0, 0, 0);
+//                        start = new Point3D(0, 0, 0);
       //      goal = new Point3D(10, 10, 0);
 
       //            goal = new Point3D(-3, -3, 0);
@@ -433,17 +433,18 @@ public class NavigableRegionsManager
 
       //      System.out.println("After filtering: " + filteredList.size());
 
-      Iterator it = filteredList.iterator();
+      Iterator<Point3D> it = filteredList.iterator();
 
       Point3D pointToSnapTo = null;
       while (it.hasNext())
       {
-         Point3D point = (Point3D) it.next();
+         Point3D source = it.next();
+         Point3D target = it.next();
 
          //Cannot add an edge where the source is equal to the target!
-         if (!point.epsilonEquals(position, 1e-5))
+         if (!source.epsilonEquals(position, 1e-5))
          {
-            pointToSnapTo = (Point3D) it.next();
+            pointToSnapTo = target;
             //            System.out.println("-----> new snapped point: " + pointToSnapTo);
             connectionPoints.add(new Connection(pointToSnapTo, position));
             break;
@@ -489,12 +490,12 @@ public class NavigableRegionsManager
 
       //      System.out.println("After filtering: " + filteredList.size());
 
-      Iterator it = filteredList.iterator();
+      Iterator<Point3D> it = filteredList.iterator();
 
       int index = 0;
       while (it.hasNext() && index < parameters.getNumberOfForcedConnections())
       {
-         Point3D point = (Point3D) it.next();
+         Point3D point = it.next();
 
          //Cannot add an edge where the source is equal to the target!
          if (!point.epsilonEquals(position, 1e-5))
@@ -592,7 +593,7 @@ public class NavigableRegionsManager
       localVisibilityMapInWorld.computeVertices();
    }
 
-   public boolean isPointInsideNoGoZone(List<PlanarRegion> regions, Point3D pointToCheck)
+   public boolean isPointInsideNoGoZone(List<PlanarRegion> regions, Point3DReadOnly pointToCheck)
    {
       int index = 0;
       for (NavigableRegionLocalPlanner localPlanner : listOfLocalPlanners)
