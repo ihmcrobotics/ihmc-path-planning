@@ -120,12 +120,12 @@ public class NavigableRegionsManager
       this.goalPos = goal;
       classifyRegions(regions);
 
-      createVisibilityGraphForRegion(regions.get(0), startPos, goalPos);
+//      createVisibilityGraphForRegion(regions.get(0), startPos, goalPos);
 
-      //      for (PlanarRegion region : accesibleRegions)
-      //      {
-      //         createVisibilityGraphForRegion(region, startPos, goalPos);
-      //      }
+            for (PlanarRegion region : accesibleRegions)
+            {
+               createVisibilityGraphForRegion(region, startPos, goalPos);
+            }
 
       long endCreationTime = System.currentTimeMillis();
 
@@ -548,7 +548,7 @@ public class NavigableRegionsManager
             
             Point2D endPoint = new Point2D(pointToCheck.getX() + directionToCentroid.getX(), pointToCheck.getY() + directionToCentroid.getY());
             
-            if(VisibilityTools.arePointsInsideConcavePolygon(homePointsArr, new Point2D(pointToCheck.getX(), pointToCheck.getY()), endPoint))
+            if(VisibilityTools.isPointInsideConcavePolygon(homePointsArr, new Point2D(pointToCheck.getX(), pointToCheck.getY()), endPoint))
             {
                index++;
 

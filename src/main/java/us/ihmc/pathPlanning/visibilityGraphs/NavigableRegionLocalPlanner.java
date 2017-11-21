@@ -1,9 +1,8 @@
 package us.ihmc.pathPlanning.visibilityGraphs;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 import us.ihmc.euclid.geometry.ConvexPolygon2D;
@@ -12,10 +11,9 @@ import us.ihmc.euclid.referenceFrame.FramePoint3D;
 import us.ihmc.euclid.referenceFrame.ReferenceFrame;
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Point2D;
+import us.ihmc.euclid.tuple2D.Vector2D;
 import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.euclid.tuple3D.Vector3D;
-import us.ihmc.euclid.tuple4D.Quaternion;
-import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.ExtrusionSide;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.Type;
@@ -23,6 +21,7 @@ import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterManager;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.LinearRegression3D;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.PlanarRegionTools;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.PointCloudTools;
+import us.ihmc.pathPlanning.visibilityGraphs.tools.VisibilityTools;
 import us.ihmc.robotics.geometry.PlanarRegion;
 
 /**
@@ -42,7 +41,6 @@ public class NavigableRegionLocalPlanner
    private PlanarRegion homeRegion;
 
    private VisibilityMap localVisibilityMap;
-   private ArrayList<Connection> connections = new ArrayList<>();
 
    private Point3D startLocationInLocalFrame;
    private Point3D goalLocationInLocalFrame;
@@ -50,7 +48,8 @@ public class NavigableRegionLocalPlanner
    private ClusterManager clusterMgr;
    private VisibilityGraphsParameters visibilityGraphsParameters;
 
-   public NavigableRegionLocalPlanner(List<PlanarRegion> regions, PlanarRegion homeRegion, Point3D start, Point3D goal, VisibilityGraphsParameters visibilityGraphsParameters)
+   public NavigableRegionLocalPlanner(List<PlanarRegion> regions, PlanarRegion homeRegion, Point3D start, Point3D goal,
+                                      VisibilityGraphsParameters visibilityGraphsParameters)
    {
       this.regions.addAll(regions);
 
@@ -162,9 +161,33 @@ public class NavigableRegionLocalPlanner
       }
 
       localVisibilityGraph.createStaticVisibilityMap(localStart, localGoal);
+      
+      ArrayList<Connection> connections = new ArrayList<>();
+
+      Iterator it = localVisibilityGraph.getVisibilityMap().getConnections().iterator();
+
+      while (it.hasNext())
+      {
+         Connection connection = (Connection) it.next();
+         connections.add(connection);
+      }
+
+//      ArrayList<Connection> points = VisibilityTools.getConnectionsThatAreInsideRegions(connections, regionsInsideHomeRegion);
+      ArrayList<Connection> points = VisibilityTools.getConnectionsThatAreInsideRegions(connections, homeRegion);
+
+      HashSet<Connection> sets = new HashSet<>();
+
+      for (Connection connection : points)
+      {
+         sets.add(connection);
+      }
+
+      localVisibilityGraph.getVisibilityMap().setConnections(sets);
+
       localVisibilityMap = localVisibilityGraph.getVisibilityMap();
    }
 
+   
    private List<PlanarRegion> filterRegionsThatAreAboveHomeRegion(List<PlanarRegion> regionsToCheck, PlanarRegion homeRegion)
    {
       List<PlanarRegion> filteredList = new ArrayList<>();
