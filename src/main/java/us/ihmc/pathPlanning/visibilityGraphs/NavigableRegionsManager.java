@@ -14,6 +14,7 @@ import us.ihmc.commons.PrintTools;
 import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
 import us.ihmc.euclid.referenceFrame.FramePoint3D;
 import us.ihmc.euclid.referenceFrame.ReferenceFrame;
+import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.euclid.tuple2D.Vector2D;
 import us.ihmc.euclid.tuple3D.Point3D;
@@ -618,6 +619,29 @@ public class NavigableRegionsManager
             }
          }
       }
+   }
+
+   public Point3D[][] getNavigableExtrusions()
+   {
+      Point3D[][] allNavigableExtrusions = new Point3D[listOfLocalPlanners.size()][];
+
+      for (int i = 0; i < listOfLocalPlanners.size(); i++)
+      {
+         NavigableRegionLocalPlanner localPlanner = listOfLocalPlanners.get(i);
+         Point3D[] navigableExtrusions = new Point3D[localPlanner.getClusters().size()];
+
+         for(Cluster cluster : localPlanner.getClusters())
+         {
+            for (int j = 0; j < cluster.getNumberOfNavigableExtrusions(); j++)
+            {
+               navigableExtrusions[j] = cluster.getNavigableExtrusionInWorld(j);
+            }
+         }
+
+         allNavigableExtrusions[i] = navigableExtrusions;
+      }
+
+      return allNavigableExtrusions;
    }
 
    public List<NavigableRegionLocalPlanner> getListOfLocalPlanners()
