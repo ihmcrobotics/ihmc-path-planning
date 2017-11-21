@@ -9,13 +9,16 @@ import us.ihmc.robotEnvironmentAwareness.ui.properties.ParametersProperty;
 public class VisibilityGraphsParametersProperty extends ParametersProperty<SettableVisibilityGraphsParameters>
 {
    private IntegerField numberOfForcedConnections = new IntegerField(SettableVisibilityGraphsParameters::getNumberOfForcedConnections, (p, v) -> p.setNumberOfForcedConnections(v));
-   private DoubleField minimumConnectionDistanceForRegions = new DoubleField(SettableVisibilityGraphsParameters::getMinimumConnectionDistanceForRegions, (p , v) -> p.setMinimumConnectionDistanceForRegions(v));
-   private DoubleField normalZThresholdForAccessibleRegions = new DoubleField(SettableVisibilityGraphsParameters::getNormalZThresholdForAccessibleRegions, (p , v) -> p.setNormalZThresholdForAccessibleRegions(v));
-   private DoubleField normalZThresholdForPolygonObstacles = new DoubleField(SettableVisibilityGraphsParameters::getNormalZThresholdForPolygonObstacles, (p , v) -> p.setNormalZThresholdForPolygonObstacles(v));
-   private DoubleField extrusionDistance = new DoubleField(SettableVisibilityGraphsParameters::getExtrusionDistance, (p , v) -> p.setExtrusionDistance(v));
-   private DoubleField extrusionDistanceIfNotTooHighToStep = new DoubleField(SettableVisibilityGraphsParameters::getExtrusionDistanceIfNotTooHighToStep, (p , v) -> p.setExtrusionDistanceIfNotTooHighToStep(v));
-   private DoubleField tooHighToStepDistance = new DoubleField(SettableVisibilityGraphsParameters::getTooHighToStepDistance, (p , v) -> p.setTooHighToStepDistance(v));
-   private DoubleField clusterResolution = new DoubleField(SettableVisibilityGraphsParameters::getClusterResolution, (p , v) -> p.setClusterResolution(v));
+   private DoubleField minimumConnectionDistanceForRegions = new DoubleField(SettableVisibilityGraphsParameters::getMinimumConnectionDistanceForRegions, (p, v) -> p.setMinimumConnectionDistanceForRegions(v));
+   private DoubleField normalZThresholdForAccessibleRegions = new DoubleField(SettableVisibilityGraphsParameters::getNormalZThresholdForAccessibleRegions, (p, v) -> p.setNormalZThresholdForAccessibleRegions(v));
+   private DoubleField normalZThresholdForPolygonObstacles = new DoubleField(SettableVisibilityGraphsParameters::getNormalZThresholdForPolygonObstacles, (p, v) -> p.setNormalZThresholdForPolygonObstacles(v));
+   private DoubleField extrusionDistance = new DoubleField(SettableVisibilityGraphsParameters::getExtrusionDistance, (p, v) -> p.setExtrusionDistance(v));
+   private DoubleField extrusionDistanceIfNotTooHighToStep = new DoubleField(SettableVisibilityGraphsParameters::getExtrusionDistanceIfNotTooHighToStep, (p, v) -> p.setExtrusionDistanceIfNotTooHighToStep(v));
+   private DoubleField tooHighToStepDistance = new DoubleField(SettableVisibilityGraphsParameters::getTooHighToStepDistance, (p, v) -> p.setTooHighToStepDistance(v));
+   private DoubleField clusterResolution = new DoubleField(SettableVisibilityGraphsParameters::getClusterResolution, (p, v) -> p.setClusterResolution(v));
+   private DoubleField explorationDistanceFromStartGoal = new DoubleField(SettableVisibilityGraphsParameters::getExplorationDistanceFromStartGoal, (p, v) -> p.setExplorationDistanceFromStartGoal(v));
+   private DoubleField planarRegionMinArea = new DoubleField(SettableVisibilityGraphsParameters::getPlanarRegionMinArea, (p, v) -> p.setPlanarRegionMinArea(v));
+   private IntegerField planarRegionMinSize = new IntegerField(SettableVisibilityGraphsParameters::getPlanarRegionMinSize, (p, v) -> p.setPlanarRegionMinSize(v));
 
    public VisibilityGraphsParametersProperty(Object bean, String name)
    {
@@ -62,6 +65,21 @@ public class VisibilityGraphsParametersProperty extends ParametersProperty<Setta
       bindFieldBidirectionalToNumberProperty(property, clusterResolution);
    }
 
+   public void binBidirectionalExplorationDistanceFromStartGoal(Property<? extends Number> property)
+   {
+      bindFieldBidirectionalToNumberProperty(property, explorationDistanceFromStartGoal);
+   }
+
+   public void binBidirectionalPlanarRegionMinArea(Property<? extends Number> property)
+   {
+      bindFieldBidirectionalToNumberProperty(property, planarRegionMinArea);
+   }
+
+   public void binBidirectionalPlanarRegionMinSize(Property<? extends Number> property)
+   {
+      bindFieldBidirectionalToNumberProperty(property, planarRegionMinSize);
+   }
+
    @Override
    protected SettableVisibilityGraphsParameters getValueCopy(SettableVisibilityGraphsParameters valueToCopy)
    {
@@ -78,6 +96,9 @@ public class VisibilityGraphsParametersProperty extends ParametersProperty<Setta
       private double extrusionDistanceIfNotTooHighToStep;
       private double tooHighToStepDistance;
       private double clusterResolution;
+      private double explorationDistanceFromStartGoal;
+      private double planarRegionMinArea;
+      private int planarRegionMinSize;
 
       public SettableVisibilityGraphsParameters()
       {
@@ -94,6 +115,9 @@ public class VisibilityGraphsParametersProperty extends ParametersProperty<Setta
          setExtrusionDistanceIfNotTooHighToStep(parameters.getExtrusionDistanceIfNotTooHighToStep());
          setTooHighToStepDistance(parameters.getTooHighToStepDistance());
          setClusterResolution(parameters.getClusterResolution());
+         setExplorationDistanceFromStartGoal(parameters.getExplorationDistanceFromStartGoal());
+         setPlanarRegionMinArea(parameters.getPlanarRegionMinArea());
+         setPlanarRegionMinSize(parameters.getPlanarRegionMinSize());
       }
 
       @Override
@@ -144,6 +168,24 @@ public class VisibilityGraphsParametersProperty extends ParametersProperty<Setta
          return clusterResolution;
       }
 
+      @Override
+      public double getExplorationDistanceFromStartGoal()
+      {
+         return explorationDistanceFromStartGoal;
+      }
+
+      @Override
+      public double getPlanarRegionMinArea()
+      {
+         return planarRegionMinArea;
+      }
+
+      @Override
+      public int getPlanarRegionMinSize()
+      {
+         return planarRegionMinSize;
+      }
+
       public void setNumberOfForcedConnections(int numberOfForcedConnections)
       {
          this.numberOfForcedConnections = numberOfForcedConnections;
@@ -182,6 +224,21 @@ public class VisibilityGraphsParametersProperty extends ParametersProperty<Setta
       public void setClusterResolution(double clusterResolution)
       {
          this.clusterResolution = clusterResolution;
+      }
+
+      public void setExplorationDistanceFromStartGoal(double explorationDistanceFromStartGoal)
+      {
+         this.explorationDistanceFromStartGoal = explorationDistanceFromStartGoal;
+      }
+
+      public void setPlanarRegionMinArea(double planarRegionMinArea)
+      {
+         this.planarRegionMinArea = planarRegionMinArea;
+      }
+
+      public void setPlanarRegionMinSize(int planarRegionMinSize)
+      {
+         this.planarRegionMinSize = planarRegionMinSize;
       }
    }
 }

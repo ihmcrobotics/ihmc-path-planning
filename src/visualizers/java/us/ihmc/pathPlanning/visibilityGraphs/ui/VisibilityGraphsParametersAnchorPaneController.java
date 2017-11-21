@@ -25,6 +25,12 @@ public class VisibilityGraphsParametersAnchorPaneController
    private Slider tooHighToStepDistanceSlider;
    @FXML
    private Slider clusterResolutionSlider;
+   @FXML
+   private Slider explorationDistanceFromStartGoalSlider;
+   @FXML
+   private Slider planarRegionMinAreaSlider;
+   @FXML
+   private Slider planarRegionMinSizeSlider;
 
    private final VisibilityGraphsParametersProperty property = new VisibilityGraphsParametersProperty(this, "visibilityGraphsParameters");
    private SimpleUIMessager messager;
@@ -50,6 +56,9 @@ public class VisibilityGraphsParametersAnchorPaneController
       property.binBidirectionalExtrusionDistanceIfNotTooHighToStep(extrusionDistanceIfNotTooHighToStepSlider.valueProperty());
       property.binBidirectionalTooHighToStepDistance(tooHighToStepDistanceSlider.valueProperty());
       property.binBidirectionalClusterResolution(clusterResolutionSlider.valueProperty());
+      property.binBidirectionalExplorationDistanceFromStartGoal(explorationDistanceFromStartGoalSlider.valueProperty());
+      property.binBidirectionalPlanarRegionMinArea(planarRegionMinAreaSlider.valueProperty());
+      property.binBidirectionalPlanarRegionMinSize(planarRegionMinSizeSlider.valueProperty());
 
       messager.bindBidirectional(UIVisibilityGraphsTopics.VisibilityGraphsParameters, property, createConverter(), true);
    }
