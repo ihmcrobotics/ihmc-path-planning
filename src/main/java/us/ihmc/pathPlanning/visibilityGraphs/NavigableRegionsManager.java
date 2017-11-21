@@ -291,83 +291,24 @@ public class NavigableRegionsManager
       {
          if (isPointInsideNoGoZone(pointToCheck))
          {
+            if (debug)
+            {
+               PrintTools.info("Point " + pointToCheck + " is in a NO-GO zone. Snapping the point to the closest navigable point.");
+            }
             pointToCheck = snapDesiredPointToClosestPoint(pointToCheck);
          }
       }
       else
       {
+         if (debug)
+         {
+            PrintTools.info("Point " + pointToCheck + " is outside a planar region. Forcing connections to the closest navigable regions");
+         }
          forceConnectionToPoint(pointToCheck);
       }
       return pointToCheck;
    }
    
-   private Point3D forceConnectionOrSnapGoalPosition(Point3D goal)
-   {
-      if (PlanarRegionTools.isPointInsideAnyRegion(accesibleRegions, goal))
-      {
-         //         System.out.println("START is inside a region");
-
-         if (isPointInsideNoGoZone(goal))
-         {
-            //            System.out.println("START is inside NO-GO zone");
-            goal = snapDesiredPointToClosestPoint(goal);
-         }
-      }
-      else
-      {
-         //         System.out.println("START is not a region");
-
-         forceConnectionToPoint(goal);
-      }
-      
-      if (debug)
-      {
-         if (goal == null)
-            PrintTools.error("Visibility graph unable to snap the goal point to the closest point in the graph");
-      }
-
-      if (goal == null)
-      {
-         throw new RuntimeException("Visibility graph unable to snap the goal point to the closest point in the graph");
-      }
-      
-      return goal;
-   }
-   
-//   private void forceConnectionsOrSnapStartAndGoalIfNeeded(Point3D start, Point3D goal)
-//   {
-//
-//
-//      if (PlanarRegionTools.isPointInsideAnyRegion(accesibleRegions, goal))
-//      {
-//         if (isPointInsideNoGoZone(accesibleRegions, goal))
-//         {
-//            goal = snapDesiredPointToClosestPoint(goal);
-//         }
-//      }
-//      else
-//      {
-//         forceConnectionToPoint(goal);
-//      }
-//
-//      startPos = start;
-//      goalPos = goal;
-//
-//      if (debug)
-//      {
-//         if (startPos == null)
-//            PrintTools.error("Visibility graph unable to force a connection to the start point");
-//
-//         if (goalPos == null)
-//            PrintTools.error("Visibility graph unable to force a connection to the goal point");
-//      }
-//
-//      if (startPos == null || goalPos == null)
-//      {
-//         throw new RuntimeException("Visibility graph unable to force a connection to the start and/or goal point");
-//      }
-//   }
-
    private void createGlobalVisibilityGraph()
    {
       globalVisMap = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
@@ -587,7 +528,7 @@ public class NavigableRegionsManager
    {
       if (debug)
       {
-         PrintTools.info("-----------Processing new region");
+         PrintTools.info("Creating a visibility graph for region with ID:" + region.getRegionId());
       }
 
       NavigableRegionLocalPlanner navigableRegionLocalPlanner = new NavigableRegionLocalPlanner(regions, region, startPos, goalPos, parameters);
@@ -649,8 +590,6 @@ public class NavigableRegionsManager
 
                if (index > 1)
                {
-                  if (debug)
-                     PrintTools.info("POINT " + pointToCheck + " is inside a no-go zone!!!");
                   return true;
                }
             }
