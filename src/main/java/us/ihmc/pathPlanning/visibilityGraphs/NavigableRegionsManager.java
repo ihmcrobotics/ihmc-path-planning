@@ -37,8 +37,6 @@ public class NavigableRegionsManager
 
    private JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder;
    private double pathLength = 0.0;
-   private Point3D startPosition = new Point3D();
-   private Point3D goalPosition = new Point3D();
    private final VisibilityGraphsParameters parameters;
 
    private ArrayList<Connection> connectionPoints = new ArrayList<>();
@@ -115,29 +113,17 @@ public class NavigableRegionsManager
          PrintTools.info("Starting to calculate body path");
 
       long startBodyPathComputation = System.currentTimeMillis();
-//                        start = new Point3D(0, 0, 0);
-//      start = new Point3D(0, 1, 0);
-      //      goal = new Point3D(10, 10, 0);
-
-      //            goal = new Point3D(-3, -3, 0);
 
       long startCreatingMaps = System.currentTimeMillis();
       listOfLocalPlanners.clear();
       visMaps.clear();
       accesibleRegions.clear();
 
-      this.startPosition = start;
-      this.goalPosition = goal;
       classifyRegions(regions);
-
-      //PlanarRegion groundPlane = getLargestAreaRegion(regions);
-      //createVisibilityGraphForRegion(groundPlane, start, goal);
-
-      //      createVisibilityGraphForRegion(regions.get(0), startPos, goalPos);
 
       for (PlanarRegion region : accesibleRegions)
       {
-         createVisibilityGraphForRegion(region, startPosition, goalPosition);
+         createVisibilityGraphForRegion(region, start, goal);
       }
 
       long endCreationTime = System.currentTimeMillis();
@@ -145,16 +131,39 @@ public class NavigableRegionsManager
       connectionPoints.clear();
       globalMapPoints.clear();
 
-      createGlobalMap();
+      createGlobalMapFromAlltheLocalMaps();
 
       long startConnectingTime = System.currentTimeMillis();
       connectLocalMaps();
       long endConnectingTime = System.currentTimeMillis();
 
       long startForcingPoints = System.currentTimeMillis();
-      startPosition = forceConnectionOrSnapStartPosition(start);
-      goalPosition = forceConnectionOrSnapStartPosition(goal);
-//      forceConnectionsOrSnapStartAndGoalIfNeeded(start, goal);
+      start = forceConnectionOrSnapPoint(start);
+      
+      if (debug)
+      {
+         if (start == null)
+            PrintTools.error("Visibility graph unable to snap the start point to the closest point in the graph");
+      }
+
+      if (start == null)
+      {
+         throw new RuntimeException("Visibility graph unable to snap the start point to the closest point in the graph");
+      }
+      
+      goal = forceConnectionOrSnapPoint(goal);
+      
+      if (debug)
+      {
+         if (goal == null)
+            PrintTools.error("Visibility graph unable to snap the goal point to the closest point in the graph");
+      }
+
+      if (goal == null)
+      {
+         throw new RuntimeException("Visibility graph unable to snap the goal point to the closest point in the graph");
+      }
+      
       long endForcingPoints = System.currentTimeMillis();
 
       long startGlobalMapTime = System.currentTimeMillis();
@@ -162,19 +171,19 @@ public class NavigableRegionsManager
       long endGlobalMapTime = System.currentTimeMillis();
 
       long startSnappingTime = System.currentTimeMillis();
-      Point3D snappedGoalPosition = getSnappedPointFromMap(goalPosition);
+      Point3D snappedGoalPosition = getSnappedPointFromVisibilityGraph(goal);
       if (debug && snappedGoalPosition == null)
       {
          PrintTools.error("Snapping of goal returned null.");
       }
-      Point3D snappedStartPosition = getSnappedPointFromMap(startPosition);
+      Point3D snappedStartPosition = getSnappedPointFromVisibilityGraph(start);
       if (debug && snappedStartPosition == null)
       {
          PrintTools.error("Snapping of start returned null.");
       }
       if (snappedGoalPosition == null || snappedStartPosition == null)
       {
-         throw new RuntimeException("Snapping failed.");
+         throw new RuntimeException("Snapping start/goal from visibility graph has failed.");
       }
       long endSnappingTime = System.currentTimeMillis();
 
@@ -276,37 +285,20 @@ public class NavigableRegionsManager
       return path;
    }
    
-   private Point3D forceConnectionOrSnapStartPosition(Point3D start)
+   private Point3D forceConnectionOrSnapPoint(Point3D pointToCheck)
    {
-      if (PlanarRegionTools.isPointInsideAnyRegion(accesibleRegions, start))
+      if (PlanarRegionTools.isPointInsideAnyRegion(accesibleRegions, pointToCheck))
       {
-         //         System.out.println("START is inside a region");
-
-         if (isPointInsideNoGoZone(accesibleRegions, start))
+         if (isPointInsideNoGoZone(accesibleRegions, pointToCheck))
          {
-            //            System.out.println("START is inside NO-GO zone");
-            start = snapDesiredPointToClosestPoint(start);
+            pointToCheck = snapDesiredPointToClosestPoint(pointToCheck);
          }
       }
       else
       {
-         //         System.out.println("START is not a region");
-
-         forceConnectionToPoint(start);
+         forceConnectionToPoint(pointToCheck);
       }
-      
-      if (debug)
-      {
-         if (start == null)
-            PrintTools.error("Visibility graph unable to snap the start point to the closest point in the graph");
-      }
-
-      if (start == null)
-      {
-         throw new RuntimeException("Visibility graph unable to snap the start point to the closest point in the graph");
-      }
-      
-      return start;
+      return pointToCheck;
    }
    
    private Point3D forceConnectionOrSnapGoalPosition(Point3D goal)
@@ -398,7 +390,7 @@ public class NavigableRegionsManager
       //      System.out.println("Actual connections added: " + actualConnectionsAdded);
    }
 
-   public Point3D getSnappedPointFromMap(Point3D position)
+   public Point3D getSnappedPointFromVisibilityGraph(Point3D position)
    {
       for (DefaultWeightedEdge edge : globalVisMap.edgeSet())
       {
@@ -432,7 +424,7 @@ public class NavigableRegionsManager
       return null;
    }
 
-   private void createGlobalMap()
+   private void createGlobalMapFromAlltheLocalMaps()
    {
       int connectionsAdded = 0;
       for (VisibilityMap map : visMaps)
