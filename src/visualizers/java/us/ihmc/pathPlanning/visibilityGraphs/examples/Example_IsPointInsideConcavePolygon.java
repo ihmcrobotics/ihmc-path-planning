@@ -15,6 +15,7 @@ import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.javaFXToolkit.shapes.TextureColorAdaptivePalette;
 import us.ihmc.javaFXToolkit.shapes.TextureColorPalette;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
+import us.ihmc.pathPlanning.visibilityGraphs.tools.PlanarRegionTools;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.VisibilityTools;
 import us.ihmc.robotics.geometry.PlanarRegion;
 
@@ -60,19 +61,18 @@ public class Example_IsPointInsideConcavePolygon extends Application
       polygon.add(new Point2D(-2, 0));
       polygon.add(new Point2D(0, 0));
 
-
       Point2D[] points = polygon.toArray(new Point2D[polygon.size()]);
-      
+
       Point2D centroid = EuclidGeometryTools.averagePoint2Ds(polygon);
       Point2D pointToCheck = new Point2D(-0.5, 0.5);
 
       Vector2D directionToCentroid = new Vector2D(centroid.getX() - pointToCheck.getX(), centroid.getY() - pointToCheck.getY());
       directionToCentroid.normalize();
       directionToCentroid.scale(10);
-      
+
       Point2D endPoint = new Point2D(pointToCheck.getX() + directionToCentroid.getX(), pointToCheck.getY() + directionToCentroid.getY());
 
-      if (VisibilityTools.isPointInsideConcavePolygon(points, pointToCheck, endPoint))
+      if (PlanarRegionTools.isPointInsidePolygon(points, pointToCheck, endPoint))
       {
          System.out.println("Is inside the polygon");
       }
@@ -81,9 +81,9 @@ public class Example_IsPointInsideConcavePolygon extends Application
          System.out.println("Is outside the polygon");
       }
 
-      javaFXMultiColorMeshBuilder.addLine(new Point3D(pointToCheck.getX(), pointToCheck.getY(), 0),
-                                          new Point3D(endPoint.getX(), endPoint.getY(), 0), 0.005, Color.RED);
-      
+      javaFXMultiColorMeshBuilder.addLine(new Point3D(pointToCheck.getX(), pointToCheck.getY(), 0), new Point3D(endPoint.getX(), endPoint.getY(), 0), 0.005,
+                                          Color.RED);
+
       javaFXMultiColorMeshBuilder.addSphere(0.1f, new Point3D(pointToCheck.getX(), pointToCheck.getY(), 0), Color.AQUAMARINE);
 
       for (int i = 1; i < polygon.size(); i++)
@@ -99,8 +99,6 @@ public class Example_IsPointInsideConcavePolygon extends Application
       primaryStage.setScene(view3dFactory.getScene());
       primaryStage.show();
    }
-
-
 
    public static void main(String[] args)
    {

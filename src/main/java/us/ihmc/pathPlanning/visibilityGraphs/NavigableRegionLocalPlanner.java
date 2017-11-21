@@ -197,19 +197,9 @@ public class NavigableRegionLocalPlanner
 
    private ArrayList<Connection> removeExtrusionsOutsideRegions(ArrayList<Connection> connections)
    {
-      //      ArrayList<Connection> points = VisibilityTools.getConnectionsThatAreInsideRegions(connections, regionsInsideHomeRegion);
       ArrayList<Connection> filteredConnections = VisibilityTools.getConnectionsThatAreInsideRegion(connections, homeRegion);
 
       return filteredConnections;
-
-      //      HashSet<Connection> sets = new HashSet<>();
-      //
-      //      for (Connection connection : filteredConnections)
-      //      {
-      //         sets.add(connection);
-      //      }
-      //
-      //      localVisibilityGraph.getVisibilityMap().setConnections(sets);
    }
 
    private ArrayList<Connection> removeExtrusionsInsideNoGoZones(ArrayList<Connection> rawConnections)
@@ -223,7 +213,7 @@ public class NavigableRegionLocalPlanner
          {
             filteredClusters.add(clusters.get(i));
          }
-
+         
          ArrayList<Connection> connectionsToRemove = new ArrayList<>();
          for (Cluster cluster : filteredClusters)
          {
@@ -246,8 +236,6 @@ public class NavigableRegionLocalPlanner
                                                                                                                clusters.get(clusters.size() - 1)
                                                                                                                        .getNonNavigableExtrusionsInLocal());
 
-         System.out.println("Remove: " + connectionsToRemove.size() + "  total: " + connectionsInsideHomeRegion.size());
-         //       
          int index = 0;
 
          ArrayList<Connection> finalList = (ArrayList<Connection>) connectionsInsideHomeRegion.clone();
@@ -263,8 +251,6 @@ public class NavigableRegionLocalPlanner
                }
             }
          }
-
-         System.out.println("INDEX: " + finalList.size());
 
          for (Connection connection : finalList)
          {

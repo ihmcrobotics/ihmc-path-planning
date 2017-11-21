@@ -623,7 +623,7 @@ public class NavigableRegionsManager
 
             Point2D endPoint = new Point2D(pointToCheck.getX() + directionToCentroid.getX(), pointToCheck.getY() + directionToCentroid.getY());
 
-            if (VisibilityTools.isPointInsideConcavePolygon(homePointsArr, new Point2D(pointToCheck.getX(), pointToCheck.getY()), endPoint))
+            if (PlanarRegionTools.isPointInsidePolygon(homePointsArr, new Point2D(pointToCheck.getX(), pointToCheck.getY()), endPoint))
             {
                index++;
 

@@ -249,7 +249,7 @@ public class PlanarRegionTools
 
       Point2D endPoint = new Point2D(pointToCheck.getX() + directionToCentroid.getX(), pointToCheck.getY() + directionToCentroid.getY());
 
-      boolean pointIsInside = VisibilityTools.isPointInsideConcavePolygon(pointsInConcaveHull.toArray(new Point2D[pointsInConcaveHull.size()]),
+      boolean pointIsInside = isPointInsidePolygon(pointsInConcaveHull.toArray(new Point2D[pointsInConcaveHull.size()]),
                                                                           new Point2D(pointToCheck.getX(), pointToCheck.getY()), endPoint);
 
       if (pointIsInside)
@@ -257,6 +257,109 @@ public class PlanarRegionTools
          return true;
       }
 
+      return false;
+   }
+   
+   public static boolean isPointInsidePolygon(Point2D[] polygon, Point2D pointToCheck, Point2D lineEnd)
+   {
+      int index = 0;
+      
+      Point2D[] points = new Point2D[polygon.length + 1];
+      
+      for(int i = 0; i < polygon.length; i++)
+      {
+         points[i]= polygon[i];
+      }
+      points[points.length-1] = points[0];
+
+      for (int i = 1; i < points.length; i++)
+      {
+         Point2D point1 = points[i - 1];
+         Point2D point2 = points[i];
+
+         if (EuclidGeometryTools.doLineSegment2DsIntersect(point1, point2, pointToCheck, lineEnd))
+         {
+            index++;
+         }
+      }
+
+      //      System.out.println("INDEX: " + index);
+
+      if (index == 0)
+      {
+         //Could be both outside or inside
+         return false;
+      }
+
+      if (index % 2 == 0)
+      {
+         return false;
+      }
+      else
+      {
+         return true;
+      }
+   }
+   
+   public static boolean areBothPointsInsidePolygon(Point2D point1, Point2D point2, PlanarRegion homeRegion)
+   {
+      ArrayList<Point2D> points = new ArrayList<>();
+      for (int i = 1; i < homeRegion.getConcaveHullSize(); i++)
+      {
+         Point2D point = homeRegion.getConcaveHull()[i];
+         points.add(point);
+      }
+
+      Point2D centroid = EuclidGeometryTools.averagePoint2Ds(points);
+
+      Vector2D directionToCentroid = new Vector2D(centroid.getX() - point1.getX(), centroid.getY() - point1.getY());
+      directionToCentroid.normalize();
+      directionToCentroid.scale(10);
+
+      Point2D endPoint = new Point2D(point1.getX() + directionToCentroid.getX(), point1.getY() + directionToCentroid.getY());
+
+      boolean startIsInside = PlanarRegionTools.isPointInsidePolygon(homeRegion.getConcaveHull(), point1, endPoint);
+
+      directionToCentroid = new Vector2D(centroid.getX() - point2.getX(), centroid.getY() - point2.getY());
+      directionToCentroid.normalize();
+      directionToCentroid.scale(10);
+
+      endPoint = new Point2D(point2.getX() + directionToCentroid.getX(), point2.getY() + directionToCentroid.getY());
+
+      boolean goalIsInside = PlanarRegionTools.isPointInsidePolygon(homeRegion.getConcaveHull(), point2, endPoint);
+
+      if (startIsInside && goalIsInside)
+      {
+         return true;
+      }
+      return false;
+   }
+   
+   public static boolean areBothPointsInsidePolygon(Point2D point1, Point2D point2, List<Point2D> pointsInPolygon)
+   {
+      Point2D centroid = EuclidGeometryTools.averagePoint2Ds(pointsInPolygon);
+      
+      Vector2D directionToCentroid = new Vector2D(centroid.getX() - point1.getX(), centroid.getY() - point1.getY());
+      directionToCentroid.normalize();
+      directionToCentroid.scale(10);
+
+      Point2D endPoint = new Point2D(point1.getX() + directionToCentroid.getX(), point1.getY() + directionToCentroid.getY());
+
+      Point2D[] pointsArr = pointsInPolygon.toArray(new Point2D[pointsInPolygon.size()]);
+      boolean startIsInside = PlanarRegionTools.isPointInsidePolygon(pointsArr, point1, endPoint);
+
+      directionToCentroid = new Vector2D(centroid.getX() - point2.getX(), centroid.getY() - point2.getY());
+      directionToCentroid.normalize();
+      directionToCentroid.scale(10);
+
+      endPoint = new Point2D(point2.getX() + directionToCentroid.getX(), point2.getY() + directionToCentroid.getY());
+
+      boolean goalIsInside = PlanarRegionTools.isPointInsidePolygon(pointsArr, point2, endPoint);
+
+      if (startIsInside && goalIsInside)
+      {
+         return true;
+      }
       return false;
    }
 
