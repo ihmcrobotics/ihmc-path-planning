@@ -50,7 +50,7 @@ public class NavigableRegionsManager
    {
       this(parameters, null, null);
    }
-
+   
    public NavigableRegionsManager(List<PlanarRegion> regions)
    {
       this(regions, null);
@@ -60,7 +60,7 @@ public class NavigableRegionsManager
    {
       this(parameters, regions, null);
    }
-
+   
    public NavigableRegionsManager(JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder)
    {
       this(null, null, javaFXMultiColorMeshBuilder);
@@ -106,16 +106,12 @@ public class NavigableRegionsManager
          PrintTools.info("Starting to calculate body path");
 
       long startBodyPathComputation = System.currentTimeMillis();
-<<<<<<< HEAD
-=======
       //            start = new Point3D(-0.3, 1.410, 0);
       //      goal = new Point3D(10, 10, 0);
 
       //            goal = new Point3D(-3, -3, 0);
 
->>>>>>> refs/heads/feature/Path_SelfIntersection
       long startCreatingMaps = System.currentTimeMillis();
-
       listOfLocalPlanners.clear();
       visMaps.clear();
       accesibleRegions.clear();
@@ -124,22 +120,15 @@ public class NavigableRegionsManager
       this.goalPos = goal;
       classifyRegions(regions);
 
-<<<<<<< HEAD
-      PlanarRegion groundPlane = getLargestAreaRegion(regions);
-      createVisibilityGraphForRegion(groundPlane, start, goal);
+      //PlanarRegion groundPlane = getLargestAreaRegion(regions);
+      //createVisibilityGraphForRegion(groundPlane, start, goal);
       
-      //      for (PlanarRegion region : accesibleRegions)
-      //      {
-      //         createVisibilityGraphForRegion(region, startPos, goalPos);
-      //      }
-=======
 //      createVisibilityGraphForRegion(regions.get(0), startPos, goalPos);
 
       for (PlanarRegion region : accesibleRegions)
       {
          createVisibilityGraphForRegion(region, startPos, goalPos);
       }
->>>>>>> refs/heads/feature/Path_SelfIntersection
 
       long endCreationTime = System.currentTimeMillis();
 
@@ -147,12 +136,6 @@ public class NavigableRegionsManager
       globalMapPoints.clear();
 
       createGlobalMap();
-
-      System.out.println("Before Filtered connections: " + globalMapPoints.size());
-
-      //      globalMapPoints = VisibilityTools.filterConnectionsThatAreOutsideRegions(globalMapPoints, accesibleRegions);
-
-      System.out.println("Filtered connections: " + globalMapPoints.size());
 
       long startConnectingTime = System.currentTimeMillis();
       connectLocalMaps();
@@ -629,46 +612,11 @@ public class NavigableRegionsManager
                   return true;
                }
             }
-
-            //            isPointInsideConcavePolygon(homePointsArr, new Point2D(pointToCheck.getX()+10, pointToCheck.getY()), new Point2D(pointToCheck.getX()-10, pointToCheck.getY()));
-            //            ConvexPolygon2D homeConvexPol = new ConvexPolygon2D(homePointsArr);
-            //
-            //            if (homeConvexPol.isPointInside(new Point2D(pointToCheck.getX(), pointToCheck.getY())))
-            //            {
-            //               index++;
-            //
-            //               if (index > 1)
-            //               {
-            //                  if (debug)
-            //                     PrintTools.info("POINT " + pointToCheck + " is inside a no-go zone!!!");
-            //                  return true;
-            //               }
-            //            }
          }
       }
 
       return false;
    }
-
-   //   private boolean isPointInsideConcavePolygon(Point2D[] polygon, Point2D start, Point2D end)
-   //   {
-   //      int index = 0;
-   //      
-   //      for (int i = 1; i < polygon.length; i++)
-   //      {
-   //         Point2D point1 = polygon[i-1];
-   //         Point2D point2 = polygon[i];
-   //
-   //         if (EuclidGeometryTools.doLineSegment2DsIntersect(point1, point2, start, end))
-   //         {
-   //            index++;
-   //         }
-   //      }
-   //      
-   //      System.out.println("INDEX: " + index);
-   //
-   //      return false;
-   //   }
 
    private void classifyRegions(List<PlanarRegion> regions)
    {
