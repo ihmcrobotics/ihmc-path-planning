@@ -18,6 +18,7 @@ public class SimpleVisibilityGraphsUI
 
    private final VizGraphsPlanarRegionViewer planarRegionViewer;
    private final VisibilityGraphStartGoalEditor startGoalEditor;
+   private final VisibilityGraphStartGoalViewer startGoalViewer;
    private final VisibilityGraphsRenderer visibilityGraphsRenderer;
 
    @FXML
@@ -65,8 +66,10 @@ public class SimpleVisibilityGraphsUI
       view3dFactory.addNodeToView(planarRegionViewer.getRoot());
       planarRegionViewer.start();
       startGoalEditor = new VisibilityGraphStartGoalEditor(messager, subScene);
-      view3dFactory.addNodeToView(startGoalEditor.getRoot());
       startGoalEditor.start();
+      startGoalViewer = new VisibilityGraphStartGoalViewer(messager);
+      view3dFactory.addNodeToView(startGoalViewer.getRoot());
+      startGoalViewer.start();
       visibilityGraphsRenderer = new VisibilityGraphsRenderer(messager);
       view3dFactory.addNodeToView(visibilityGraphsRenderer.getRoot());
       visibilityGraphsRenderer.start();
@@ -89,6 +92,7 @@ public class SimpleVisibilityGraphsUI
       messager.closeMessager();
       planarRegionViewer.stop();
       startGoalEditor.stop();
+      startGoalViewer.stop();
       visibilityGraphsRenderer.stop();
    }
 }
