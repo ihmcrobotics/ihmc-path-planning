@@ -120,12 +120,12 @@ public class NavigableRegionsManager
       this.goalPos = goal;
       classifyRegions(regions);
 
-      createVisibilityGraphForRegion(regions.get(0), startPos, goalPos);
+//      createVisibilityGraphForRegion(regions.get(0), startPos, goalPos);
 
-//      for (PlanarRegion region : accesibleRegions)
-//      {
-//         createVisibilityGraphForRegion(region, startPos, goalPos);
-//      }
+      for (PlanarRegion region : accesibleRegions)
+      {
+         createVisibilityGraphForRegion(region, startPos, goalPos);
+      }
 
       long endCreationTime = System.currentTimeMillis();
 
