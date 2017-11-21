@@ -85,8 +85,8 @@ public class NavigableRegionsManager
 
    public void setPlanarRegions(List<PlanarRegion> regions)
    {
-      ArrayList<PlanarRegion> regions1 = new ArrayList<>();
-      regions1.add(regions.get(0));
+//      ArrayList<PlanarRegion> regions1 = new ArrayList<>();
+//      regions1.add(regions.get(0));
       //      regions1.add(regions.get(1));
       //      regions1.add(regions.get(2));
       //      regions1.add(regions.get(3));
@@ -102,11 +102,16 @@ public class NavigableRegionsManager
 
    public List<Point3D> calculateBodyPath(Point3D start, Point3D goal)
    {
+      if (start == null && start == null)
+      {
+         throw new RuntimeException("Start or goal are null!.");
+      }
+      
       if (debug)
          PrintTools.info("Starting to calculate body path");
 
       long startBodyPathComputation = System.currentTimeMillis();
-      //            start = new Point3D(-0.3, 1.410, 0);
+//                  start = new Point3D(-0.3, 1.410, 0);
       //      goal = new Point3D(10, 10, 0);
 
       //            goal = new Point3D(-3, -3, 0);
