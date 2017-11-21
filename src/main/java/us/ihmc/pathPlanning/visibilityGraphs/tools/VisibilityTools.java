@@ -66,27 +66,7 @@ public class VisibilityTools
       }
    }
 
-   public static ArrayList<Connection> getConnectionsThatAreInsideRegions(ArrayList<Connection> connections, List<PlanarRegion> accesibleRegions)
-   {
-      ArrayList<Connection> filteredConnections = new ArrayList<>();
-
-      for (PlanarRegion region : accesibleRegions)
-      {
-         for (Connection connection : connections)
-         {
-
-            if (areBothPointsInside(new Point2D(connection.getSourcePoint().getX(), connection.getSourcePoint().getY()),
-                                    new Point2D(connection.getTargetPoint().getX(), connection.getTargetPoint().getY()), region))
-            {
-               filteredConnections.add(connection);
-            }
-         }
-      }
-
-      return filteredConnections;
-   }
-
-   public static ArrayList<Connection> getConnectionsThatAreInsideRegions(ArrayList<Connection> connections, PlanarRegion region)
+   public static ArrayList<Connection> getConnectionsThatAreInsideRegion(ArrayList<Connection> connections, PlanarRegion region)
    {
       ArrayList<Connection> filteredConnections = new ArrayList<>();
 
@@ -102,7 +82,24 @@ public class VisibilityTools
 
       return filteredConnections;
    }
+   
+   public static ArrayList<Connection> getConnectionsThatAreInsideRegion(ArrayList<Connection> connections, List<Point2D> polygon)
+   {
+      ArrayList<Connection> filteredConnections = new ArrayList<>();
 
+      for (Connection connection : connections)
+      {
+
+         if (areBothPointsInside(new Point2D(connection.getSourcePoint().getX(), connection.getSourcePoint().getY()),
+                                 new Point2D(connection.getTargetPoint().getX(), connection.getTargetPoint().getY()), polygon))
+         {
+            filteredConnections.add(connection);
+         }
+      }
+
+      return filteredConnections;
+   }
+   
    public static boolean areBothPointsInside(Point2D point1, Point2D point2, PlanarRegion homeRegion)
    {
       ArrayList<Point2D> points = new ArrayList<>();
@@ -129,6 +126,34 @@ public class VisibilityTools
       endPoint = new Point2D(point2.getX() + directionToCentroid.getX(), point2.getY() + directionToCentroid.getY());
 
       boolean goalIsInside = VisibilityTools.isPointInsideConcavePolygon(homeRegion.getConcaveHull(), point2, endPoint);
+
+      if (startIsInside && goalIsInside)
+      {
+         return true;
+      }
+      return false;
+   }
+   
+   public static boolean areBothPointsInside(Point2D point1, Point2D point2, List<Point2D> points)
+   {
+      Point2D centroid = EuclidGeometryTools.averagePoint2Ds(points);
+      
+      Vector2D directionToCentroid = new Vector2D(centroid.getX() - point1.getX(), centroid.getY() - point1.getY());
+      directionToCentroid.normalize();
+      directionToCentroid.scale(10);
+
+      Point2D endPoint = new Point2D(point1.getX() + directionToCentroid.getX(), point1.getY() + directionToCentroid.getY());
+
+      Point2D[] pointsArr = points.toArray(new Point2D[points.size()]);
+      boolean startIsInside = VisibilityTools.isPointInsideConcavePolygon(pointsArr, point1, endPoint);
+
+      directionToCentroid = new Vector2D(centroid.getX() - point2.getX(), centroid.getY() - point2.getY());
+      directionToCentroid.normalize();
+      directionToCentroid.scale(10);
+
+      endPoint = new Point2D(point2.getX() + directionToCentroid.getX(), point2.getY() + directionToCentroid.getY());
+
+      boolean goalIsInside = VisibilityTools.isPointInsideConcavePolygon(pointsArr, point2, endPoint);
 
       if (startIsInside && goalIsInside)
       {

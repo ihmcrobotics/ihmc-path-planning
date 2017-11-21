@@ -106,7 +106,7 @@ public class NavigableRegionsManager
          PrintTools.info("Starting to calculate body path");
 
       long startBodyPathComputation = System.currentTimeMillis();
-//            start = new Point3D(-0.3, 1.410, 0);
+      //            start = new Point3D(-0.3, 1.410, 0);
       //      goal = new Point3D(10, 10, 0);
 
       //            goal = new Point3D(-3, -3, 0);
@@ -120,12 +120,12 @@ public class NavigableRegionsManager
       this.goalPos = goal;
       classifyRegions(regions);
 
-//      createVisibilityGraphForRegion(regions.get(0), startPos, goalPos);
+      createVisibilityGraphForRegion(regions.get(0), startPos, goalPos);
 
-            for (PlanarRegion region : accesibleRegions)
-            {
-               createVisibilityGraphForRegion(region, startPos, goalPos);
-            }
+//      for (PlanarRegion region : accesibleRegions)
+//      {
+//         createVisibilityGraphForRegion(region, startPos, goalPos);
+//      }
 
       long endCreationTime = System.currentTimeMillis();
 
@@ -133,17 +133,17 @@ public class NavigableRegionsManager
       globalMapPoints.clear();
 
       createGlobalMap();
-      
+
       System.out.println("Before Filtered connections: " + globalMapPoints.size());
 
-//      globalMapPoints = VisibilityTools.filterConnectionsThatAreOutsideRegions(globalMapPoints, accesibleRegions);
-      
+      //      globalMapPoints = VisibilityTools.filterConnectionsThatAreOutsideRegions(globalMapPoints, accesibleRegions);
+
       System.out.println("Filtered connections: " + globalMapPoints.size());
 
       long startConnectingTime = System.currentTimeMillis();
       connectLocalMaps();
       long endConnectingTime = System.currentTimeMillis();
-      
+
       long startForcingPoints = System.currentTimeMillis();
       forceConnectionsOrSnapStartAndGoalIfNeeded(start, goal);
       long endForcingPoints = System.currentTimeMillis();
@@ -228,7 +228,7 @@ public class NavigableRegionsManager
    private void forceConnectionsOrSnapStartAndGoalIfNeeded(Point3D start, Point3D goal)
    {
       //    System.out.println("Before forcing points global map has size: " + globalMapPoints.size());
-      
+
       if (PlanarRegionTools.isPointInsideRegion(accesibleRegions, start))
       {
          if (isPointInsideNoGoZone(accesibleRegions, start))
@@ -539,16 +539,16 @@ public class NavigableRegionsManager
                homePointsArr[i] = point2D;
                points.add(point2D);
             }
-            
+
             Point2D centroid = EuclidGeometryTools.averagePoint2Ds(points);
 
             Vector2D directionToCentroid = new Vector2D(centroid.getX() - pointToCheck.getX(), centroid.getY() - pointToCheck.getY());
             directionToCentroid.normalize();
             directionToCentroid.scale(10);
-            
+
             Point2D endPoint = new Point2D(pointToCheck.getX() + directionToCentroid.getX(), pointToCheck.getY() + directionToCentroid.getY());
-            
-            if(VisibilityTools.isPointInsideConcavePolygon(homePointsArr, new Point2D(pointToCheck.getX(), pointToCheck.getY()), endPoint))
+
+            if (VisibilityTools.isPointInsideConcavePolygon(homePointsArr, new Point2D(pointToCheck.getX(), pointToCheck.getY()), endPoint))
             {
                index++;
 
@@ -559,46 +559,46 @@ public class NavigableRegionsManager
                   return true;
                }
             }
-            
-//            isPointInsideConcavePolygon(homePointsArr, new Point2D(pointToCheck.getX()+10, pointToCheck.getY()), new Point2D(pointToCheck.getX()-10, pointToCheck.getY()));
-//            ConvexPolygon2D homeConvexPol = new ConvexPolygon2D(homePointsArr);
-//
-//            if (homeConvexPol.isPointInside(new Point2D(pointToCheck.getX(), pointToCheck.getY())))
-//            {
-//               index++;
-//
-//               if (index > 1)
-//               {
-//                  if (debug)
-//                     PrintTools.info("POINT " + pointToCheck + " is inside a no-go zone!!!");
-//                  return true;
-//               }
-//            }
+
+            //            isPointInsideConcavePolygon(homePointsArr, new Point2D(pointToCheck.getX()+10, pointToCheck.getY()), new Point2D(pointToCheck.getX()-10, pointToCheck.getY()));
+            //            ConvexPolygon2D homeConvexPol = new ConvexPolygon2D(homePointsArr);
+            //
+            //            if (homeConvexPol.isPointInside(new Point2D(pointToCheck.getX(), pointToCheck.getY())))
+            //            {
+            //               index++;
+            //
+            //               if (index > 1)
+            //               {
+            //                  if (debug)
+            //                     PrintTools.info("POINT " + pointToCheck + " is inside a no-go zone!!!");
+            //                  return true;
+            //               }
+            //            }
          }
       }
 
       return false;
    }
 
-//   private boolean isPointInsideConcavePolygon(Point2D[] polygon, Point2D start, Point2D end)
-//   {
-//      int index = 0;
-//      
-//      for (int i = 1; i < polygon.length; i++)
-//      {
-//         Point2D point1 = polygon[i-1];
-//         Point2D point2 = polygon[i];
-//
-//         if (EuclidGeometryTools.doLineSegment2DsIntersect(point1, point2, start, end))
-//         {
-//            index++;
-//         }
-//      }
-//      
-//      System.out.println("INDEX: " + index);
-//
-//      return false;
-//   }
+   //   private boolean isPointInsideConcavePolygon(Point2D[] polygon, Point2D start, Point2D end)
+   //   {
+   //      int index = 0;
+   //      
+   //      for (int i = 1; i < polygon.length; i++)
+   //      {
+   //         Point2D point1 = polygon[i-1];
+   //         Point2D point2 = polygon[i];
+   //
+   //         if (EuclidGeometryTools.doLineSegment2DsIntersect(point1, point2, start, end))
+   //         {
+   //            index++;
+   //         }
+   //      }
+   //      
+   //      System.out.println("INDEX: " + index);
+   //
+   //      return false;
+   //   }
 
    private void classifyRegions(List<PlanarRegion> regions)
    {
