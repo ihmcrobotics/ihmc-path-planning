@@ -50,7 +50,7 @@ public class NavigableRegionsManager
    {
       this(parameters, null, null);
    }
-   
+
    public NavigableRegionsManager(List<PlanarRegion> regions)
    {
       this(regions, null);
@@ -60,7 +60,7 @@ public class NavigableRegionsManager
    {
       this(parameters, regions, null);
    }
-   
+
    public NavigableRegionsManager(JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder)
    {
       this(null, null, javaFXMultiColorMeshBuilder);
@@ -85,8 +85,8 @@ public class NavigableRegionsManager
 
    public void setPlanarRegions(List<PlanarRegion> regions)
    {
-//      ArrayList<PlanarRegion> regions1 = new ArrayList<>();
-//      regions1.add(regions.get(0));
+      //      ArrayList<PlanarRegion> regions1 = new ArrayList<>();
+      //      regions1.add(regions.get(0));
       //      regions1.add(regions.get(1));
       //      regions1.add(regions.get(2));
       //      regions1.add(regions.get(3));
@@ -102,16 +102,21 @@ public class NavigableRegionsManager
 
    public List<Point3D> calculateBodyPath(Point3D start, Point3D goal)
    {
-      if (start == null && start == null)
+      if (start == null)
       {
-         throw new RuntimeException("Start or goal are null!.");
+         throw new RuntimeException("Start is null!.");
       }
-      
+
+      if (goal == null)
+      {
+         throw new RuntimeException("Goal is null!.");
+      }
+
       if (debug)
          PrintTools.info("Starting to calculate body path");
 
       long startBodyPathComputation = System.currentTimeMillis();
-//                  start = new Point3D(-0.3, 1.410, 0);
+      //                  start = new Point3D(-0.3, 1.410, 0);
       //      goal = new Point3D(10, 10, 0);
 
       //            goal = new Point3D(-3, -3, 0);
@@ -127,8 +132,8 @@ public class NavigableRegionsManager
 
       //PlanarRegion groundPlane = getLargestAreaRegion(regions);
       //createVisibilityGraphForRegion(groundPlane, start, goal);
-      
-//      createVisibilityGraphForRegion(regions.get(0), startPos, goalPos);
+
+      //      createVisibilityGraphForRegion(regions.get(0), startPos, goalPos);
 
       for (PlanarRegion region : accesibleRegions)
       {
@@ -180,7 +185,7 @@ public class NavigableRegionsManager
       }
       else
       {
-         if(debug)
+         if (debug)
             PrintTools.error("Start or goal pose is null, visibilty graph unable to compute a path!");
       }
 
@@ -198,29 +203,29 @@ public class NavigableRegionsManager
 
       return path;
    }
-   
+
    private static PlanarRegion getLargestAreaRegion(List<PlanarRegion> planarRegions)
    {
       double largestArea = Double.NEGATIVE_INFINITY;
       int index = -1;
-      
-      for(int i = 0; i < planarRegions.size(); i++)
+
+      for (int i = 0; i < planarRegions.size(); i++)
       {
          double area = 0.0;
          PlanarRegion region = planarRegions.get(i);
-         
-         for(int j = 0; j < planarRegions.get(i).getNumberOfConvexPolygons(); j++)
+
+         for (int j = 0; j < planarRegions.get(i).getNumberOfConvexPolygons(); j++)
          {
             area += region.getConvexPolygon(j).getArea();
          }
-         
-         if(area > largestArea)
+
+         if (area > largestArea)
          {
             largestArea = area;
             index = i;
          }
       }
-      
+
       return planarRegions.get(index);
    }
 
@@ -299,17 +304,17 @@ public class NavigableRegionsManager
 
       startPos = start;
       goalPos = goal;
-      
-      if(debug)
+
+      if (debug)
       {
-         if(startPos == null)
+         if (startPos == null)
             PrintTools.error("Visibility graph unable to force a connection to the start point");
 
-         if(goalPos == null)
+         if (goalPos == null)
             PrintTools.error("Visibility graph unable to force a connection to the goal point");
       }
-      
-      if(startPos == null || goalPos == null)
+
+      if (startPos == null || goalPos == null)
       {
          throw new RuntimeException("Visibility graph unable to force a connection to the start and/or goal point");
       }
@@ -588,6 +593,11 @@ public class NavigableRegionsManager
       {
          for (Cluster cluster : localPlanner.getClusters())
          {
+            if (cluster.getNonNavigableExtrusionsInWorld().size() == 0)
+            {
+               continue;
+            }
+
             Point2D[] homePointsArr = new Point2D[cluster.getNonNavigableExtrusionsInWorld().size()];
             ArrayList<Point2D> points = new ArrayList<>();
             for (int i = 0; i < cluster.getNonNavigableExtrusionsInWorld().size(); i++)
