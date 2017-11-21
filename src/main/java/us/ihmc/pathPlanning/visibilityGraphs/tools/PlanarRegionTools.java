@@ -3,7 +3,6 @@ package us.ihmc.pathPlanning.visibilityGraphs.tools;
 import java.util.ArrayList;
 import java.util.List;
 
-import us.ihmc.commons.PrintTools;
 import us.ihmc.euclid.geometry.ConvexPolygon2D;
 import us.ihmc.euclid.geometry.Line3D;
 import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
@@ -213,7 +212,7 @@ public class PlanarRegionTools
       return closestPoint.epsilonEquals(point, epsilon);
    }
 
-   public static boolean isPointInsideAnyRegion(List<PlanarRegion> regions, Point3D pointToCheck)
+   public static boolean isPointInsideAnyRegion(List<PlanarRegion> regions, Point3DReadOnly pointToCheck)
    {
       for (PlanarRegion region : regions)
       {
@@ -226,7 +225,7 @@ public class PlanarRegionTools
       return false;
    }
 
-   public static boolean isPointInsideARegion(PlanarRegion region, Point3D pointToCheck)
+   public static boolean isPointInsideARegion(PlanarRegion region, Point3DReadOnly pointToCheck)
    {
       ArrayList<Point2D> pointsInConcaveHull = new ArrayList<>();
       for (int i = 1; i < region.getConcaveHullSize(); i++)
