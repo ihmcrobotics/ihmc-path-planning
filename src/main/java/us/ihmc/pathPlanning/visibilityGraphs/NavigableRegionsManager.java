@@ -117,6 +117,7 @@ public class NavigableRegionsManager
 
       long startBodyPathComputation = System.currentTimeMillis();
 //                        start = new Point3D(0, 0, 0);
+//      start = new Point3D(0, 1, 0);
       //      goal = new Point3D(10, 10, 0);
 
       //            goal = new Point3D(-3, -3, 0);
@@ -277,21 +278,20 @@ public class NavigableRegionsManager
    private void forceConnectionsOrSnapStartAndGoalIfNeeded(Point3D start, Point3D goal)
    {
       //    System.out.println("Before forcing points global map has size: " + globalMapPoints.size());
-      
 
       if (PlanarRegionTools.isPointInsideAnyRegion(accesibleRegions, start))
       {
-//         System.out.println("START is inside a region");
+         //         System.out.println("START is inside a region");
 
          if (isPointInsideNoGoZone(accesibleRegions, start))
          {
-//            System.out.println("START is inside NO-GO zone");
+            //            System.out.println("START is inside NO-GO zone");
             start = snapConnectionToClosestPoint(start);
          }
       }
       else
       {
-//         System.out.println("START is not a region");
+         //         System.out.println("START is not a region");
 
          forceConnectionToPoint(start);
       }
