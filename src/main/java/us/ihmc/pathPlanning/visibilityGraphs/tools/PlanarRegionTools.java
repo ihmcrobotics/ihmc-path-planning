@@ -9,6 +9,7 @@ import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
 import us.ihmc.euclid.referenceFrame.FramePoint3D;
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Point2D;
+import us.ihmc.euclid.tuple2D.Vector2D;
 import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.euclid.tuple3D.interfaces.Point3DReadOnly;
@@ -18,28 +19,30 @@ import us.ihmc.robotics.geometry.PlanarRegionsList;
 
 public class PlanarRegionTools
 {
+   private static final boolean debug = false;
+
    /**
     * Finds and returns the closest point the the provided point on the planar regions.
     */
-  public static Point3D projectPointToPlanes(Point3DReadOnly point, PlanarRegionsList regions)
-  {
-     double smallestDistance = Double.POSITIVE_INFINITY;
-     Point3D closestPoint = null;
+   public static Point3D projectPointToPlanes(Point3DReadOnly point, PlanarRegionsList regions)
+   {
+      double smallestDistance = Double.POSITIVE_INFINITY;
+      Point3D closestPoint = null;
 
-     for (PlanarRegion region : regions.getPlanarRegionsAsList())
-     {
-        Point3D intersection = closestPointOnPlane(point, region);
-        double distance = intersection.distance(point);
+      for (PlanarRegion region : regions.getPlanarRegionsAsList())
+      {
+         Point3D intersection = closestPointOnPlane(point, region);
+         double distance = intersection.distance(point);
 
-        if (closestPoint == null || distance < smallestDistance)
-        {
-           smallestDistance = distance;
-           closestPoint = intersection;
-        }
-     }
+         if (closestPoint == null || distance < smallestDistance)
+         {
+            smallestDistance = distance;
+            closestPoint = intersection;
+         }
+      }
 
-     return closestPoint;
-  }
+      return closestPoint;
+   }
 
    /**
     * Projects the given point onto the planar region, returning the closest point on
@@ -208,40 +211,158 @@ public class PlanarRegionTools
       Point3D closestPoint = closestPointOnPlane(point, region);
       return closestPoint.epsilonEquals(point, epsilon);
    }
-   
-   public static boolean isPointInsideRegion(List<PlanarRegion> regions, Point3D point)
+
+   public static boolean isPointInsideAnyRegion(List<PlanarRegion> regions, Point3DReadOnly pointToCheck)
    {
       for (PlanarRegion region : regions)
       {
-         Point2D[] homePointsArr = new Point2D[region.getConvexHull().getNumberOfVertices()];
-         for (int i = 0; i < region.getConvexHull().getNumberOfVertices(); i++)
+         if (isPointInsideARegion(region, pointToCheck))
          {
-            Point2D point2D = (Point2D) region.getConvexHull().getVertex(i);
-            Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
-            FramePoint3D fpt = new FramePoint3D();
-            fpt.set(point3D);
-            RigidBodyTransform transToWorld = new RigidBodyTransform();
-            region.getTransformToWorld(transToWorld);
-            fpt.applyTransform(transToWorld);
-            Point3D transformedPt = fpt.getPoint();
-
-            homePointsArr[i] = new Point2D(transformedPt.getX(), transformedPt.getY());
-         }
-
-         ConvexPolygon2D homeConvexPol = new ConvexPolygon2D(homePointsArr);
-         homeConvexPol.update();
-
-         if (homeConvexPol.isPointInside(new Point2D(point.getX(), point.getY())))
-         {
-            System.out.println("POINT" + point + " IS INSIDE A REGION");
             return true;
          }
       }
-      System.out.println("POINT" + point + " IS NOT INSIDE A REGION");
+
+      return false;
+   }
+
+   public static boolean isPointInsideARegion(PlanarRegion region, Point3DReadOnly pointToCheck)
+   {
+      ArrayList<Point2D> pointsInConcaveHull = new ArrayList<>();
+      for (int i = 1; i < region.getConcaveHullSize(); i++)
+      {
+         Point2D point2D = (Point2D) region.getConcaveHull()[i];
+         Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
+         FramePoint3D fpt = new FramePoint3D();
+         fpt.set(point3D);
+         RigidBodyTransform transToWorld = new RigidBodyTransform();
+         region.getTransformToWorld(transToWorld);
+         fpt.applyTransform(transToWorld);
+
+         pointsInConcaveHull.add(new Point2D(fpt.getX(), fpt.getY()));
+      }
+
+      Point2D centroid = EuclidGeometryTools.averagePoint2Ds(pointsInConcaveHull);
+
+      Vector2D directionToCentroid = new Vector2D(centroid.getX() - pointToCheck.getX(), centroid.getY() - pointToCheck.getY());
+      directionToCentroid.normalize();
+      directionToCentroid.scale(10);
+
+      Point2D endPoint = new Point2D(pointToCheck.getX() + directionToCentroid.getX(), pointToCheck.getY() + directionToCentroid.getY());
+
+      boolean pointIsInside = isPointInsidePolygon(pointsInConcaveHull.toArray(new Point2D[pointsInConcaveHull.size()]),
+                                                                          new Point2D(pointToCheck.getX(), pointToCheck.getY()), endPoint);
+
+      if (pointIsInside)
+      {
+         return true;
+      }
 
       return false;
    }
    
+   public static boolean isPointInsidePolygon(Point2D[] polygon, Point2D pointToCheck, Point2D lineEnd)
+   {
+      int index = 0;
+      
+      Point2D[] points = new Point2D[polygon.length + 1];
+      
+      for(int i = 0; i < polygon.length; i++)
+      {
+         points[i]= polygon[i];
+      }
+      points[points.length-1] = points[0];
+
+      for (int i = 1; i < points.length; i++)
+      {
+         Point2D point1 = points[i - 1];
+         Point2D point2 = points[i];
+
+         if (EuclidGeometryTools.doLineSegment2DsIntersect(point1, point2, pointToCheck, lineEnd))
+         {
+            index++;
+         }
+      }
+
+      //      System.out.println("INDEX: " + index);
+
+      if (index == 0)
+      {
+         //Could be both outside or inside
+         return false;
+      }
+
+      if (index % 2 == 0)
+      {
+         return false;
+      }
+      else
+      {
+         return true;
+      }
+   }
+   
+   public static boolean areBothPointsInsidePolygon(Point2D point1, Point2D point2, PlanarRegion homeRegion)
+   {
+      ArrayList<Point2D> points = new ArrayList<>();
+      for (int i = 1; i < homeRegion.getConcaveHullSize(); i++)
+      {
+         Point2D point = homeRegion.getConcaveHull()[i];
+         points.add(point);
+      }
+
+      Point2D centroid = EuclidGeometryTools.averagePoint2Ds(points);
+
+      Vector2D directionToCentroid = new Vector2D(centroid.getX() - point1.getX(), centroid.getY() - point1.getY());
+      directionToCentroid.normalize();
+      directionToCentroid.scale(10);
+
+      Point2D endPoint = new Point2D(point1.getX() + directionToCentroid.getX(), point1.getY() + directionToCentroid.getY());
+
+      boolean startIsInside = PlanarRegionTools.isPointInsidePolygon(homeRegion.getConcaveHull(), point1, endPoint);
+
+      directionToCentroid = new Vector2D(centroid.getX() - point2.getX(), centroid.getY() - point2.getY());
+      directionToCentroid.normalize();
+      directionToCentroid.scale(10);
+
+      endPoint = new Point2D(point2.getX() + directionToCentroid.getX(), point2.getY() + directionToCentroid.getY());
+
+      boolean goalIsInside = PlanarRegionTools.isPointInsidePolygon(homeRegion.getConcaveHull(), point2, endPoint);
+
+      if (startIsInside && goalIsInside)
+      {
+         return true;
+      }
+      return false;
+   }
+   
+   public static boolean areBothPointsInsidePolygon(Point2D point1, Point2D point2, List<Point2D> pointsInPolygon)
+   {
+      Point2D centroid = EuclidGeometryTools.averagePoint2Ds(pointsInPolygon);
+      
+      Vector2D directionToCentroid = new Vector2D(centroid.getX() - point1.getX(), centroid.getY() - point1.getY());
+      directionToCentroid.normalize();
+      directionToCentroid.scale(10);
+
+      Point2D endPoint = new Point2D(point1.getX() + directionToCentroid.getX(), point1.getY() + directionToCentroid.getY());
+
+      Point2D[] pointsArr = pointsInPolygon.toArray(new Point2D[pointsInPolygon.size()]);
+      boolean startIsInside = PlanarRegionTools.isPointInsidePolygon(pointsArr, point1, endPoint);
+
+      directionToCentroid = new Vector2D(centroid.getX() - point2.getX(), centroid.getY() - point2.getY());
+      directionToCentroid.normalize();
+      directionToCentroid.scale(10);
+
+      endPoint = new Point2D(point2.getX() + directionToCentroid.getX(), point2.getY() + directionToCentroid.getY());
+
+      boolean goalIsInside = PlanarRegionTools.isPointInsidePolygon(pointsArr, point2, endPoint);
+
+      if (startIsInside && goalIsInside)
+      {
+         return true;
+      }
+      return false;
+   }
+
    public static boolean isPartOfTheRegionInside(PlanarRegion regionToCheck, PlanarRegion containingRegion)
    {
       ArrayList<Point3D> pointsToCalculateCentroid = new ArrayList<>();
@@ -293,14 +414,14 @@ public class PlanarRegionTools
 
       return false;
    }
-   
+
    public static Vector3D calculateNormal(PlanarRegion region)
    {
       Vector3D normal = new Vector3D();
       region.getNormal(normal);
       return normal;
    }
-   
+
    public static ArrayList<PlanarRegion> determineWhichRegionsAreInside(PlanarRegion containingRegion, List<PlanarRegion> otherRegionsEx)
    {
       ArrayList<PlanarRegion> regionsInsideHomeRegion = new ArrayList<>();
@@ -315,12 +436,12 @@ public class PlanarRegionTools
 
       return regionsInsideHomeRegion;
    }
-   
+
    public static boolean areAllPointsBelowTheRegion(PlanarRegion regionToCheck, PlanarRegion homeRegion)
    {
-      for (int i = 0; i < homeRegion.getConvexHull().getNumberOfVertices(); i++)
+      for (int i = 0; i < homeRegion.getConcaveHull().length; i++)
       {
-         Point2D point2D = (Point2D) homeRegion.getConvexHull().getVertex(i);
+         Point2D point2D = (Point2D) homeRegion.getConcaveHull()[i];
          Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
          FramePoint3D homeRegionPoint = new FramePoint3D();
          homeRegionPoint.set(point3D);
@@ -328,9 +449,9 @@ public class PlanarRegionTools
          homeRegion.getTransformToWorld(transToWorld);
          homeRegionPoint.applyTransform(transToWorld);
 
-         for (int j = 0; j < regionToCheck.getConvexHull().getNumberOfVertices(); j++)
+         for (int j = 0; j < regionToCheck.getConcaveHull().length; j++)
          {
-            Point2D point2D1 = (Point2D) regionToCheck.getConvexHull().getVertex(j);
+            Point2D point2D1 = (Point2D) regionToCheck.getConcaveHull()[j];
             Point3D point3D1 = new Point3D(point2D1.getX(), point2D1.getY(), 0);
             FramePoint3D otherRegionPoint = new FramePoint3D();
             otherRegionPoint.set(point3D1);
@@ -338,6 +459,7 @@ public class PlanarRegionTools
             regionToCheck.getTransformToWorld(transToWorld1);
             otherRegionPoint.applyTransform(transToWorld1);
 
+            System.out.println(homeRegionPoint.getZ() + "   " + homeRegionPoint.getZ());
             if (homeRegionPoint.getZ() + 0.1 < otherRegionPoint.getZ())
             {
                return false;
@@ -347,5 +469,5 @@ public class PlanarRegionTools
 
       return true;
    }
-   
+
 }

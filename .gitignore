@@ -4,15 +4,24 @@
 /bin
 /out
 /target
+/pit-reports
+/install
+/src/*/bin
 
 # Top level directories in sub-projects
-*/classes
-*/bin
-*/out
 */target
-*/build
+*/pit-reports
+*/install
+*/src/*/bin
+*/src/*/build
+*/src/*/out
+*/Configurations
 
 # directories to always ignore
+**/classes
+**/bin
+**/out
+**/build
 **/.gradle
 **/.project
 **/.classpath
@@ -32,12 +41,15 @@
 **/.kdev4
 **/.LSOverride
 **/.AppleDouble
+**/pitest
+**/pit-test
+**/pit-reports
+**/generated-src2
 
 
 # File types to ignore
 **/*.jar
 **/cookies.txt
-
 **/*.iml
 **/*.hprof
 **/hs_err_pid*
@@ -76,4 +88,7 @@
 **/Network Trash Folder
 **/Temporary Items
 **/.apdisk
+**/rebel.xml
 **/generatedTestSuites/*TestSuite.java
+
+!gradle/wrapper/gradle-wrapper.jar

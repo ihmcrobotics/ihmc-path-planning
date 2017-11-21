@@ -1,9 +1,8 @@
 package us.ihmc.pathPlanning.visibilityGraphs;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 
 import us.ihmc.euclid.geometry.ConvexPolygon2D;
@@ -12,10 +11,9 @@ import us.ihmc.euclid.referenceFrame.FramePoint3D;
 import us.ihmc.euclid.referenceFrame.ReferenceFrame;
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Point2D;
+import us.ihmc.euclid.tuple2D.Vector2D;
 import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.euclid.tuple3D.Vector3D;
-import us.ihmc.euclid.tuple4D.Quaternion;
-import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.ExtrusionSide;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.Type;
@@ -23,6 +21,7 @@ import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterManager;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.LinearRegression3D;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.PlanarRegionTools;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.PointCloudTools;
+import us.ihmc.pathPlanning.visibilityGraphs.tools.VisibilityTools;
 import us.ihmc.robotics.geometry.PlanarRegion;
 
 /**
@@ -39,24 +38,24 @@ public class NavigableRegionLocalPlanner
    private final List<PlanarRegion> polygonObstacleRegions = new ArrayList<>();
    private ReferenceFrame localReferenceFrame;
 
-   private double extrusionDistance = 0.80;
    private PlanarRegion homeRegion;
 
    private VisibilityMap localVisibilityMap;
-   private ArrayList<Connection> connections = new ArrayList<>();
 
    private Point3D startLocationInLocalFrame;
    private Point3D goalLocationInLocalFrame;
 
    private ClusterManager clusterMgr;
+   private VisibilityGraphsParameters visibilityGraphsParameters;
 
-   public NavigableRegionLocalPlanner(List<PlanarRegion> regions, PlanarRegion homeRegion, Point3D start, Point3D goal, double extrusionDistance)
+   public NavigableRegionLocalPlanner(List<PlanarRegion> regions, PlanarRegion homeRegion, Point3D start, Point3D goal,
+                                      VisibilityGraphsParameters visibilityGraphsParameters)
    {
       this.regions.addAll(regions);
 
       this.homeRegion = homeRegion;
 
-      this.extrusionDistance = extrusionDistance;
+      this.visibilityGraphsParameters = visibilityGraphsParameters;
 
       createLocalReferenceFrame();
 
@@ -100,13 +99,18 @@ public class NavigableRegionLocalPlanner
    {
       regionsInsideHomeRegion = PlanarRegionTools.determineWhichRegionsAreInside(homeRegion, regions);
 
+      //      System.out.println("Regions that are inside: " + regionsInsideHomeRegion.size());
+
       if (debug)
       {
          System.out.println(regionsInsideHomeRegion.size());
       }
 
       classifyExtrusions(homeRegion);
-      regionsInsideHomeRegion = filterRegionsThatAreBelow(regionsInsideHomeRegion, homeRegion);
+      regionsInsideHomeRegion = filterRegionsThatAreAboveHomeRegion(regionsInsideHomeRegion, homeRegion);
+
+      //      System.out.println("Regions that are inside2: " + regionsInsideHomeRegion.size());
+
       createClustersFromRegions(homeRegion, regionsInsideHomeRegion);
       createClusterForHomeRegion();
 
@@ -122,7 +126,7 @@ public class NavigableRegionLocalPlanner
       }
 
       // TODO The use of Double.MAX_VALUE for the observer seems rather risky. I'm actually surprised that it works.
-      clusterMgr.performExtrusions(new Point2D(Double.MAX_VALUE, Double.MAX_VALUE), extrusionDistance);
+      clusterMgr.performExtrusions(new Point2D(Double.MAX_VALUE, Double.MAX_VALUE), visibilityGraphsParameters.getExtrusionDistance());
 
       for (Cluster cluster : clusters)
       {
@@ -157,15 +161,132 @@ public class NavigableRegionLocalPlanner
       }
 
       localVisibilityGraph.createStaticVisibilityMap(localStart, localGoal);
+
+      //      if(localStart != null && localGoal != null)
+      //      {
+      //         for (Cluster cluster : clusters)
+      //         {
+      //            System.out.println(VisibilityTools.areBothPointsInside(localStart, localGoal, cluster.getNonNavigableExtrusionsInLocal()));
+      //         }
+      //      }
+
+      ArrayList<Connection> connections = new ArrayList<>();
+
+      Iterator it = localVisibilityGraph.getVisibilityMap().getConnections().iterator();
+
+      while (it.hasNext())
+      {
+         Connection connection = (Connection) it.next();
+         connections.add(connection);
+      }
+
+      ArrayList<Connection> conns = removeExtrusionsOutsideRegions(connections);
+      ArrayList<Connection> conns1 = removeExtrusionsInsideNoGoZones(conns);
+
+      HashSet<Connection> sets = new HashSet<>();
+
+      for (Connection connection : conns1)
+      {
+         sets.add(connection);
+      }
+
+      localVisibilityGraph.getVisibilityMap().setConnections(sets);
+
       localVisibilityMap = localVisibilityGraph.getVisibilityMap();
    }
 
-   private List<PlanarRegion> filterRegionsThatAreBelow(List<PlanarRegion> regionsToCheck, PlanarRegion homeRegion)
+   private ArrayList<Connection> removeExtrusionsOutsideRegions(ArrayList<Connection> connections)
+   {
+      ArrayList<Connection> filteredConnections = VisibilityTools.getConnectionsThatAreInsideRegion(connections, homeRegion);
+
+      return filteredConnections;
+   }
+
+   private ArrayList<Connection> removeExtrusionsInsideNoGoZones(ArrayList<Connection> rawConnections)
+   {
+      ArrayList<Connection> masterListOfConnections = new ArrayList<>();
+
+      ArrayList<Cluster> filteredClusters = new ArrayList<>();
+      if (clusters.size() > 1)
+      {
+         for (int i = 0; i < clusters.size() - 1; i++)
+         {
+            filteredClusters.add(clusters.get(i));
+         }
+         
+         ArrayList<Connection> connectionsToRemove = new ArrayList<>();
+         for (Cluster cluster : filteredClusters)
+         {
+
+            if (cluster.getNonNavigableExtrusionsInLocal().size() == 0)
+            {
+               continue;
+            }
+
+            ArrayList<Connection> filteredConnections = VisibilityTools.getConnectionsThatAreInsideRegion(rawConnections,
+                                                                                                          cluster.getNonNavigableExtrusionsInLocal());
+            for (Connection connection : filteredConnections)
+            {
+               connectionsToRemove.add(connection);
+            }
+         }
+
+
+         ArrayList<Connection> connectionsInsideHomeRegion = VisibilityTools.getConnectionsThatAreInsideRegion(rawConnections,
+                                                                                                               clusters.get(clusters.size() - 1)
+                                                                                                                       .getNonNavigableExtrusionsInLocal());
+
+         int index = 0;
+
+         ArrayList<Connection> finalList = (ArrayList<Connection>) connectionsInsideHomeRegion.clone();
+         for (Connection connection : connectionsInsideHomeRegion)
+         {
+            for (Connection connectionToRemove : connectionsToRemove)
+            {
+               if (connection.getSourcePoint().epsilonEquals(connectionToRemove.getSourcePoint(), 1E-5)
+                     && connection.getTargetPoint().epsilonEquals(connectionToRemove.getTargetPoint(), 1E-5))
+               {
+                  finalList.remove(connection);
+                  index++;
+               }
+            }
+         }
+
+         for (Connection connection : finalList)
+         {
+            masterListOfConnections.add(connection);
+         }
+
+      }
+      else
+      {
+         filteredClusters.addAll(clusters);
+
+         for (Cluster cluster : filteredClusters)
+         {
+            if (cluster.getNonNavigableExtrusionsInLocal().size() == 0)
+            {
+               continue;
+            }
+            
+            ArrayList<Connection> filteredConnections = VisibilityTools.getConnectionsThatAreInsideRegion(rawConnections,
+                                                                                                          cluster.getNonNavigableExtrusionsInLocal());
+            for (Connection connection : filteredConnections)
+            {
+               masterListOfConnections.add(connection);
+            }
+         }
+      }
+
+      return masterListOfConnections;
+   }
+
+   private List<PlanarRegion> filterRegionsThatAreAboveHomeRegion(List<PlanarRegion> regionsToCheck, PlanarRegion homeRegion)
    {
       List<PlanarRegion> filteredList = new ArrayList<>();
       for (PlanarRegion region : regionsToCheck)
       {
-         if (!PlanarRegionTools.areAllPointsBelowTheRegion(region, homeRegion))
+         if (isRegionAboveHomeRegion(region, homeRegion))
          {
             filteredList.add(region);
          }
@@ -174,13 +295,79 @@ public class NavigableRegionLocalPlanner
       return filteredList;
    }
 
+   public static boolean isRegionAboveHomeRegion(PlanarRegion regionToCheck, PlanarRegion homeRegion)
+   {
+      for (int i = 0; i < homeRegion.getConcaveHull().length; i++)
+      {
+         Point2D point2D = (Point2D) homeRegion.getConcaveHull()[i];
+         Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
+         FramePoint3D homeRegionPoint = new FramePoint3D();
+         homeRegionPoint.set(point3D);
+         RigidBodyTransform transToWorld = new RigidBodyTransform();
+         homeRegion.getTransformToWorld(transToWorld);
+         homeRegionPoint.applyTransform(transToWorld);
+
+         for (int j = 0; j < regionToCheck.getConcaveHull().length; j++)
+         {
+            Point2D point2D1 = (Point2D) regionToCheck.getConcaveHull()[j];
+            Point3D point3D1 = new Point3D(point2D1.getX(), point2D1.getY(), 0);
+            FramePoint3D otherRegionPoint = new FramePoint3D();
+            otherRegionPoint.set(point3D1);
+            RigidBodyTransform transToWorld1 = new RigidBodyTransform();
+            regionToCheck.getTransformToWorld(transToWorld1);
+            otherRegionPoint.applyTransform(transToWorld1);
+
+            if (homeRegionPoint.getZ() > otherRegionPoint.getZ())
+            {
+               //               System.out.println("Region is below home");
+               return false;
+            }
+         }
+      }
+      //      System.out.println("Region is above home");
+      return true;
+   }
+
+   public static boolean areAllPointsBelowTheRegion(PlanarRegion regionToCheck, PlanarRegion homeRegion)
+   {
+      for (int i = 0; i < homeRegion.getConcaveHull().length; i++)
+      {
+         Point2D point2D = (Point2D) homeRegion.getConcaveHull()[i];
+         Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
+         FramePoint3D homeRegionPoint = new FramePoint3D();
+         homeRegionPoint.set(point3D);
+         RigidBodyTransform transToWorld = new RigidBodyTransform();
+         homeRegion.getTransformToWorld(transToWorld);
+         homeRegionPoint.applyTransform(transToWorld);
+
+         for (int j = 0; j < regionToCheck.getConcaveHull().length; j++)
+         {
+            Point2D point2D1 = (Point2D) regionToCheck.getConcaveHull()[j];
+            Point3D point3D1 = new Point3D(point2D1.getX(), point2D1.getY(), 0);
+            FramePoint3D otherRegionPoint = new FramePoint3D();
+            otherRegionPoint.set(point3D1);
+            RigidBodyTransform transToWorld1 = new RigidBodyTransform();
+            regionToCheck.getTransformToWorld(transToWorld1);
+            otherRegionPoint.applyTransform(transToWorld1);
+
+            //            System.out.println(homeRegionPoint.getZ() + "   " + otherRegionPoint.getZ());
+            if (homeRegionPoint.getZ() + 0.1 < otherRegionPoint.getZ())
+            {
+               return false;
+            }
+         }
+      }
+
+      return true;
+   }
+
    public void addExtraPointsInsideCluster(Cluster cluster)
    {
       if (debug)
       {
          System.out.println("Adding extra points");
       }
-      PointCloudTools.doBrakeDownOn2DPoints(cluster.getNavigableExtrusionsInLocal(), 0.25);
+      PointCloudTools.doBrakeDownOn2DPoints(cluster.getNavigableExtrusionsInLocal(), visibilityGraphsParameters.getClusterResolution());
       if (debug)
       {
          System.out.println("Finished Adding extra points");
@@ -216,7 +403,7 @@ public class NavigableRegionLocalPlanner
 
       cluster.setClusterClosure(true);
       cluster.setExtrusionSide(ExtrusionSide.INSIDE);
-      cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance - 0.01));
+      cluster.setAdditionalExtrusionDistance(-1.0 * (visibilityGraphsParameters.getExtrusionDistance() - 0.01));
    }
 
    private void createClustersFromRegions(PlanarRegion homeRegion, List<PlanarRegion> regions)
@@ -225,7 +412,7 @@ public class NavigableRegionLocalPlanner
       {
          if (regions.contains(region))
          {
-            //            System.out.println("Creating a line cluster");
+            //                        System.out.println("Creating a line cluster");
             Cluster cluster = new Cluster();
             clusters.add(cluster);
             cluster.setType(Type.LINE);
@@ -237,10 +424,11 @@ public class NavigableRegionLocalPlanner
             }
             else
             {
-               cluster.setAdditionalExtrusionDistance(VisibilityGraphsParameters.EXTRUSION_DISTANCE_If_NOT_TOO_HIGH_TO_STEP - VisibilityGraphsParameters.EXTRUSION_DISTANCE);
+               cluster.setAdditionalExtrusionDistance(visibilityGraphsParameters.getExtrusionDistanceIfNotTooHighToStep()
+                     - visibilityGraphsParameters.getExtrusionDistance());
 
                //               cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance - 0.01));
-//               cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance * 0.6));
+               //               cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance * 0.6));
             }
 
             Vector3D normal = PlanarRegionTools.calculateNormal(homeRegion);
@@ -276,10 +464,14 @@ public class NavigableRegionLocalPlanner
          }
       }
 
+      //      System.out.println(polygonObstacleRegions.size());
+
       for (PlanarRegion region : polygonObstacleRegions)
       {
          if (regions.contains(region))
          {
+            //            System.out.println("Creating a polygon cluster");
+
             Cluster cluster = new Cluster();
             clusters.add(cluster);
             cluster.setType(Type.POLYGON);
@@ -288,19 +480,24 @@ public class NavigableRegionLocalPlanner
             Vector3D normal1 = PlanarRegionTools.calculateNormal(region);
             if (Math.abs(normal1.getZ()) >= 0.5) //if its closer to being flat you can probably step on it -->> extrude less
             {
-               cluster.setAdditionalExtrusionDistance(VisibilityGraphsParameters.EXTRUSION_DISTANCE_If_NOT_TOO_HIGH_TO_STEP - VisibilityGraphsParameters.EXTRUSION_DISTANCE);
-//               cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance * 0.7));
-               
+               cluster.setAdditionalExtrusionDistance(visibilityGraphsParameters.getExtrusionDistanceIfNotTooHighToStep()
+                     - visibilityGraphsParameters.getExtrusionDistance());
+               //               cluster.setAdditionalExtrusionDistance(-1.0 * (extrusionDistance * 0.7));
+
                if (isRegionTooHighToStep(region, homeRegion)) //is flat but too high to step so its an obstacle
                {
                   cluster.setAdditionalExtrusionDistance(0);
                }
+               else
+               {
+
+               }
             }
 
             Vector3D normal = PlanarRegionTools.calculateNormal(homeRegion);
-            for (int i = 0; i < region.getConvexHull().getNumberOfVertices(); i++)
+            for (int i = 0; i < region.getConcaveHullSize(); i++)
             {
-               Point2D point2D = (Point2D) region.getConvexHull().getVertex(i);
+               Point2D point2D = (Point2D) region.getConcaveHull()[i];
                Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
                FramePoint3D fpt = new FramePoint3D();
                fpt.set(point3D);
@@ -313,6 +510,8 @@ public class NavigableRegionLocalPlanner
                EuclidGeometryTools.orthogonalProjectionOnPlane3D(pointToProject, point3D, normal, projectedPoint);
 
                FramePoint3D pointFpt = new FramePoint3D(ReferenceFrame.getWorldFrame(), projectedPoint);
+
+               //               System.out.println(pointFpt);
 
                cluster.addRawPointInWorld(pointFpt.getPoint());
             }
@@ -336,12 +535,16 @@ public class NavigableRegionLocalPlanner
 
       if (normal != null && regionToProject != regionToProjectTo)
       {
-         if (Math.abs(normal.getZ()) < VisibilityGraphsParameters.NORMAL_Z_THRESHOLD_FOR_POLYGON_OBSTACLES)
+         //         System.out.println(Math.abs(normal.getZ()) + "   " + VisibilityGraphsParameters.NORMAL_Z_THRESHOLD_FOR_POLYGON_OBSTACLES);
+
+         if (Math.abs(normal.getZ()) < visibilityGraphsParameters.getNormalZThresholdForPolygonObstacles())
          {
+            //            System.out.println("Adding a line obstacle");
             lineObstacleRegions.add(regionToProject);
          }
          else
          {
+            //            System.out.println("Adding a polygon obstacle");
             polygonObstacleRegions.add(regionToProject);
          }
       }
@@ -369,7 +572,7 @@ public class NavigableRegionLocalPlanner
          Point3D projectedPoint = new Point3D();
          EuclidGeometryTools.orthogonalProjectionOnPlane3D(pointToProject, point3D, normal, projectedPoint);
 
-         if (pointToProject.distance(projectedPoint) >= VisibilityGraphsParameters.TOO_HIGH_TO_STEP_DISTANCE)
+         if (pointToProject.distance(projectedPoint) >= visibilityGraphsParameters.getTooHighToStepDistance())
          {
             return true;
          }
