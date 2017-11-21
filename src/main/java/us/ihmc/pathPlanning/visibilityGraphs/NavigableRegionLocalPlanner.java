@@ -169,7 +169,7 @@ public class NavigableRegionLocalPlanner
       //            System.out.println(VisibilityTools.areBothPointsInside(localStart, localGoal, cluster.getNonNavigableExtrusionsInLocal()));
       //         }
       //      }
-      
+
       ArrayList<Connection> connections = new ArrayList<>();
 
       Iterator it = localVisibilityGraph.getVisibilityMap().getConnections().iterator();
@@ -199,17 +199,17 @@ public class NavigableRegionLocalPlanner
    {
       //      ArrayList<Connection> points = VisibilityTools.getConnectionsThatAreInsideRegions(connections, regionsInsideHomeRegion);
       ArrayList<Connection> filteredConnections = VisibilityTools.getConnectionsThatAreInsideRegion(connections, homeRegion);
-      
+
       return filteredConnections;
 
-//      HashSet<Connection> sets = new HashSet<>();
-//
-//      for (Connection connection : filteredConnections)
-//      {
-//         sets.add(connection);
-//      }
-//
-//      localVisibilityGraph.getVisibilityMap().setConnections(sets);
+      //      HashSet<Connection> sets = new HashSet<>();
+      //
+      //      for (Connection connection : filteredConnections)
+      //      {
+      //         sets.add(connection);
+      //      }
+      //
+      //      localVisibilityGraph.getVisibilityMap().setConnections(sets);
    }
 
    private ArrayList<Connection> removeExtrusionsInsideNoGoZones(ArrayList<Connection> rawConnections)
@@ -227,6 +227,12 @@ public class NavigableRegionLocalPlanner
          ArrayList<Connection> connectionsToRemove = new ArrayList<>();
          for (Cluster cluster : filteredClusters)
          {
+
+            if (cluster.getNonNavigableExtrusionsInLocal().size() == 0)
+            {
+               continue;
+            }
+
             ArrayList<Connection> filteredConnections = VisibilityTools.getConnectionsThatAreInsideRegion(rawConnections,
                                                                                                           cluster.getNonNavigableExtrusionsInLocal());
             for (Connection connection : filteredConnections)
@@ -234,6 +240,7 @@ public class NavigableRegionLocalPlanner
                connectionsToRemove.add(connection);
             }
          }
+
 
          ArrayList<Connection> connectionsInsideHomeRegion = VisibilityTools.getConnectionsThatAreInsideRegion(rawConnections,
                                                                                                                clusters.get(clusters.size() - 1)
@@ -271,6 +278,11 @@ public class NavigableRegionLocalPlanner
 
          for (Cluster cluster : filteredClusters)
          {
+            if (cluster.getNonNavigableExtrusionsInLocal().size() == 0)
+            {
+               continue;
+            }
+            
             ArrayList<Connection> filteredConnections = VisibilityTools.getConnectionsThatAreInsideRegion(rawConnections,
                                                                                                           cluster.getNonNavigableExtrusionsInLocal());
             for (Connection connection : filteredConnections)
@@ -279,15 +291,6 @@ public class NavigableRegionLocalPlanner
             }
          }
       }
-
-      //      HashSet<Connection> sets = new HashSet<>();
-      //
-      //      for (Connection connection : masterListOfConnections)
-      //      {
-      //         sets.add(connection);
-      //      }
-      //
-      //      localVisibilityGraph.getVisibilityMap().setConnections(sets);
 
       return masterListOfConnections;
    }
