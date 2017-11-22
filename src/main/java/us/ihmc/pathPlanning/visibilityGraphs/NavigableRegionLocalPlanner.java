@@ -11,7 +11,6 @@ import us.ihmc.euclid.referenceFrame.FramePoint3D;
 import us.ihmc.euclid.referenceFrame.ReferenceFrame;
 import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Point2D;
-import us.ihmc.euclid.tuple2D.Vector2D;
 import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
@@ -150,14 +149,11 @@ public class NavigableRegionLocalPlanner
       if (homeConvexPol.isPointInside(projectedStart2D))
       {
          localStart = projectedStart2D;
-         //         System.out.println(" ------------------------- Adding start position");
       }
 
       if (homeConvexPol.isPointInside(projectedGoal2D))
       {
-         //         System.out.println("-------------------------- Adding goal position");
          localGoal = projectedGoal2D;
-         //         javaFXMultiColorMeshBuilder.addSphere(0.05f, new Point3D(localGoal.getX(), localGoal.getY(), 0), Color.RED);
       }
 
       localVisibilityGraph.createStaticVisibilityMap(localStart, localGoal);

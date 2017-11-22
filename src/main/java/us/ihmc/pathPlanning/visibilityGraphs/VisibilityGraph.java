@@ -2,6 +2,7 @@ package us.ihmc.pathPlanning.visibilityGraphs;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
 import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.euclid.tuple3D.Point3D;
@@ -59,17 +60,21 @@ public class VisibilityGraph
       }
       startTimeConnectionsCreation = System.currentTimeMillis();
 
-      for (Point2D observer : listOfObserverPoints)
+      for (int i = 0; i < listOfObserverPoints.size(); i++)
       {
-         for (Point2D target : listOfObserverPoints)
+         Point2D observer = listOfObserverPoints.get(i);
+
+         for (int j = i + 1; j < listOfObserverPoints.size(); j++)
          {
+            Point2D target = listOfObserverPoints.get(j);
+
             if (observer.distance(target) > 0.01)
             {
-               boolean targetIsVisible = isPointVisibleForStaticMaps(observer, target);
+               boolean targetIsVisible = isPointVisibleForStaticMaps(clusterMgr.getClusters(), observer, target);
 
                if (targetIsVisible)
                {
-                  connections.add(new Connection(new Point3D(observer.getX(), observer.getY(), 0), new Point3D(target.getX(), target.getY(), 0)));
+                  connections.add(new Connection(new Point3D(observer), new Point3D(target)));
                }
             }
          }
@@ -87,9 +92,9 @@ public class VisibilityGraph
    }
 
 
-   public boolean isPointVisibleForStaticMaps(Point2D observer, Point2D targetPoint)
+   public static boolean isPointVisibleForStaticMaps(List<Cluster> clusters,Point2D observer, Point2D targetPoint)
    {
-      for (Cluster cluster : clusterMgr.getClusters())
+      for (Cluster cluster : clusters)
       {
          if (!VisibilityTools.isPointVisible(observer, targetPoint, cluster.getNonNavigableExtrusionsInLocal()))
          {
