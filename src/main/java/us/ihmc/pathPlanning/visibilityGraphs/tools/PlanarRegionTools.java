@@ -139,10 +139,8 @@ public class PlanarRegionTools
          return null;
       }
 
-      Point3D intersectionInPlaneFrame = new Point3D(intersectionWithPlane);
-      intersectionInPlaneFrame.applyInverseTransform(regionToWorld);
       // checking convex hull here - might be better to check all polygons to avoid false positive
-      if (region.getConvexHull().isPointInside(intersectionInPlaneFrame.getX(), intersectionInPlaneFrame.getY()))
+      if (isPointInWorldInsideARegion(region, intersectionWithPlane))
       {
          return intersectionWithPlane;
       }
@@ -219,7 +217,7 @@ public class PlanarRegionTools
    {
       for (PlanarRegion region : regions)
       {
-         if (isPointInsideARegion(region, pointToCheck))
+         if (isPointInWorldInsideARegion(region, pointToCheck))
          {
             return true;
          }
@@ -228,32 +226,28 @@ public class PlanarRegionTools
       return false;
    }
 
-   public static boolean isPointInsideARegion(PlanarRegion region, Point3DReadOnly pointToCheck)
+   public static boolean isPointInWorldInsideARegion(PlanarRegion region, Point3DReadOnly pointInWorldToCheck)
    {
-      ArrayList<Point2D> pointsInConcaveHull = new ArrayList<>();
-      for (int i = 1; i < region.getConcaveHullSize(); i++)
-      {
-         Point2D point2D = (Point2D) region.getConcaveHull()[i];
-         Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
-         FramePoint3D fpt = new FramePoint3D();
-         fpt.set(point3D);
-         RigidBodyTransform transToWorld = new RigidBodyTransform();
-         region.getTransformToWorld(transToWorld);
-         fpt.applyTransform(transToWorld);
+      RigidBodyTransform transformToWorld = new RigidBodyTransform();
+      region.getTransformToWorld(transformToWorld);
+      Point3D pointInLocalToCheck = new Point3D();
+      transformToWorld.inverseTransform(pointInWorldToCheck, pointInLocalToCheck);
+      return isPointInLocalInsideARegion(region, pointInLocalToCheck);
+   }
 
-         pointsInConcaveHull.add(new Point2D(fpt.getX(), fpt.getY()));
-      }
+   public static boolean isPointInLocalInsideARegion(PlanarRegion region, Point3DReadOnly pointInLocalToCheck)
+   {
+      Point2D[] pointsInConcaveHull = region.getConcaveHull();
 
-      Point2D centroid = EuclidGeometryTools.averagePoint2Ds(pointsInConcaveHull);
+      Point2D centroid = EuclidGeometryTools.averagePoint2Ds(Arrays.asList(pointsInConcaveHull));
 
-      Vector2D directionToCentroid = new Vector2D(centroid.getX() - pointToCheck.getX(), centroid.getY() - pointToCheck.getY());
+      Vector2D directionToCentroid = new Vector2D(centroid.getX() - pointInLocalToCheck.getX(), centroid.getY() - pointInLocalToCheck.getY());
       directionToCentroid.normalize();
       directionToCentroid.scale(10);
 
-      Point2D endPoint = new Point2D(pointToCheck.getX() + directionToCentroid.getX(), pointToCheck.getY() + directionToCentroid.getY());
+      Point2D endPoint = new Point2D(pointInLocalToCheck.getX() + directionToCentroid.getX(), pointInLocalToCheck.getY() + directionToCentroid.getY());
 
-      boolean pointIsInside = isPointInsidePolygon(pointsInConcaveHull.toArray(new Point2D[pointsInConcaveHull.size()]),
-                                                                          new Point2D(pointToCheck.getX(), pointToCheck.getY()), endPoint);
+      boolean pointIsInside = isPointInsidePolygon(pointsInConcaveHull, new Point2D(pointInLocalToCheck), endPoint);
 
       if (pointIsInside)
       {
@@ -527,5 +521,14 @@ public class PlanarRegionTools
       Point3D point3D = new Point3D(point2D);
       transform.transform(point3D);
       return point3D;
+   }
+
+   public static Point3D projectPointToPlane(Point3DReadOnly pointToProject, PlanarRegion regionToProjectTo)
+   {
+      Vector3D normal = calculateNormal(regionToProjectTo);
+      Point2D point2D = (Point2D) regionToProjectTo.getConvexHull().getVertex(0);
+      Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
+   
+      return EuclidGeometryTools.orthogonalProjectionOnPlane3D(pointToProject, point3D, normal);
    }
 }

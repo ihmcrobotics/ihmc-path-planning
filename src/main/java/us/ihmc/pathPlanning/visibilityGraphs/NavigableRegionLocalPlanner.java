@@ -581,20 +581,6 @@ public class NavigableRegionLocalPlanner
       return false;
    }
 
-   public Point3D projectPointToPlane(Point3D pointToProject, PlanarRegion regionToProjectTo)
-   {
-      Vector3D normal = PlanarRegionTools.calculateNormal(regionToProjectTo);
-      Point2D point2D = (Point2D) regionToProjectTo.getConvexHull().getVertex(0);
-      Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
-
-      Point3D projectedPoint = new Point3D();
-      if (!EuclidGeometryTools.orthogonalProjectionOnPlane3D(pointToProject, point3D, normal, projectedPoint))
-      {
-         projectedPoint = null;
-      }
-      return projectedPoint;
-   }
-
    public int getRegionId()
    {
       return homeRegion.getRegionId();

@@ -32,4 +32,9 @@ public interface VisibilityGraphsParameters
    {
       return 0;
    }
+
+   default double getMaxDistanceToProjectStartGoalToClosestRegion()
+   {
+      return 0.15;
+   }
 }

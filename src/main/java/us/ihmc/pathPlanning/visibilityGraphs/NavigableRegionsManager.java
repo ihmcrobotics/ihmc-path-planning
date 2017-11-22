@@ -24,6 +24,7 @@ import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.PlanarRegionTools;
 import us.ihmc.robotics.geometry.PlanarRegion;
+import us.ihmc.robotics.geometry.PlanarRegionsList;
 
 public class NavigableRegionsManager
 {
@@ -115,6 +116,16 @@ public class NavigableRegionsManager
 
       if (debug)
          PrintTools.info("Starting to calculate body path");
+
+      // Projecting start and goal onto the closest region if inside and close
+      PlanarRegionsList planarRegionsList = new PlanarRegionsList(regions);
+      Point3D startProjected = PlanarRegionTools.projectPointToPlanesVertically(start, planarRegionsList);
+      Point3D goalProjected = PlanarRegionTools.projectPointToPlanesVertically(goal, planarRegionsList);
+
+      if (startProjected != null && start.distance(startProjected) < parameters.getMaxDistanceToProjectStartGoalToClosestRegion())
+         start = startProjected;
+      if (goalProjected != null && goal.distance(goalProjected) < parameters.getMaxDistanceToProjectStartGoalToClosestRegion())
+         goal = goalProjected;
 
       regions = PlanarRegionTools.filterPlanarRegionsWithBoundingCapsule(start, goal, parameters.getExplorationDistanceFromStartGoal(), regions);
 
