@@ -17,4 +17,19 @@ public interface VisibilityGraphsParameters
    public double getTooHighToStepDistance();
 
    public double getClusterResolution();
+
+   default double getExplorationDistanceFromStartGoal()
+   {
+      return Double.POSITIVE_INFINITY;
+   }
+
+   default double getPlanarRegionMinArea()
+   {
+      return 0.0;
+   }
+   
+   default int getPlanarRegionMinSize()
+   {
+      return 0;
+   }
 }
