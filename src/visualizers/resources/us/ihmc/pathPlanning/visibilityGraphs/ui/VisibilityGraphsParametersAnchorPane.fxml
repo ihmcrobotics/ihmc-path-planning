@@ -7,7 +7,6 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.RowConstraints?>
 
-
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="254.0" prefWidth="909.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="us.ihmc.pathPlanning.visibilityGraphs.ui.VisibilityGraphsParametersAnchorPaneController">
    <children>
       <GridPane hgap="5.0" layoutX="10.0" layoutY="26.0" prefHeight="164.0" prefWidth="889.0">
@@ -45,8 +44,8 @@
             <Label maxWidth="1.7976931348623157E308" prefHeight="53.0" prefWidth="112.0" text="Exploration distance from start-goal" wrapText="true" GridPane.columnIndex="4" />
             <Label maxWidth="1.7976931348623157E308" prefHeight="53.0" prefWidth="112.0" text="Planar region min area" wrapText="true" GridPane.columnIndex="4" GridPane.rowIndex="1" />
             <Label maxWidth="1.7976931348623157E308" prefHeight="53.0" prefWidth="112.0" text="Planar region min size" wrapText="true" GridPane.columnIndex="4" GridPane.rowIndex="2" />
-            <Slider fx:id="planarRegionMinSizeSlider" majorTickUnit="10.0" minorTickCount="4" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="2.0" GridPane.columnIndex="5" GridPane.rowIndex="2" />
-            <Slider fx:id="planarRegionMinAreaSlider" majorTickUnit="0.1" max="1.0" minorTickCount="4" showTickLabels="true" showTickMarks="true" snapToTicks="true" GridPane.columnIndex="5" GridPane.rowIndex="1" />
+            <Slider fx:id="planarRegionMinSizeSlider" blockIncrement="1.0" majorTickUnit="5.0" max="20.0" minorTickCount="4" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="2.0" GridPane.columnIndex="5" GridPane.rowIndex="2" />
+            <Slider fx:id="planarRegionMinAreaSlider" blockIncrement="0.01" majorTickUnit="0.1" max="0.5" minorTickCount="5" showTickLabels="true" showTickMarks="true" snapToTicks="true" GridPane.columnIndex="5" GridPane.rowIndex="1" />
             <Slider fx:id="explorationDistanceFromStartGoalSlider" majorTickUnit="1.0" max="10.0" minorTickCount="4" showTickLabels="true" showTickMarks="true" snapToTicks="true" GridPane.columnIndex="5" />
          </children>
       </GridPane>
