@@ -16,6 +16,7 @@ public class YoVisibilityGraphParameters implements VisibilityGraphsParameters
    private final YoDouble extrusionDistanceIfNotTooHighToStep = new YoDouble("extrusionDistanceIfNotTooHighToStep", registry);
    private final YoDouble tooHighToStepDistance = new YoDouble("tooHighToStepDistance", registry);
    private final YoDouble clusterResolution = new YoDouble("clusterResolution", registry);
+   private final YoDouble explorationDistance = new YoDouble("explorationDistance", registry);
 
    public YoVisibilityGraphParameters(VisibilityGraphsParameters defaults, YoVariableRegistry parentRegistry)
    {
@@ -27,6 +28,7 @@ public class YoVisibilityGraphParameters implements VisibilityGraphsParameters
       this.extrusionDistanceIfNotTooHighToStep.set(defaults.getExtrusionDistanceIfNotTooHighToStep());
       this.tooHighToStepDistance.set(defaults.getTooHighToStepDistance());
       this.clusterResolution.set(defaults.getClusterResolution());
+      this.explorationDistance.set(defaults.getExplorationDistanceFromStartGoal());
 
       parentRegistry.addChild(registry);
    }
@@ -77,5 +79,11 @@ public class YoVisibilityGraphParameters implements VisibilityGraphsParameters
    public double getClusterResolution()
    {
       return clusterResolution.getDoubleValue();
+   }
+
+   @Override
+   public double getExplorationDistanceFromStartGoal()
+   {
+      return explorationDistance.getDoubleValue();
    }
 }
