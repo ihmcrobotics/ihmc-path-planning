@@ -27,9 +27,10 @@ public class SimpleVisibilityGraphsUI
    private StartGoalAnchorPaneController startGoalAnchorPaneController;
    @FXML
    private VisibilityGraphsAnchorPaneController visibilityGraphsAnchorPaneController;
-   
    @FXML
    private ExportUnitTestAnchorPaneController exportUnitTestAnchorPaneController;
+   @FXML
+   private VisibilityGraphsParametersAnchorPaneController visibilityGraphsParametersAnchorPaneController;
    
    public SimpleVisibilityGraphsUI(Stage primaryStage) throws IOException
    {
@@ -52,6 +53,8 @@ public class SimpleVisibilityGraphsUI
       
       exportUnitTestAnchorPaneController.attachMessager(messager);
       exportUnitTestAnchorPaneController.bindControls();
+      visibilityGraphsParametersAnchorPaneController.attachMessager(messager);
+      visibilityGraphsParametersAnchorPaneController.bindControls();
       
       new UnitTestExporter(messager);
       
