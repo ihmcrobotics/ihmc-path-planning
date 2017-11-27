@@ -397,7 +397,7 @@ public class NavigableRegionLocalPlanner
 
       cluster.setClusterClosure(true);
       cluster.setExtrusionSide(ExtrusionSide.INSIDE);
-      cluster.setAdditionalExtrusionDistance(-1.0 * (visibilityGraphsParameters.getExtrusionDistance() - 0.01));
+      cluster.setAdditionalExtrusionDistance(-1.0 * (visibilityGraphsParameters.getExtrusionDistance() - 0.1));
    }
 
    private void createClustersFromRegions(PlanarRegion homeRegion, List<PlanarRegion> regions)

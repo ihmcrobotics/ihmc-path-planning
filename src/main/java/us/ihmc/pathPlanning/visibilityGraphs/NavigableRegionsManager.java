@@ -524,7 +524,9 @@ public class NavigableRegionsManager
 
                      for (Point3D targetPt : targetPoints)
                      {
-                        if (sourcePt.distance(targetPt) < parameters.getMinimumConnectionDistanceForRegions())
+                        boolean distanceOk = sourcePt.distance(targetPt) < parameters.getMinimumConnectionDistanceForRegions();
+                        boolean heightOk = Math.abs(sourcePt.getZ() - targetPt.getZ()) < parameters.getTooHighToStepDistance();
+                        if (distanceOk && heightOk)
                         {
                            connectionPoints.add(new Connection(sourcePt, targetPt));
                            globalMapPoints.add(new Connection(sourcePt, targetPt));

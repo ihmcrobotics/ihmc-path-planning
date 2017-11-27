@@ -11,7 +11,7 @@ public class DefaultVisibilityGraphParameters implements VisibilityGraphsParamet
    @Override
    public double getMinimumConnectionDistanceForRegions()
    {
-      return 0.001;
+      return 0.55;
    }
 
    @Override
@@ -29,25 +29,25 @@ public class DefaultVisibilityGraphParameters implements VisibilityGraphsParamet
    @Override
    public double getExtrusionDistance()
    {
-      return 0.8;
+      return 0.1;
    }
 
    @Override
    public double getExtrusionDistanceIfNotTooHighToStep()
    {
-      return 0.25;
+      return 0.1;
    }
 
    @Override
    public double getTooHighToStepDistance()
    {
-      return 0.5;
+      return 0.1;
    }
 
    @Override
    public double getClusterResolution()
    {
-      return 0.5;
+      return 0.2;
    }
 
    @Override
