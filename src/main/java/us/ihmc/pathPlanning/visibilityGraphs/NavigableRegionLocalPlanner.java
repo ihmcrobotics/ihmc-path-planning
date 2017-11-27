@@ -77,8 +77,6 @@ public class NavigableRegionLocalPlanner
    {
       localReferenceFrame = new ReferenceFrame("regionLocalFrame", ReferenceFrame.getWorldFrame())
       {
-         private static final long serialVersionUID = -2608124148208106613L;
-
          @Override
          protected void updateTransformToParent(RigidBodyTransform transformToParent)
          {
