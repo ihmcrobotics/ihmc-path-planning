@@ -52,6 +52,8 @@ public class VisibilityGraphsRenderer
       root.getChildren().add(bodyPathMeshViewer.getRoot());
       navigableRegionInnerVizMapMeshViewer = new NavigableRegionInnerVizMapMeshViewer(messager);
       root.getChildren().add(navigableRegionInnerVizMapMeshViewer.getRoot());
+      
+      navigableRegionsManager = new NavigableRegionsManager(parameters.get());
       navigableRegionsInterConnectionViewer = new NavigableRegionsInterConnectionViewer(messager, navigableRegionsManager);
       root.getChildren().add(navigableRegionsInterConnectionViewer.getRoot());
       clusterMeshViewer = new ClusterMeshViewer(messager);
@@ -113,7 +115,6 @@ public class VisibilityGraphsRenderer
          
          planarRegions = planarRegions.stream().filter(region -> region.getConcaveHullSize() > 2).collect(Collectors.toList());
 
-         navigableRegionsManager = new NavigableRegionsManager(parameters.get());
          navigableRegionsManager.setPlanarRegions(planarRegions);
 
          List<Point3D> bodyPath = navigableRegionsManager.calculateBodyPath(start, goal);
