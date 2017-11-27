@@ -17,6 +17,7 @@ ihmc {
    version = "0.1.0"
    vcsUrl = "https://stash.ihmc.us/projects/ROB/repos/ihmc-path-planning"
    openSource = true
+   maintainer = "Daniel Duran (dduran@ihmc.us)"
 
    configureDependencyResolution()
    configurePublications()
