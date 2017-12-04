@@ -17,6 +17,7 @@ import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.ExtrusionSide;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.Type;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterManager;
+import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterTools;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.LinearRegression3D;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.PlanarRegionTools;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.PointCloudTools;
@@ -103,8 +104,8 @@ public class NavigableRegionLocalPlanner
          System.out.println(regionsInsideHomeRegion.size());
       }
 
-      classifyExtrusions(homeRegion);
-      regionsInsideHomeRegion = filterRegionsThatAreAboveHomeRegion(regionsInsideHomeRegion, homeRegion);
+      ClusterTools.classifyExtrusions(regionsInsideHomeRegion, homeRegion, lineObstacleRegions, polygonObstacleRegions, visibilityGraphsParameters.getNormalZThresholdForPolygonObstacles());
+      regionsInsideHomeRegion = PlanarRegionTools.filterRegionsThatAreAboveHomeRegion(regionsInsideHomeRegion, homeRegion);
 
       //      System.out.println("Regions that are inside2: " + regionsInsideHomeRegion.size());
 
@@ -373,13 +374,6 @@ public class NavigableRegionLocalPlanner
       return localVisibilityMap;
    }
 
-   private void classifyExtrusions(PlanarRegion homeRegion)
-   {
-      for (PlanarRegion region : regionsInsideHomeRegion)
-      {
-         classifyExtrusion(region, homeRegion);
-      }
-   }
 
    private void createClusterForHomeRegion()
    {
@@ -523,30 +517,6 @@ public class NavigableRegionLocalPlanner
       }
    }
 
-   private void classifyExtrusion(PlanarRegion regionToProject, PlanarRegion regionToProjectTo)
-   {
-      Vector3D normal = PlanarRegionTools.calculateNormal(regionToProject);
-
-      if (normal != null && regionToProject != regionToProjectTo)
-      {
-         //         System.out.println(Math.abs(normal.getZ()) + "   " + VisibilityGraphsParameters.NORMAL_Z_THRESHOLD_FOR_POLYGON_OBSTACLES);
-
-         if (Math.abs(normal.getZ()) < visibilityGraphsParameters.getNormalZThresholdForPolygonObstacles())
-         {
-            //            System.out.println("Adding a line obstacle");
-            lineObstacleRegions.add(regionToProject);
-         }
-         else
-         {
-            //            System.out.println("Adding a polygon obstacle");
-            polygonObstacleRegions.add(regionToProject);
-         }
-      }
-
-      //            System.out.println("Total obstacles to classify: " + regionsInsideHomeRegion.size() + "  Line obstacles: " + lineObstacleRegions.size()
-      //                  + "   Polygon obstacles: " + polygonObstacleRegions.size());
-
-   }
 
    private boolean isRegionTooHighToStep(PlanarRegion regionToProject, PlanarRegion regionToProjectTo)
    {

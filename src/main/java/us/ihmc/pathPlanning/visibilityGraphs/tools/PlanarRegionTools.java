@@ -256,18 +256,18 @@ public class PlanarRegionTools
 
       return false;
    }
-   
+
    public static boolean isPointInsidePolygon(Point2D[] polygon, Point2D pointToCheck, Point2D lineEnd)
    {
       int index = 0;
-      
+
       Point2D[] points = new Point2D[polygon.length + 1];
-      
-      for(int i = 0; i < polygon.length; i++)
+
+      for (int i = 0; i < polygon.length; i++)
       {
-         points[i]= polygon[i];
+         points[i] = polygon[i];
       }
-      points[points.length-1] = points[0];
+      points[points.length - 1] = points[0];
 
       for (int i = 1; i < points.length; i++)
       {
@@ -297,7 +297,7 @@ public class PlanarRegionTools
          return true;
       }
    }
-   
+
    public static boolean areBothPointsInsidePolygon(Point2D point1, Point2D point2, PlanarRegion homeRegion)
    {
       ArrayList<Point2D> points = new ArrayList<>();
@@ -331,11 +331,11 @@ public class PlanarRegionTools
       }
       return false;
    }
-   
+
    public static boolean areBothPointsInsidePolygon(Point2D point1, Point2D point2, List<Point2D> pointsInPolygon)
    {
       Point2D centroid = EuclidGeometryTools.averagePoint2Ds(pointsInPolygon);
-      
+
       Vector2D directionToCentroid = new Vector2D(centroid.getX() - point1.getX(), centroid.getY() - point1.getY());
       directionToCentroid.normalize();
       directionToCentroid.scale(10);
@@ -483,7 +483,8 @@ public class PlanarRegionTools
       return planarRegions.stream().filter(region -> computePlanarRegionArea(region) >= minArea).collect(Collectors.toList());
    }
 
-   public static List<PlanarRegion> filterPlanarRegionsWithBoundingCapsule(Point3D capsuleStart, Point3D capsuleEnd, double capsuleRadius, List<PlanarRegion> planarRegions)
+   public static List<PlanarRegion> filterPlanarRegionsWithBoundingCapsule(Point3D capsuleStart, Point3D capsuleEnd, double capsuleRadius,
+                                                                           List<PlanarRegion> planarRegions)
    {
       return filterPlanarRegionsWithBoundingCapsule(new LineSegment3D(capsuleStart, capsuleEnd), capsuleRadius, planarRegions);
    }
@@ -511,8 +512,7 @@ public class PlanarRegionTools
       RigidBodyTransform transformToWorld = new RigidBodyTransform();
       query.getTransformToWorld(transformToWorld);
 
-      return Arrays.stream(query.getConcaveHull())
-                   .map(vertex -> applyTransform(transformToWorld, vertex))
+      return Arrays.stream(query.getConcaveHull()).map(vertex -> applyTransform(transformToWorld, vertex))
                    .anyMatch(vertex -> capsuleSegment.distance(vertex) <= capsuleRadius);
    }
 
@@ -528,7 +528,103 @@ public class PlanarRegionTools
       Vector3D normal = calculateNormal(regionToProjectTo);
       Point2D point2D = (Point2D) regionToProjectTo.getConvexHull().getVertex(0);
       Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
-   
+
       return EuclidGeometryTools.orthogonalProjectionOnPlane3D(pointToProject, point3D, normal);
+   }
+
+   public static void classifyRegions(List<PlanarRegion> regionsToClassify, double zNormalThreshold, List<PlanarRegion> obstacleRegionsToPack,
+                                       List<PlanarRegion> accessibleRegionsToPack)
+   {
+      Vector3D normal = new Vector3D();
+
+      for (PlanarRegion region : regionsToClassify)
+      {
+         if (!region.isEmpty())
+         {
+            region.getNormal(normal);
+            if (Math.abs(normal.getZ()) < zNormalThreshold)
+            {
+               obstacleRegionsToPack.add(region);
+            }
+            else
+            {
+               accessibleRegionsToPack.add(region);
+            }
+         }
+      }
+   }
+   
+   public static List<PlanarRegion> filterRegionsThatAreAboveHomeRegion(List<PlanarRegion> regionsToCheck, PlanarRegion homeRegion)
+   {
+      List<PlanarRegion> filteredList = new ArrayList<>();
+      for (PlanarRegion region : regionsToCheck)
+      {
+         if (isRegionAboveHomeRegion(region, homeRegion))
+         {
+            filteredList.add(region);
+         }
+      }
+
+      return filteredList;
+   }
+   
+   public static boolean isRegionAboveHomeRegion(PlanarRegion regionToCheck, PlanarRegion homeRegion)
+   {
+      for (int i = 0; i < homeRegion.getConcaveHull().length; i++)
+      {
+         Point2D point2D = (Point2D) homeRegion.getConcaveHull()[i];
+         Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
+         FramePoint3D homeRegionPoint = new FramePoint3D();
+         homeRegionPoint.set(point3D);
+         RigidBodyTransform transToWorld = new RigidBodyTransform();
+         homeRegion.getTransformToWorld(transToWorld);
+         homeRegionPoint.applyTransform(transToWorld);
+
+         for (int j = 0; j < regionToCheck.getConcaveHull().length; j++)
+         {
+            Point2D point2D1 = (Point2D) regionToCheck.getConcaveHull()[j];
+            Point3D point3D1 = new Point3D(point2D1.getX(), point2D1.getY(), 0);
+            FramePoint3D otherRegionPoint = new FramePoint3D();
+            otherRegionPoint.set(point3D1);
+            RigidBodyTransform transToWorld1 = new RigidBodyTransform();
+            regionToCheck.getTransformToWorld(transToWorld1);
+            otherRegionPoint.applyTransform(transToWorld1);
+
+            if (homeRegionPoint.getZ() > otherRegionPoint.getZ())
+            {
+               //               System.out.println("Region is below home");
+               return false;
+            }
+         }
+      }
+      //      System.out.println("Region is above home");
+      return true;
+   }
+   
+   public static boolean isRegionTooHighToStep(PlanarRegion regionToProject, PlanarRegion regionToProjectTo, double tooHighToStepThreshold)
+   {
+      Vector3D normal = PlanarRegionTools.calculateNormal(regionToProjectTo);
+
+      for (int i = 0; i < regionToProject.getConvexHull().getNumberOfVertices(); i++)
+      {
+         Point2D point2D = (Point2D) regionToProject.getConvexHull().getVertex(i);
+         Point3D point3D = new Point3D(point2D.getX(), point2D.getY(), 0);
+         FramePoint3D fpt = new FramePoint3D();
+         fpt.set(point3D);
+         RigidBodyTransform transToWorld = new RigidBodyTransform();
+         regionToProject.getTransformToWorld(transToWorld);
+         fpt.applyTransform(transToWorld);
+
+         Point3D pointToProject = fpt.getPoint();
+         Point3D projectedPoint = new Point3D();
+         EuclidGeometryTools.orthogonalProjectionOnPlane3D(pointToProject, point3D, normal, projectedPoint);
+
+         if (pointToProject.distance(projectedPoint) >= tooHighToStepThreshold)
+         {
+            return true;
+         }
+      }
+
+      return false;
    }
 }
