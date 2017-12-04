@@ -136,7 +136,7 @@ public class NavigableRegionsManager
       visMaps.clear();
       accesibleRegions.clear();
 
-      classifyRegions(regions);
+      PlanarRegionTools.classifyRegions(regions, parameters.getNormalZThresholdForAccessibleRegions(), obstacleRegions, accesibleRegions);
 
       for (PlanarRegion region : accesibleRegions)
       {
@@ -618,26 +618,6 @@ public class NavigableRegionsManager
       return false;
    }
 
-   private void classifyRegions(List<PlanarRegion> regions)
-   {
-      Vector3D normal = new Vector3D();
-
-      for (PlanarRegion region : regions)
-      {
-         if (!region.isEmpty())
-         {
-            region.getNormal(normal);
-            if (Math.abs(normal.getZ()) < parameters.getNormalZThresholdForAccessibleRegions())
-            {
-               obstacleRegions.add(region);
-            }
-            else
-            {
-               accesibleRegions.add(region);
-            }
-         }
-      }
-   }
 
    public Point3D[][] getNavigableExtrusions()
    {

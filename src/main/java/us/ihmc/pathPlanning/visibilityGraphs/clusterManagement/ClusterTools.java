@@ -8,8 +8,11 @@ import us.ihmc.euclid.geometry.tools.EuclidGeometryTools;
 import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.euclid.tuple2D.Vector2D;
 import us.ihmc.euclid.tuple2D.interfaces.Point2DReadOnly;
+import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.ExtrusionSide;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.Type;
+import us.ihmc.pathPlanning.visibilityGraphs.tools.PlanarRegionTools;
+import us.ihmc.robotics.geometry.PlanarRegion;
 
 public class ClusterTools
 {
@@ -563,4 +566,32 @@ public class ClusterTools
       }
    }
 
+   
+   public static void classifyExtrusions(List<PlanarRegion> regionsToProject, PlanarRegion regionToProjectTo, List<PlanarRegion> lineObstaclesToPack, List<PlanarRegion> polygonObstaclesToPack, double zNormalThreshold)
+   {
+      
+      for(PlanarRegion regionToProject : regionsToProject)
+      {
+         Vector3D normal = PlanarRegionTools.calculateNormal(regionToProject);
+
+         if (normal != null && regionToProject != regionToProjectTo)
+         {
+            //         System.out.println(Math.abs(normal.getZ()) + "   " + VisibilityGraphsParameters.NORMAL_Z_THRESHOLD_FOR_POLYGON_OBSTACLES);
+
+            if (Math.abs(normal.getZ()) < zNormalThreshold)
+            {
+               //            System.out.println("Adding a line obstacle");
+               lineObstaclesToPack.add(regionToProject);
+            }
+            else
+            {
+               //            System.out.println("Adding a polygon obstacle");
+               polygonObstaclesToPack.add(regionToProject);
+            }
+         }
+
+         //            System.out.println("Total obstacles to classify: " + regionsInsideHomeRegion.size() + "  Line obstacles: " + lineObstacleRegions.size()
+         //                  + "   Polygon obstacles: " + polygonObstacleRegions.size());
+      }
+   }
 }
