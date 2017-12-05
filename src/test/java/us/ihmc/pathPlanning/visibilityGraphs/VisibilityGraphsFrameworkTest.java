@@ -17,18 +17,21 @@ import org.junit.Test;
 
 import javafx.application.Platform;
 import us.ihmc.commons.PrintTools;
+import us.ihmc.continuousIntegration.ContinuousIntegrationAnnotations;
 import us.ihmc.continuousIntegration.ContinuousIntegrationTools;
+import us.ihmc.continuousIntegration.IntegrationCategory;
 import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.robotEnvironmentAwareness.ui.io.PlanarRegionDataImporter;
 import us.ihmc.robotics.geometry.PlanarRegion;
 import us.ihmc.robotics.geometry.PlanarRegionsList;
 
+@ContinuousIntegrationAnnotations.ContinuousIntegrationPlan(categories = IntegrationCategory.IN_DEVELOPMENT)
 public class VisibilityGraphsFrameworkTest
 {
    private Point3D start;
    private Point3D goal;
 
-   private boolean debug = false;
+   private boolean debug = true;
 
    @Before
    public void setup()
@@ -77,7 +80,7 @@ public class VisibilityGraphsFrameworkTest
          {
             PrintTools.info("Running test for : " + fileFolder.getName());
          }
-;
+
          readStartGoalParameters(fileLocationForStartGoalParameters);
 
          List<PlanarRegion> regions = planarRegionData.getPlanarRegionsAsList();
