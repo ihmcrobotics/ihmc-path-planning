@@ -23,7 +23,7 @@ import us.ihmc.euclid.tuple3D.interfaces.Point3DReadOnly;
 import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterManager;
-import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterTools;
+import us.ihmc.pathPlanning.visibilityGraphs.tools.ClusterTools;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.PlanarRegionTools;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.VisibilityTools;
 import us.ihmc.robotics.geometry.PlanarRegion;
@@ -378,7 +378,12 @@ public class NavigableRegionsManager
          FramePoint3D pointFpt = new FramePoint3D(ReferenceFrame.getWorldFrame(), point);
          pointFpt.changeFrame(planner.getLocalReferenceFrame());
 
-         Point2D point2D = planner.determineIfPointInInsideRegion(planner.getHomeRegion(), pointFpt.getPoint());
+         Point2D point2D = null;
+         
+         if (PlanarRegionTools.isPointInLocalInsideARegion(planner.getHomeRegion(), pointFpt.getPoint()))
+         {
+            point2D = new Point2D(pointFpt.getPoint().getX(), pointFpt.getPoint().getY());
+         }
 
          if (point2D != null)
          {
