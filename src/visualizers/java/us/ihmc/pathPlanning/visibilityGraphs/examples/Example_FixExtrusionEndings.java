@@ -21,9 +21,9 @@ import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.javaFXToolkit.shapes.TextureColorAdaptivePalette;
 import us.ihmc.javaFXToolkit.shapes.TextureColorPalette;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
-import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterManager;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.ExtrusionSide;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.Type;
+import us.ihmc.pathPlanning.visibilityGraphs.tools.ClusterTools;
 import us.ihmc.robotics.geometry.PlanarRegion;
 
 /**
@@ -35,8 +35,6 @@ public class Example_FixExtrusionEndings extends Application
    ArrayList<PlanarRegion> regions = new ArrayList<>();
 
    double extrusionDistance = 0.20;
-
-   ClusterManager clusterMgr;
 
    public Example_FixExtrusionEndings()
    {
@@ -72,14 +70,12 @@ public class Example_FixExtrusionEndings extends Application
       //         }
       //      }
 
-      clusterMgr = new ClusterManager();
-
       createClosedSquare_InsideExtrusion();
       createClosedSquare_OutsideExtrusion();
       createOpenSquare_Extrusion();
       createLine_Extrusion();
 
-      clusterMgr.performExtrusions(new Point2D(), extrusionDistance);
+      ClusterTools.performExtrusions(new Point2D(), extrusionDistance, clusters);
 
       for (Cluster cluster : clusters)
       {
@@ -117,7 +113,6 @@ public class Example_FixExtrusionEndings extends Application
    private void createClosedSquare_InsideExtrusion()
    {
       Cluster cluster4 = new Cluster();
-      clusterMgr.addCluster(cluster4);
       cluster4.setType(Type.POLYGON);
 
       cluster4.addRawPointInWorld(new Point3D(-0.975, 0.475 + 5, 0.000));
@@ -133,7 +128,6 @@ public class Example_FixExtrusionEndings extends Application
    private void createClosedSquare_OutsideExtrusion()
    {
       Cluster cluster4 = new Cluster();
-      clusterMgr.addCluster(cluster4);
       cluster4.setType(Type.POLYGON);
 
       cluster4.addRawPointInWorld(new Point3D(-0.975, 0.475 + 2, 0.000));
@@ -149,7 +143,6 @@ public class Example_FixExtrusionEndings extends Application
    private void createOpenSquare_Extrusion()
    {
       Cluster cluster4 = new Cluster();
-      clusterMgr.addCluster(cluster4);
       cluster4.setType(Type.POLYGON);
 
       cluster4.addRawPointInWorld(new Point3D(-0.975 + 3, 0.475 + 2, 0.000));
@@ -163,7 +156,6 @@ public class Example_FixExtrusionEndings extends Application
    private void createLine_Extrusion()
    {
       Cluster cluster4 = new Cluster();
-      clusterMgr.addCluster(cluster4);
       cluster4.setType(Type.LINE);
 
       cluster4.addRawPointInWorld(new Point3D(-0.975 + 6, 0.475 + 2, 0.000));

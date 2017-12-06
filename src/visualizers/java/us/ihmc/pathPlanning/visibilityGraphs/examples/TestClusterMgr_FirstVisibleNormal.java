@@ -1,5 +1,8 @@
 package us.ihmc.pathPlanning.visibilityGraphs.examples;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javafx.application.Application;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.MeshView;
@@ -11,11 +14,11 @@ import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.javaFXToolkit.shapes.TextureColorAdaptivePalette;
 import us.ihmc.javaFXToolkit.shapes.TextureColorPalette;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
-import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterManager;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.ClusterTools;
 
 public class TestClusterMgr_FirstVisibleNormal extends Application
 {
+   List<Cluster> clusters = new ArrayList<Cluster>();
    
    @Override
    public void start(Stage primaryStage) throws Exception
@@ -33,10 +36,9 @@ public class TestClusterMgr_FirstVisibleNormal extends Application
       cluster.addRawPointInWorld(new Point3D(3, 1, 0));
       cluster.addRawPointInWorld(new Point3D(4, 1, 0));
 
-      ClusterManager clusterMgr = new ClusterManager();
-      clusterMgr.addCluster(cluster);
+      clusters.add(cluster);
 
-      ClusterTools.generateNormalsFromRawBoundaryMap(0.25, clusterMgr.getClusters());
+      ClusterTools.generateNormalsFromRawBoundaryMap(0.25, clusters);
       int i = ClusterTools.determineExtrusionSide(cluster, new Point2D(0, 0));
 
       javaFXMultiColorMeshBuilder.addSphere(0.1f, new Point3D(), Color.GREEN);

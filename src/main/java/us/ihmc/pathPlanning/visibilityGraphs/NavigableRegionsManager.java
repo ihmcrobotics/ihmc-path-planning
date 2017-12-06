@@ -18,11 +18,9 @@ import us.ihmc.euclid.transform.RigidBodyTransform;
 import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.euclid.tuple2D.Vector2D;
 import us.ihmc.euclid.tuple3D.Point3D;
-import us.ihmc.euclid.tuple3D.Vector3D;
 import us.ihmc.euclid.tuple3D.interfaces.Point3DReadOnly;
 import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
-import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterManager;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.ClusterTools;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.PlanarRegionTools;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.PointCloudTools;
@@ -704,19 +702,14 @@ public class NavigableRegionsManager
       ClusterTools.createClustersFromRegions(navigableRegionLocalPlanner.getHomeRegion(), regionsInsideHomeRegion, lineObstacleRegions, polygonObstacleRegions, clusters, navigableRegionLocalPlanner.getLocalReferenceFrame().getTransformToWorldFrame(), parameters);
       ClusterTools.createClusterForHomeRegion(clusters, navigableRegionLocalPlanner.getLocalReferenceFrame().getTransformToWorldFrame(), navigableRegionLocalPlanner.getHomeRegion(), parameters.getExtrusionDistance());
 
-      ClusterManager clusterMgr = new ClusterManager();
-      for (Cluster cluster : clusters)
-      {
-         clusterMgr.addCluster(cluster);
-      }
-
       if (debug)
       {
          System.out.println("Extruding obstacles...");
       }
 
       // TODO The use of Double.MAX_VALUE for the observer seems rather risky. I'm actually surprised that it works.
-      clusterMgr.performExtrusions(new Point2D(Double.MAX_VALUE, Double.MAX_VALUE), parameters.getExtrusionDistance());
+//      clusterMgr.performExtrusions(new Point2D(Double.MAX_VALUE, Double.MAX_VALUE), parameters.getExtrusionDistance());
+      ClusterTools.performExtrusions(new Point2D(Double.MAX_VALUE, Double.MAX_VALUE), parameters.getExtrusionDistance(), clusters);
 
       for (Cluster cluster : clusters)
       {
@@ -749,7 +742,6 @@ public class NavigableRegionsManager
 
       visibilityMap.setConnections(sets);
       
-      navigableRegionLocalPlanner.setClusterManager(clusterMgr);
       navigableRegionLocalPlanner.setClusters(clusters);
       navigableRegionLocalPlanner.setRegionsInsideHomeRegion(regionsInsideHomeRegion);
       navigableRegionLocalPlanner.setLineObstacleRegions(lineObstacleRegions);

@@ -21,9 +21,9 @@ import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.javaFXToolkit.shapes.TextureColorAdaptivePalette;
 import us.ihmc.javaFXToolkit.shapes.TextureColorPalette;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
-import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterManager;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.ExtrusionSide;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.Type;
+import us.ihmc.pathPlanning.visibilityGraphs.tools.ClusterTools;
 import us.ihmc.robotics.geometry.PlanarRegion;
 
 /**
@@ -70,8 +70,6 @@ public class Example_TestExtrusionTypes extends Application
       //         }
       //      }
 
-      ClusterManager clusterMgr = new ClusterManager();
-
       //      Cluster cluster = new Cluster();
       //      clusterMgr.addCluster(cluster);
       //      cluster.setType(Type.LINE);
@@ -97,7 +95,7 @@ public class Example_TestExtrusionTypes extends Application
       //      cluster3.addRawPoint(new Point3D(8, 3, 0));
 
       Cluster cluster4 = new Cluster();
-      clusterMgr.addCluster(cluster4);
+      clusters.add(cluster4);
       cluster4.setType(Type.POLYGON);
 
       cluster4.addRawPointInWorld(new Point3D(-0.975, 0.475 + 5, 0.000));
@@ -113,7 +111,7 @@ public class Example_TestExtrusionTypes extends Application
       //      cluster4.addRawPoint(new Point3D(6, 1, 0));
       //      cluster4.addRawPoint(new Point3D(6, -1, 0));
 
-      clusterMgr.performExtrusions(new Point2D(), extrusionDistance);
+      ClusterTools.performExtrusions(new Point2D(), extrusionDistance, clusters);
 
       for (Point3D point : cluster4.getRawPointsInWorld())
       {

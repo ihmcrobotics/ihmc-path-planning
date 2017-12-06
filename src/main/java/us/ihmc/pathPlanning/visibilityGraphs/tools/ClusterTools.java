@@ -439,7 +439,7 @@ public class ClusterTools
       return extr1;
    }
 
-   public static void extrudeCluster(Cluster cluster, Point2D observer, double extrusionDistance, ArrayList<Cluster> listOfClusters)
+   public static void extrudeCluster(Cluster cluster, Point2D observer, double extrusionDistance, List<Cluster> listOfClusters)
    {
       int extrusionIndex = 0;
       if (cluster.getType() == Type.LINE)
@@ -525,7 +525,7 @@ public class ClusterTools
       //         extrudeLastNavigable(cluster, extrusionIndex, extrusionDist1);
    }
    
-   public static void generateNormalsFromRawBoundaryMap(double extrusionDistance, ArrayList<Cluster> listOfClusters)
+   public static void generateNormalsFromRawBoundaryMap(double extrusionDistance, List<Cluster> listOfClusters)
    {
       for (Cluster cluster : listOfClusters)
       {
@@ -739,6 +739,14 @@ public class ClusterTools
          {
             System.out.println("Created a cluster of type: " + cluster.getType() + " with " + cluster.getRawPointsInLocal().size() + " points");
          }
+      }
+   }
+   
+   public static void performExtrusions(Point2D initialObserver, double extrusionDistance, List<Cluster> clusters)
+   {
+      for (Cluster cluster : clusters)
+      {
+         ClusterTools.extrudeCluster(cluster, initialObserver, extrusionDistance, clusters);
       }
    }
 
