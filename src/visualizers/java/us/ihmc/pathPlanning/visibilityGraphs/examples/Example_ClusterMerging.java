@@ -16,9 +16,9 @@ import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.javaFXToolkit.shapes.TextureColorAdaptivePalette;
 import us.ihmc.javaFXToolkit.shapes.TextureColorPalette;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
-import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterManager;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.ExtrusionSide;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.Type;
+import us.ihmc.pathPlanning.visibilityGraphs.tools.ClusterTools;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.PointCloudTools;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.PointCloudTools.WindingOrder;
 import us.ihmc.robotics.geometry.PlanarRegion;
@@ -33,7 +33,6 @@ public class Example_ClusterMerging extends Application
 
    double extrusionDistance = 0.20;
 
-   ClusterManager clusterMgr;
 
    ArrayList<Integer> indicesToRemOther = new ArrayList<>();
    ArrayList<Integer> indicesToAddFromHome = new ArrayList<>();
@@ -60,12 +59,10 @@ public class Example_ClusterMerging extends Application
       TextureColorPalette colorPalette = new TextureColorAdaptivePalette();
       javaFXMultiColorMeshBuilder = new JavaFXMultiColorMeshBuilder(colorPalette);
 
-      clusterMgr = new ClusterManager();
-
       createClosedSquare_OutsideExtrusion();
       createLine_Extrusion();
 
-      clusterMgr.performExtrusions(new Point2D(), extrusionDistance);
+      ClusterTools.performExtrusions(new Point2D(), extrusionDistance, clusters);
 
       //START
 
@@ -221,7 +218,6 @@ public class Example_ClusterMerging extends Application
    private void createClosedSquare_OutsideExtrusion()
    {
       Cluster cluster4 = new Cluster();
-      clusterMgr.addCluster(cluster4);
       cluster4.setType(Type.POLYGON);
 
       cluster4.addRawPointInWorld(new Point3D(-0.975, 0.475 + 2, 0.000));
@@ -237,7 +233,6 @@ public class Example_ClusterMerging extends Application
    private void createLine_Extrusion()
    {
       Cluster cluster4 = new Cluster();
-      clusterMgr.addCluster(cluster4);
       cluster4.setType(Type.LINE);
 
       cluster4.addRawPointInWorld(new Point3D(-0.975 + 2, 0.475 + 1.5, 0.000));

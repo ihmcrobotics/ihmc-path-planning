@@ -22,8 +22,8 @@ import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.javaFXToolkit.shapes.TextureColorAdaptivePalette;
 import us.ihmc.javaFXToolkit.shapes.TextureColorPalette;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
-import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterManager;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster.Type;
+import us.ihmc.pathPlanning.visibilityGraphs.tools.ClusterTools;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.LinearRegression3D;
 import us.ihmc.robotics.geometry.PlanarRegion;
 
@@ -65,15 +65,10 @@ public class TestClusterMgrWithPlanarRegion extends Application
       classifyExtrusions(homeRegion, lineObstacleRegions);
       createClustersFromRegions(homeRegion, regionsInsideHomeRegion);
 
-      ClusterManager clusterMgr = new ClusterManager();
-      for (Cluster cluster : clusters)
-      {
-         clusterMgr.addCluster(cluster);
-      }
 
       System.out.println("Extruding obstacles...");
 
-      clusterMgr.performExtrusions(startingPosition, extrusionDistance);
+      ClusterTools.performExtrusions(startingPosition, extrusionDistance, clusters);
 
       //Visuals
       javaFXMultiColorMeshBuilder.addSphere(0.1f, new Point3D(startingPosition.getX(), startingPosition.getY(), 0), Color.RED);
