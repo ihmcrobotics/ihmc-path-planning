@@ -42,13 +42,10 @@ public class NavigableRegionLocalPlanner
 
    private VisibilityMap localVisibilityMap;
 
-   private Point3D startLocationInLocalFrame;
-   private Point3D goalLocationInLocalFrame;
-
    private ClusterManager clusterMgr;
    private VisibilityGraphsParameters visibilityGraphsParameters;
 
-   public NavigableRegionLocalPlanner(List<PlanarRegion> regions, PlanarRegion homeRegion, Point3D start, Point3D goal,
+   public NavigableRegionLocalPlanner(List<PlanarRegion> regions, PlanarRegion homeRegion,
                                       VisibilityGraphsParameters visibilityGraphsParameters)
    {
       this.regions.addAll(regions);
@@ -58,20 +55,6 @@ public class NavigableRegionLocalPlanner
       this.visibilityGraphsParameters = visibilityGraphsParameters;
 
       createLocalReferenceFrame();
-
-      FramePoint3D startFpt = new FramePoint3D(ReferenceFrame.getWorldFrame(), start);
-      startFpt.changeFrame(localReferenceFrame);
-
-      FramePoint3D goalFpt = new FramePoint3D(ReferenceFrame.getWorldFrame(), goal);
-      goalFpt.changeFrame(localReferenceFrame);
-
-      this.startLocationInLocalFrame = startFpt.getPoint();
-      this.goalLocationInLocalFrame = goalFpt.getPoint();
-
-      FramePoint3D test = new FramePoint3D(localReferenceFrame, goalLocationInLocalFrame);
-      test.changeFrame(ReferenceFrame.getWorldFrame());
-      //
-      //      this.regions.remove(0);
    }
 
    private void createLocalReferenceFrame()
@@ -87,10 +70,27 @@ public class NavigableRegionLocalPlanner
 
       localReferenceFrame.update();
    }
+   
+   public PlanarRegion getHomeRegion()
+   {
+      return homeRegion;
+   }
 
    public ReferenceFrame getLocalReferenceFrame()
    {
       return localReferenceFrame;
+   }
+   
+   public Point2D determineIfPointInInsideRegion(PlanarRegion region, Point3D point)
+   {
+      //check is any of the points are inside the homeRegion
+
+      if (PlanarRegionTools.isPointInLocalInsideARegion(region, point))
+      {
+         return new Point2D(point.getX(), point.getY());
+      }
+
+      return null;
    }
 
    public void processRegion()
@@ -130,44 +130,15 @@ public class NavigableRegionLocalPlanner
       {
          addExtraPointsInsideCluster(cluster);
       }
+      
 
-      //      addExtraPointsInsideCluster(clusters.get(0));
-
-      VisibilityGraph localVisibilityGraph = new VisibilityGraph(clusterMgr);
-
-      Point2D localStart = null;
-      Point2D localGoal = null;
-
-      ConvexPolygon2D homeConvexPol = homeRegion.getConvexHull();
-
-      //check is any of the points are inside the homeRegion
-
-      Point2D projectedStart2D = new Point2D(startLocationInLocalFrame.getX(), startLocationInLocalFrame.getY());
-      Point2D projectedGoal2D = new Point2D(goalLocationInLocalFrame.getX(), goalLocationInLocalFrame.getY());
-
-      if (homeConvexPol.isPointInside(projectedStart2D))
-      {
-         localStart = projectedStart2D;
-      }
-
-      if (homeConvexPol.isPointInside(projectedGoal2D))
-      {
-         localGoal = projectedGoal2D;
-      }
-
-      localVisibilityGraph.createStaticVisibilityMap(localStart, localGoal);
-
-      //      if(localStart != null && localGoal != null)
-      //      {
-      //         for (Cluster cluster : clusters)
-      //         {
-      //            System.out.println(VisibilityTools.areBothPointsInside(localStart, localGoal, cluster.getNonNavigableExtrusionsInLocal()));
-      //         }
-      //      }
+      VisibilityMap visibilityMap = new VisibilityMap();
+      HashSet<Connection> connectionsForMap = VisibilityTools.createStaticVisibilityMap(null, null, clusters);
+      visibilityMap.setConnections(connectionsForMap);
 
       ArrayList<Connection> connections = new ArrayList<>();
 
-      Iterator it = localVisibilityGraph.getVisibilityMap().getConnections().iterator();
+      Iterator it = visibilityMap.getConnections().iterator();
 
       while (it.hasNext())
       {
@@ -185,11 +156,11 @@ public class NavigableRegionLocalPlanner
          sets.add(connection);
       }
 
-      localVisibilityGraph.getVisibilityMap().setConnections(sets);
+      visibilityMap.setConnections(sets);
 
-      localVisibilityMap = localVisibilityGraph.getVisibilityMap();
+      localVisibilityMap = visibilityMap;
    }
-
+   
    private ArrayList<Connection> removeExtrusionsOutsideRegions(ArrayList<Connection> connections)
    {
       ArrayList<Connection> filteredConnections = VisibilityTools.getConnectionsThatAreInsideRegion(connections, homeRegion);
