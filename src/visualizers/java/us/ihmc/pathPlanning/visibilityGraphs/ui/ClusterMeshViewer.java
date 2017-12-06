@@ -15,7 +15,7 @@ import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.MeshView;
 import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.javaFXToolkit.shapes.JavaFXMeshBuilder;
-import us.ihmc.pathPlanning.visibilityGraphs.NavigableRegionLocalPlanner;
+import us.ihmc.pathPlanning.visibilityGraphs.NavigableRegion;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
 import us.ihmc.robotEnvironmentAwareness.communication.REAMessager;
 
@@ -153,14 +153,14 @@ public class ClusterMeshViewer extends AnimationTimer
       }
    }
 
-   public void processNavigableRegions(List<NavigableRegionLocalPlanner> navigableRegionLocalPlanners)
+   public void processNavigableRegions(List<NavigableRegion> navigableRegionLocalPlanners)
    {
       Map<Integer, JavaFXMeshBuilder> rawPointsMeshBuilders = new HashMap<>();
       Map<Integer, JavaFXMeshBuilder> navigableExtrusionsMeshBuilders = new HashMap<>();
       Map<Integer, JavaFXMeshBuilder> nonNavigableExtrusionsMeshBuilders = new HashMap<>();
       Map<Integer, Material> materials = new HashMap<>();
 
-      for (NavigableRegionLocalPlanner navigableRegionLocalPlanner : navigableRegionLocalPlanners)
+      for (NavigableRegion navigableRegionLocalPlanner : navigableRegionLocalPlanners)
       {
          int regionId = navigableRegionLocalPlanner.getRegionId();
          JavaFXMeshBuilder rawPointsMeshBuilder = getOrCreate(rawPointsMeshBuilders, regionId);
