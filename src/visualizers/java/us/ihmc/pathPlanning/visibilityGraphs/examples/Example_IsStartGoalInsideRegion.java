@@ -21,7 +21,7 @@ import us.ihmc.javaFXToolkit.shapes.JavaFXMultiColorMeshBuilder;
 import us.ihmc.javaFXToolkit.shapes.TextureColorAdaptivePalette;
 import us.ihmc.javaFXToolkit.shapes.TextureColorPalette;
 import us.ihmc.pathPlanning.visibilityGraphs.DefaultVisibilityGraphParameters;
-import us.ihmc.pathPlanning.visibilityGraphs.NavigableRegionLocalPlanner;
+import us.ihmc.pathPlanning.visibilityGraphs.NavigableRegion;
 import us.ihmc.pathPlanning.visibilityGraphs.NavigableRegionsManager;
 import us.ihmc.pathPlanning.visibilityGraphs.tools.PointCloudTools;
 import us.ihmc.robotics.geometry.PlanarRegion;
@@ -33,7 +33,7 @@ public class Example_IsStartGoalInsideRegion extends Application
 {
    ArrayList<PlanarRegion> regions = new ArrayList<>();
    ArrayList<SimpleWeightedGraph<Point3D, DefaultWeightedEdge>> visMaps = new ArrayList<>();
-   ArrayList<NavigableRegionLocalPlanner> listOfNavigableRegions = new ArrayList<>();
+   ArrayList<NavigableRegion> listOfNavigableRegions = new ArrayList<>();
 
    SimpleWeightedGraph<Point3D, DefaultWeightedEdge> globalVisMap = new SimpleWeightedGraph<>(DefaultWeightedEdge.class);
    JavaFXMultiColorMeshBuilder javaFXMultiColorMeshBuilder;

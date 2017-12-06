@@ -21,7 +21,7 @@ import us.ihmc.euclid.tuple2D.Point2D;
 import us.ihmc.euclid.tuple3D.Point3D;
 import us.ihmc.javaFXToolkit.shapes.JavaFXMeshBuilder;
 import us.ihmc.pathPlanning.visibilityGraphs.Connection;
-import us.ihmc.pathPlanning.visibilityGraphs.NavigableRegionLocalPlanner;
+import us.ihmc.pathPlanning.visibilityGraphs.NavigableRegion;
 import us.ihmc.pathPlanning.visibilityGraphs.NavigableRegionsManager;
 import us.ihmc.pathPlanning.visibilityGraphs.VisibilityMap;
 import us.ihmc.robotEnvironmentAwareness.communication.REAMessager;
@@ -85,12 +85,12 @@ public class NavigableRegionInnerVizMapMeshViewer extends AnimationTimer
       }
    }
 
-   public void processNavigableRegions(List<NavigableRegionLocalPlanner> navigableRegionLocalPlanners)
+   public void processNavigableRegions(List<NavigableRegion> navigableRegionLocalPlanners)
    {
       Map<Integer, JavaFXMeshBuilder> meshBuilders = new HashMap<>();
       Map<Integer, Material> materials = new HashMap<>();
 
-      for (NavigableRegionLocalPlanner navigableRegionLocalPlanner : navigableRegionLocalPlanners)
+      for (NavigableRegion navigableRegionLocalPlanner : navigableRegionLocalPlanners)
       {
          int regionId = navigableRegionLocalPlanner.getRegionId();
          JavaFXMeshBuilder meshBuilder = meshBuilders.get(regionId);
