@@ -29,6 +29,12 @@ public class VisibilityMap
       connections.add(connection);
    }
    
+   public void addConnections(HashSet<Connection> connections)
+   {
+      this.connections.addAll(connections);
+   }
+   
+   
    public void computeVertices()
    {
       vertices = new HashSet<>();
