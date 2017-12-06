@@ -152,103 +152,106 @@ public class NavigableRegionsManager
 
       VisibilityMap startMap = createVisMapForSinglePointSource(startProjected);
       VisibilityMap goalMap = createVisMapForSinglePointSource(goalProjected);
+      
+//      boolean targetIsVisible = isPointVisibleForStaticMaps(clusters, observer, target);
 
-            if(startMap != null && goalMap != null)
-            {
-               visMaps.add(startMap);
-               visMaps.add(goalMap);
 
-      createGlobalMapFromAlltheLocalMaps();
-
-      long startConnectingTime = System.currentTimeMillis();
-      connectLocalMaps();
-      long endConnectingTime = System.currentTimeMillis();
-
-      long startForcingPoints = System.currentTimeMillis();
-      start = forceConnectionOrSnapPoint(start);
-
-      if (debug)
+      if (startMap != null && goalMap != null)
       {
-         if (start == null)
-            PrintTools.error("Visibility graph unable to snap the start point to the closest point in the graph");
-      }
+         visMaps.add(startMap);
+         visMaps.add(goalMap);
 
-      if (start == null)
-      {
-         throw new RuntimeException("Visibility graph unable to snap the start point to the closest point in the graph");
-      }
+         createGlobalMapFromAlltheLocalMaps();
 
-      goal = forceConnectionOrSnapPoint(goal);
-      connectToClosestRegions(goal);
+         long startConnectingTime = System.currentTimeMillis();
+         connectLocalMaps();
+         long endConnectingTime = System.currentTimeMillis();
 
-      if (debug)
-      {
-         if (goal == null)
-            PrintTools.error("Visibility graph unable to snap the goal point to the closest point in the graph");
-      }
+         long startForcingPoints = System.currentTimeMillis();
+         start = forceConnectionOrSnapPoint(start);
 
-      if (goal == null)
-      {
-         throw new RuntimeException("Visibility graph unable to snap the goal point to the closest point in the graph");
-      }
-
-      long endForcingPoints = System.currentTimeMillis();
-
-      long startGlobalMapTime = System.currentTimeMillis();
-      createGlobalVisibilityGraph();
-      long endGlobalMapTime = System.currentTimeMillis();
-
-      long startSnappingTime = System.currentTimeMillis();
-      Point3D snappedGoalPosition = getSnappedPointFromVisibilityGraph(goal);
-      if (debug && snappedGoalPosition == null)
-      {
-         PrintTools.error("Snapping of goal returned null.");
-      }
-      Point3D snappedStartPosition = getSnappedPointFromVisibilityGraph(start);
-      if (debug && snappedStartPosition == null)
-      {
-         PrintTools.error("Snapping of start returned null.");
-      }
-      if (snappedGoalPosition == null || snappedStartPosition == null)
-      {
-         throw new RuntimeException("Snapping start/goal from visibility graph has failed.");
-      }
-      long endSnappingTime = System.currentTimeMillis();
-
-      long aStarStartTime = System.currentTimeMillis();
-
-      List<Point3D> path = null;
-      if (snappedGoalPosition != null && snappedStartPosition != null)
-      {
-         path = calculatePathOnVisibilityGraph(snappedStartPosition, snappedGoalPosition);
-      }
-      else
-      {
          if (debug)
-            PrintTools.error("Start or goal pose is null, visibilty graph unable to compute a path!");
-      }
-
-      if (debug)
-      {
-         if (path != null)
          {
-            PrintTools.info("----Navigable Regions Manager Stats-----");
-            PrintTools.info("Map creation completed in " + (endCreationTime - startCreatingMaps) + "ms");
-            PrintTools.info("Connection completed in " + (endConnectingTime - startConnectingTime) + "ms");
-            PrintTools.info("Forcing points took: " + (endForcingPoints - startForcingPoints) + "ms");
-            PrintTools.info("Global Map creation took " + (endGlobalMapTime - startGlobalMapTime) + "ms");
-            PrintTools.info("Snapping points took: " + (endSnappingTime - startSnappingTime) + "ms");
-            PrintTools.info("A* took: " + (System.currentTimeMillis() - aStarStartTime) + "ms");
-            PrintTools.info("Total time to find solution was: " + (System.currentTimeMillis() - startBodyPathComputation) + "ms");
+            if (start == null)
+               PrintTools.error("Visibility graph unable to snap the start point to the closest point in the graph");
+         }
+
+         if (start == null)
+         {
+            throw new RuntimeException("Visibility graph unable to snap the start point to the closest point in the graph");
+         }
+
+         goal = forceConnectionOrSnapPoint(goal);
+         connectToClosestRegions(goal);
+
+         if (debug)
+         {
+            if (goal == null)
+               PrintTools.error("Visibility graph unable to snap the goal point to the closest point in the graph");
+         }
+
+         if (goal == null)
+         {
+            throw new RuntimeException("Visibility graph unable to snap the goal point to the closest point in the graph");
+         }
+
+         long endForcingPoints = System.currentTimeMillis();
+
+         long startGlobalMapTime = System.currentTimeMillis();
+         createGlobalVisibilityGraph();
+         long endGlobalMapTime = System.currentTimeMillis();
+
+         long startSnappingTime = System.currentTimeMillis();
+         Point3D snappedGoalPosition = getSnappedPointFromVisibilityGraph(goal);
+         if (debug && snappedGoalPosition == null)
+         {
+            PrintTools.error("Snapping of goal returned null.");
+         }
+         Point3D snappedStartPosition = getSnappedPointFromVisibilityGraph(start);
+         if (debug && snappedStartPosition == null)
+         {
+            PrintTools.error("Snapping of start returned null.");
+         }
+         if (snappedGoalPosition == null || snappedStartPosition == null)
+         {
+            throw new RuntimeException("Snapping start/goal from visibility graph has failed.");
+         }
+         long endSnappingTime = System.currentTimeMillis();
+
+         long aStarStartTime = System.currentTimeMillis();
+
+         List<Point3D> path = null;
+         if (snappedGoalPosition != null && snappedStartPosition != null)
+         {
+            path = calculatePathOnVisibilityGraph(snappedStartPosition, snappedGoalPosition);
          }
          else
          {
-            PrintTools.info("NO BODY PATH SOLUTION WAS FOUND!" + (System.currentTimeMillis() - startBodyPathComputation) + "ms");
+            if (debug)
+               PrintTools.error("Start or goal pose is null, visibilty graph unable to compute a path!");
          }
-      }
 
-      return path;
-   }
+         if (debug)
+         {
+            if (path != null)
+            {
+               PrintTools.info("----Navigable Regions Manager Stats-----");
+               PrintTools.info("Map creation completed in " + (endCreationTime - startCreatingMaps) + "ms");
+               PrintTools.info("Connection completed in " + (endConnectingTime - startConnectingTime) + "ms");
+               PrintTools.info("Forcing points took: " + (endForcingPoints - startForcingPoints) + "ms");
+               PrintTools.info("Global Map creation took " + (endGlobalMapTime - startGlobalMapTime) + "ms");
+               PrintTools.info("Snapping points took: " + (endSnappingTime - startSnappingTime) + "ms");
+               PrintTools.info("A* took: " + (System.currentTimeMillis() - aStarStartTime) + "ms");
+               PrintTools.info("Total time to find solution was: " + (System.currentTimeMillis() - startBodyPathComputation) + "ms");
+            }
+            else
+            {
+               PrintTools.info("NO BODY PATH SOLUTION WAS FOUND!" + (System.currentTimeMillis() - startBodyPathComputation) + "ms");
+            }
+         }
+
+         return path;
+      }
 
       return null;
    }
@@ -378,7 +381,7 @@ public class NavigableRegionsManager
          pointFpt.changeFrame(planner.getLocalReferenceFrame());
 
          Point2D point2D = null;
-         
+
          if (PlanarRegionTools.isPointInLocalInsideARegion(planner.getHomeRegion(), pointFpt.getPoint()))
          {
             point2D = new Point2D(pointFpt.getPoint().getX(), pointFpt.getPoint().getY());
@@ -680,7 +683,7 @@ public class NavigableRegionsManager
 
       localVisibilityMapInWorld.computeVertices();
    }
-   
+
    public void processRegion(NavigableRegion navigableRegionLocalPlanner)
    {
       List<PlanarRegion> lineObstacleRegions = new ArrayList<>();
@@ -699,8 +702,10 @@ public class NavigableRegionsManager
                                       parameters.getNormalZThresholdForPolygonObstacles());
       regionsInsideHomeRegion = PlanarRegionTools.filterRegionsThatAreAboveHomeRegion(regionsInsideHomeRegion, navigableRegionLocalPlanner.getHomeRegion());
 
-      ClusterTools.createClustersFromRegions(navigableRegionLocalPlanner.getHomeRegion(), regionsInsideHomeRegion, lineObstacleRegions, polygonObstacleRegions, clusters, navigableRegionLocalPlanner.getLocalReferenceFrame().getTransformToWorldFrame(), parameters);
-      ClusterTools.createClusterForHomeRegion(clusters, navigableRegionLocalPlanner.getLocalReferenceFrame().getTransformToWorldFrame(), navigableRegionLocalPlanner.getHomeRegion(), parameters.getExtrusionDistance());
+      ClusterTools.createClustersFromRegions(navigableRegionLocalPlanner.getHomeRegion(), regionsInsideHomeRegion, lineObstacleRegions, polygonObstacleRegions,
+                                             clusters, navigableRegionLocalPlanner.getLocalReferenceFrame().getTransformToWorldFrame(), parameters);
+      ClusterTools.createClusterForHomeRegion(clusters, navigableRegionLocalPlanner.getLocalReferenceFrame().getTransformToWorldFrame(),
+                                              navigableRegionLocalPlanner.getHomeRegion(), parameters.getExtrusionDistance());
 
       if (debug)
       {
@@ -708,7 +713,7 @@ public class NavigableRegionsManager
       }
 
       // TODO The use of Double.MAX_VALUE for the observer seems rather risky. I'm actually surprised that it works.
-//      clusterMgr.performExtrusions(new Point2D(Double.MAX_VALUE, Double.MAX_VALUE), parameters.getExtrusionDistance());
+      //      clusterMgr.performExtrusions(new Point2D(Double.MAX_VALUE, Double.MAX_VALUE), parameters.getExtrusionDistance());
       ClusterTools.performExtrusions(new Point2D(Double.MAX_VALUE, Double.MAX_VALUE), parameters.getExtrusionDistance(), clusters);
 
       for (Cluster cluster : clusters)
@@ -730,7 +735,8 @@ public class NavigableRegionsManager
          connections.add(connection);
       }
 
-      ArrayList<Connection> filteredConnections1 = VisibilityTools.removeConnectionsFromExtrusionsOutsideRegions(connections, navigableRegionLocalPlanner.getHomeRegion());
+      ArrayList<Connection> filteredConnections1 = VisibilityTools.removeConnectionsFromExtrusionsOutsideRegions(connections,
+                                                                                                                 navigableRegionLocalPlanner.getHomeRegion());
       ArrayList<Connection> filteredConnections2 = VisibilityTools.removeConnectionsFromExtrusionsInsideNoGoZones(filteredConnections1, clusters);
 
       HashSet<Connection> sets = new HashSet<>();
@@ -741,7 +747,7 @@ public class NavigableRegionsManager
       }
 
       visibilityMap.setConnections(sets);
-      
+
       navigableRegionLocalPlanner.setClusters(clusters);
       navigableRegionLocalPlanner.setRegionsInsideHomeRegion(regionsInsideHomeRegion);
       navigableRegionLocalPlanner.setLineObstacleRegions(lineObstacleRegions);
