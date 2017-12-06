@@ -159,5 +159,92 @@ public class VisibilityTools
 
       return true;
    }
+   
+   public static ArrayList<Connection> removeConnectionsFromExtrusionsOutsideRegions(ArrayList<Connection> connections, PlanarRegion homeRegion)
+   {
+      ArrayList<Connection> filteredConnections = VisibilityTools.getConnectionsThatAreInsideRegion(connections, homeRegion);
+
+      return filteredConnections;
+   }
+   
+   public static ArrayList<Connection> removeConnectionsFromExtrusionsInsideNoGoZones(ArrayList<Connection> connectionsToClean, List<Cluster> clusters)
+   {
+      ArrayList<Connection> masterListOfConnections = new ArrayList<>();
+
+      ArrayList<Cluster> filteredClusters = new ArrayList<>();
+      if (clusters.size() > 1)
+      {
+         for (int i = 0; i < clusters.size() - 1; i++)
+         {
+            filteredClusters.add(clusters.get(i));
+         }
+         
+         ArrayList<Connection> connectionsToRemove = new ArrayList<>();
+         for (Cluster cluster : filteredClusters)
+         {
+
+            if (cluster.getNonNavigableExtrusionsInLocal().size() == 0)
+            {
+               continue;
+            }
+
+            ArrayList<Connection> filteredConnections = VisibilityTools.getConnectionsThatAreInsideRegion(connectionsToClean,
+                                                                                                          cluster.getNonNavigableExtrusionsInLocal());
+            for (Connection connection : filteredConnections)
+            {
+               connectionsToRemove.add(connection);
+            }
+         }
+
+
+         ArrayList<Connection> connectionsInsideHomeRegion = VisibilityTools.getConnectionsThatAreInsideRegion(connectionsToClean,
+                                                                                                               clusters.get(clusters.size() - 1)
+                                                                                                                       .getNonNavigableExtrusionsInLocal());
+
+         int index = 0;
+
+         ArrayList<Connection> finalList = (ArrayList<Connection>) connectionsInsideHomeRegion.clone();
+         for (Connection connection : connectionsInsideHomeRegion)
+         {
+            for (Connection connectionToRemove : connectionsToRemove)
+            {
+               if (connection.getSourcePoint().epsilonEquals(connectionToRemove.getSourcePoint(), 1E-5)
+                     && connection.getTargetPoint().epsilonEquals(connectionToRemove.getTargetPoint(), 1E-5))
+               {
+                  finalList.remove(connection);
+                  index++;
+               }
+            }
+         }
+
+         for (Connection connection : finalList)
+         {
+            masterListOfConnections.add(connection);
+         }
+
+      }
+      else
+      {
+         filteredClusters.addAll(clusters);
+
+         for (Cluster cluster : filteredClusters)
+         {
+            if (cluster.getNonNavigableExtrusionsInLocal().size() == 0)
+            {
+               continue;
+            }
+            
+            ArrayList<Connection> filteredConnections = VisibilityTools.getConnectionsThatAreInsideRegion(connectionsToClean,
+                                                                                                          cluster.getNonNavigableExtrusionsInLocal());
+            for (Connection connection : filteredConnections)
+            {
+               masterListOfConnections.add(connection);
+            }
+         }
+      }
+
+      return masterListOfConnections;
+   }
+
 
 }

@@ -3,6 +3,7 @@ package us.ihmc.pathPlanning.visibilityGraphs.clusterManagement;
 import java.util.ArrayList;
 
 import us.ihmc.euclid.tuple2D.Point2D;
+import us.ihmc.pathPlanning.visibilityGraphs.tools.ClusterTools;
 
 /*
  * TODO that class isn't very clear in general, we should talk about and review it.

@@ -12,7 +12,7 @@ import us.ihmc.javaFXToolkit.shapes.TextureColorAdaptivePalette;
 import us.ihmc.javaFXToolkit.shapes.TextureColorPalette;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.Cluster;
 import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterManager;
-import us.ihmc.pathPlanning.visibilityGraphs.clusterManagement.ClusterTools;
+import us.ihmc.pathPlanning.visibilityGraphs.tools.ClusterTools;
 
 public class TestClusterMgr_FirstVisibleNormal extends Application
 {
